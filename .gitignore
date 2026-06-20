@@ -1,0 +1,14 @@
+# Xcode / iOS build artifacts
+**/xcuserdata/
+**/*.hmap
+**/*.ipa
+**/*.dSYM.zip
+**/*.dSYM
+**/timeline.xctimeline
+**/.swiftpm/
+**/.build/
+**/Pods/
+**/Carthage/Build/
+**/.DS_Store
+
+# 私人仓库：保留 Secrets.swift、Config.xcconfig 等配置（用户明确要求）

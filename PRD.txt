@@ -1,0 +1,987 @@
+# Bonne-Santé 产品需求文档 v2.4
+
+**版本**：2.5  
+**日期**：2026-06-19  
+**状态**：阶段一进行中 — 开发计划与项目记忆已建立；步骤 0 ✅  
+**本地基座**：`e:\Cursorproject\Bonne-Santé\CalorieCop`
+
+---
+
+## 0. 修订摘要（v2.0 → v2.1）
+
+| 变更项 | v2.0 | v2.1 |
+|--------|------|------|
+| 开发阶段 | P0–P3 四段，功能与验收矛盾 | **三阶段 MVP**，每阶段可独立日常使用 |
+| 核心主线 | 功能模块并列罗列 | **`UnifiedHealthContext` 统一健康上下文**，驱动减脂与档案 |
+| CalorieCop | 仅提及复用食物扫描 | **完整保留清单 + 融合改造规范** |
+| 待办 | P0 生成、P1 才可用 | 阶段二即打通**待办闭环**（列表 + 通知） |
+| 周期/日历 | 全部放第三阶段 | 阶段一展示条 + 静态 tips；阶段三深度联动 + 运动日历 |
+| 健身计划 | 仅周运动分钟目标 | 增加**按周期分阶段的结构化周训练计划** |
+| 健康评估 | 仅有指标时间线 | 增加**综合健康摘要页** |
+| 验收标准 | 含运动日历/门诊（属后期功能） | **按阶段拆分验收**，消除歧义 |
+| AI Key 配置 | 仅在「我的」Tab 一句带过 | **专章设计**：能力矩阵、多入口、引导流、连接测试、降级策略 |
+| 设计审查 | 无 | 新增 §11 产品设计专业审查结论与改进行动项 |
+
+### v2.2 → v2.3 变更
+
+| 变更项 | v2.2 | v2.3 |
+|--------|------|------|
+| 文字 AI 服务商 | MiniMax | **DeepSeek**（用户确认） |
+| 视觉 AI 服务商 | Qwen VL | **不变** |
+| 文字 API 格式 | MiniMax 自有格式 | **OpenAI 兼容**（`api.deepseek.com`） |
+| 地区选择 | MiniMax + Qwen 均需 | **仅 Qwen 需区分国内/国际**；DeepSeek 单一端点 |
+| 代码改造 | 保留 MiniMaxService | `MiniMaxService` → **`DeepSeekService`** |
+
+---
+
+## 1. 产品定位与目标
+
+### 1.1 一句话描述
+
+Bonne-Santé 是女性专属的原生 iOS 健康助手：在 CalorieCop 饮食记录能力之上，融合体检报告、Apple Watch 数据与月经周期，形成统一的个人健康画像，并据此生成减脂计划、风险预警与就诊待办。
+
+> **平台说明**：本产品为**原生 iOS App**（非微信小程序）。HealthKit、Vision、EventKit 等系统能力均依赖原生架构，基于 `kaka-jun/CalorieCop` 改造是正确路线。
+
+### 1.2 第一优先级（本 PRD 最高原则）
+
+**健康数据整合必须与 CalorieCop 减脂能力深度融合，而非两套功能简单并列。**
+
+具体含义：
+- 体检异常指标 → 影响每日热量预算与蛋白质下限（如肾功能异常时调整蛋白建议）
+- Apple Watch 运动数据 → 影响 TDEE 与周训练完成度
+- 减脂目标（体重/体脂/期限）→ 与饮食日记、热量环、AI 顾问共享同一数据源
+- 高危风险与复查计划 → 自动流入待办，并在首页仪表盘展示
+- 月经周期 → 调节训练强度建议与饮食 tips（阶段三深度联动）
+
+所有页面读取的数据，必须来自统一的 **`UnifiedHealthContext`**，禁止各 Tab 各自维护孤立状态。
+
+### 1.3 核心价值
+
+- 把分散在相册、HealthKit、饮食日记中的数据，收敛为一个**可行动的健康仪表盘**。
+- 保留 CalorieCop「拍照识食 + 自然语言录入 + AI 顾问」的日常使用习惯，并用个人体检数据让它更懂你。
+- 根据女性生理周期给出贴身运动与饮食建议，而非通用健身 App 模板。
+- 以莫兰迪色系 + 系统原生组件，达到 Apple 级视觉与交互质感。
+
+### 1.4 目标用户
+
+25–45 岁、有定期体检需求、佩戴 Apple Watch 的女性；无需医学背景，但需要可信赖的风险提示与复查提醒。
+
+### 1.5 技术基座
+
+| 项目 | 说明 |
+|------|------|
+| 基座仓库 | `https://github.com/kaka-jun/CalorieCop` |
+| 技术栈 | SwiftUI、SwiftData、HealthKit、Vision、EventKit、UserNotifications |
+| 最低版本 | iOS 17.0+、Xcode 15.0+ |
+| AI 能力 | **DeepSeek**（文本）+ **Qwen VL**（图像），用于食物录入、顾问与可选报告结构化辅助 |
+| 开发环境 | Windows Cursor → SSH 远程 Mac mini 编译，远程桌面预览 |
+
+---
+
+## 2. CalorieCop 保留清单（改造时禁止删除）
+
+以下功能为**必须保留并增强**，改造时只允许重构 UI 与数据接入，不允许砍掉核心能力。
+
+| 功能 | 原模块路径 | Bonne-Santé 改造要求 |
+|------|-----------|---------------------|
+| 自然语言食物录入（中文） | `Services/AIService/DeepSeekService.swift` | DeepSeek API；保留 `FoodParsingPrompt.swift` |
+| 拍照识食 | `Views/FoodInput/` + Qwen VL | **保留不变**；确认页展示当日剩余热量预算 |
+| 食物偏好快捷录入 | `Models/FoodPreference.swift` | 保留；减脂 Tab 内可达 |
+| 饮食日记与营养卡片 | `Views/Dashboard/`、`Components/NutritionCard.swift` | 保留；合并进「减脂」Tab |
+| 热量收支展示 | `Components/CalorieBalanceView.swift` | 升级为首页环形图 + 收支明细 |
+| 目标体重设定 | `Models/UserGoal.swift` | **扩展**：增加目标体脂率、期望达成日期、当前体脂（手动/HealthKit） |
+| AI 顾问对话 | `Views/History/AIAdvisorView.swift` | 改造为 **DeepSeek** 流式对话；Prompt 注入体检摘要 + 减脂进度 + 周期阶段 |
+| 历史记录 | `Views/History/HistoryView.swift` | 保留；与饮食日记合并或作为减脂子页 |
+| API Key 与应用内配置 | `Services/APIKeyManager.swift`、`Views/Settings/APIKeySetupView.swift` | 升级为 `AISettingsView`；**DeepSeek Key + Qwen Key**；Keychain 存储；连接测试 |
+| HealthKit 基础同步 | `Services/HealthKitService.swift` | **扩展**：增加锻炼类型、经期数据、体重体脂读取 |
+| SwiftData 本地存储 | `Models/FoodEntry.swift` 等 | 保留并扩展新 Model，不替换持久化方案 |
+
+### 2.1 融合改造规范
+
+```
+改造前（CalorieCop）          改造后（Bonne-Santé）
+─────────────────────        ─────────────────────────────
+UserGoal（仅体重）      →    UserGoal + BodyComposition + TargetTimeline
+HealthKit（消耗）       →    HealthKit（消耗 + 锻炼 + 经期 + 体重）
+FoodEntry（孤立）       →    FoodEntry ← UnifiedHealthContext.dailyBudget
+DeepSeekService（文字）  →    唯一文字 AI，OpenAI 兼容格式
+Qwen VL（图像）         →    保留不变
+AI Advisor（仅饮食）    →    AI Advisor + healthSummary + riskFlags 上下文
+Dashboard（热量）       →    Dashboard（热量 + 风险 + 待办 + 周期条）
+```
+
+**新增核心服务（不可省略）：**
+
+- `UnifiedHealthContext`：聚合所有健康数据的单一真相源（Single Source of Truth）
+- `HealthProfileEngine`：读取体检指标，输出约束与建议（如蛋白上限、复查提醒）
+- `IntegratedTDEEEngine`：TDEE = HealthKit 消耗 + 体检相关调整 + 减脂目标赤字
+- `WorkoutPlanEngine`：按周期阶段生成结构化周训练计划
+
+---
+
+## 3. 全局设计规范
+
+### 3.1 设计哲学
+
+- **做减法**：每屏只突出一个核心动作或信息层级。
+- **苹果原生触感**：系统字体、SF Symbols、Material 材质优先；自定义仅用于莫兰迪色板。
+- **色彩疗愈**：低饱和莫兰迪色，适合长期每日打开。
+- **数据可信**：健康数据展示带来源标签（体检 / Watch / 手动 / AI 估算）。
+
+### 3.2 色板（莫兰迪主题）
+
+| 角色 | 色值 | 用途 |
+|------|------|------|
+| 主色（温柔蓝） | `#ADC8F5` | 主按钮、选中态、环形图进度 |
+| 背景色 | `#F9FBFF` | 页面背景 |
+| 强调色（粉紫） | `#E5A5CF` | 周期相关、重要提醒、待办标记 |
+| 警示色 | `#E8A0A0` | 高危风险（低饱和红，非系统纯红） |
+| 文字主色 | `#1C1C1E` | 标题、正文 |
+| 文字辅色 | `#6E6E73` | 说明、单位 |
+| 卡片底 | `.regularMaterial` | 磨砂卡片，圆角 16pt，无硬阴影 |
+
+**周期主题色（阶段三启用）：** 经期暖粉 / 卵泡期淡绿 / 黄体期薰衣草紫，通过 `@Environment(\.cyclePhase)` 注入。
+
+### 3.3 字体、图标与布局
+
+- 字体：San Francisco + Dynamic Type（`.body`、`.title2`、`.largeTitle`）
+- 图标：SF Symbols 5 only
+- 圆角：卡片 16pt、按钮 12pt、输入框 10pt
+- 间距：4 的倍数网格，水平边距 20pt
+
+### 3.4 Apple HIG 合规（全阶段持续）
+
+- 支持浅色 / 深色模式（莫兰迪色板需提供 Dark 变体）
+- Dynamic Type 不截断关键数字
+- VoiceOver 为图表、环形图提供 accessibilityLabel
+- 尊重 Safe Area；Tab Bar 使用系统原生样式
+- 敏感操作（删除报告、导出数据）需二次确认
+
+### 3.5 导航架构（5 Tab，阶段一起骨架到位）
+
+| Tab | 标题 | SF Symbol | 核心内容 |
+|-----|------|-----------|----------|
+| 首页 | 仪表盘 | `heart.text.square.fill` | 周期条 + 热量环 + 健康摘要卡片 + 快捷操作 |
+| 健康 | 档案 | `list.clipboard` | 报告时间线、指标趋势、综合评估、复查计划 |
+| 减脂 | 体态 | `figure.mind.and.body` | 目标、饮食日记（CalorieCop）、周训练计划 |
+| 待办 | 提醒 | `checklist` | 复查/门诊/风险待办、日历导入 |
+| 我的 | 设置 | `person.crop.circle` | 周期设定、**AI 服务**、HealthKit 权限、数据导出 |
+
+---
+
+## 3.6 AI 模型接入与 API Key 配置（新增专章）
+
+> **文字 AI 仅使用 DeepSeek**，不使用 MiniMax。Qwen VL 继续负责拍照识食。
+
+### 3.6.1 设计原则
+
+| 原则 | 说明 |
+|------|------|
+| **BYOK** | 用户自带 API Key，无 Bonne-Santé 后端，隐私与成本可控 |
+| **渐进配置** | 仅配 **DeepSeek** 即可启用核心饮食 + AI 顾问；Qwen 为拍照识食增强项 |
+| **能力可见** | 用户始终清楚「哪个 Key 驱动哪个功能、当前是否可用」 |
+| **优雅降级** | 未配置或离线时，不阻断 App，引导至手动路径 |
+| **安全存储** | Key 存 Keychain（升级自 CalorieCop 的 UserDefaults），仅本机解锁可读取 |
+
+### 3.6.2 AI 能力矩阵
+
+| 功能 | 所用模型/技术 | 所需 Key | 联网 | 未配置时的降级 |
+|------|--------------|----------|------|----------------|
+| 自然语言食物录入 | DeepSeek 文本 | **DeepSeek（必须）** | 是 | 跳转手动营养录入表单 |
+| AI 健康顾问 | DeepSeek 文本 | **DeepSeek（必须）** | 是 | 只读历史对话，禁用发送 |
+| 拍照识食 | Qwen VL 图像 | Qwen（推荐） | 是 | 提示切换文字录入或手动填写 |
+| 体检报告 OCR | Apple Vision（设备端） | 无 | 否 | 手动逐项输入指标 |
+| 报告结构化辅助（阶段二，可选） | DeepSeek 文本 | DeepSeek | 是 | 仅用 Vision 结果 + 用户校对 |
+| 门诊截图解析（阶段三，可选） | Vision + DeepSeek | DeepSeek | 混合 | 手动创建待办 |
+
+**关键结论：**
+- **DeepSeek Key = 核心 AI 能力钥匙**（饮食解析 + 顾问 + 可选报告辅助）
+- **Qwen Key = 视觉增强钥匙**（拍照识食，**保留 CalorieCop 原方案不变**）
+- **体检 OCR 主体不依赖 AI Key**，降低阶段二门槛；LLM 辅助为可选项，默认关闭，用户在设置中主动开启
+
+### 3.6.3 配置入口（多触达，避免藏在深处）
+
+```
+触达优先级：
+1. 首次引导 Onboarding Step 3「连接 AI 服务」（可跳过，标注功能受限）
+2. 功能拦截卡片 APIKeyPromptView（饮食录入 / AI 顾问 / 可选报告辅助）
+3. 我的 → AI 服务（主配置页，随时修改）
+4. 首页状态条（仅当 DeepSeek 未配置时显示橙色提示条，可关闭）
+```
+
+### 3.6.4 AI 服务设置页 UI 规格（升级 `APIKeySetupView` → `AISettingsView`）
+
+**页面类型**：工具型设置页（Tool Page）—— 任务明确、低干扰、步骤清晰。
+
+**布局结构（上 → 下）：**
+
+1. **服务状态总览卡**（新增）
+   - 三行能力状态灯：`饮食解析` / `AI 顾问` / `拍照识食`
+   - 每行：SF Symbol 图标 + 功能名 + 状态徽章（`已就绪` 绿 / `未配置` 橙 / `连接失败` 红）
+   - 数据来自 `AIServiceStatus`（见 §7.2）
+
+2. **Qwen 地区选择**（仅视觉 AI 需要，保留 CalorieCop）
+   - Segmented：`国际` / `中国大陆`
+   - 副文案：「仅影响 Qwen 识图服务器地址；DeepSeek 使用统一端点」
+
+3. **DeepSeek API 区块**（必填）
+   - 标题 + 副标题：「文字解析 · AI 顾问 · 报告辅助」
+   - 获取指引：
+     1. 访问 [platform.deepseek.com](https://platform.deepseek.com) 注册
+     2. 控制台 → API Keys → 创建密钥
+     3. 复制粘贴到下方
+   - 「打开官网」按钮 → `https://platform.deepseek.com`
+   - `SecureField` + 粘贴 / 显示 / 清除
+   - **「测试连接」按钮**：发送最小化 ping 请求，反馈：成功 ✅ / Key 无效 / 网络超时 / 余额不足
+   - 状态徽章：`用户已配置` / `开发者预设` / `未配置`
+
+4. **Qwen API 区块**（可选，**保留 CalorieCop 原设计不变**）
+   - 标题 + 副标题：「拍照识食（可选，不配仍可文字录入）」
+   - 同上输入控件 + 测试连接
+
+5. **隐私与安全说明卡**（保留并增强）
+   - 图标 `lock.shield` + 三条要点：
+     - Key 仅存本机 Keychain，不上传
+     - AI 请求仅发送食物描述 / 脱敏报告文本，不含姓名身份证
+     - 体检原始图片不上传云端（Vision 本地处理）
+
+6. **高级选项**（阶段二出现，默认折叠）
+   - Toggle：「启用 AI 辅助结构化体检报告（需联网，发送脱敏文本）」
+   - 说明：开启后 Vision 结果可经 **DeepSeek** 整理，用户校对前可预览
+
+7. **操作按钮**
+   - 主按钮「保存设置」（莫兰迪主色 `#ADC8F5`）
+   - 次按钮「清除所有密钥」（destructive，二次确认）
+
+**交互状态矩阵：**
+
+| 状态 | UI 表现 |
+|------|---------|
+| 未配置 DeepSeek | 饮食 Tab 顶部显示 `APIKeyPromptView`；首页橙色提示条 |
+| 仅配 DeepSeek | 文字录入 + AI 顾问可用；拍照按钮显示「需 Qwen Key」轻提示 |
+| 全部就绪 | 所有 AI 功能正常；我的页显示绿色「AI 服务已就绪」 |
+| 测试连接失败 | 输入框下方红色 inline 错误文案 + 重试 |
+| 网络离线 | 功能内 Toast「网络不可用，已切换为手动模式」 |
+
+### 3.6.5 首次引导流程（Onboarding，阶段一）
+
+```
+Step 1  欢迎          「Bonne-Santé，你的女性健康助手」
+Step 2  健康权限      引导授权 HealthKit（可跳过）
+Step 3  连接 AI       AISettingsView 精简版（仅 DeepSeek 必填，Qwen 可跳过）
+Step 4  减脂目标      当前体重 / 目标体重 / 期望日期
+        → 进入首页
+```
+
+- Step 3 可「稍后设置」，但需勾选「我了解 AI 功能将受限」
+- 完成后不再强制弹出，仅功能拦截时提示
+
+### 3.6.6 技术实现要点
+
+**改造文件（阶段一）：**
+- `Services/APIKeyManager.swift` → DeepSeek 端点/Key；**Qwen 部分原样保留**
+- `Services/AIService/DeepSeekService.swift` → 唯一文字 AI 服务
+- `Views/History/AIAdvisorView.swift` → 改用 DeepSeek 流式 API
+- `Views/Settings/APIKeySetupView.swift` → 重构为 `AISettingsView.swift`
+
+**新增 / 改造：**
+
+```swift
+// AIServiceStatus — 注入 UnifiedHealthContext
+struct AIServiceStatus {
+    var isDeepSeekReady: Bool
+    var isQwenReady: Bool
+    var lastValidatedAt: Date?
+    var foodParsingAvailable: Bool   // = isDeepSeekReady
+    var advisorAvailable: Bool       // = isDeepSeekReady
+    var photoRecognitionAvailable: Bool  // = isQwenReady
+    var reportAIAssistEnabled: Bool  // 用户 Toggle，默认 false
+}
+
+// APIKeyManager 扩展
+static var deepSeekAPIKey: String?
+static var deepSeekEndpoint: URL  // https://api.deepseek.com/v1/chat/completions
+static var deepSeekModel: String  // "deepseek-chat"（默认）
+static func validateDeepSeekKey() async throws -> ValidationResult
+static func validateQwenKey() async throws -> ValidationResult  // 保留不变
+static func saveToKeychain(_ key: String, for account: String) throws
+static func loadFromKeychain(account: String) throws -> String?
+```
+
+**存储迁移策略：**
+- 首次启动检测 UserDefaults 旧 Key → 自动迁移 Keychain → 清除 UserDefaults 明文
+- `Secrets.swift` 开发者预设仍作 Debug 回退，Release 不打包
+
+### 3.6.7 阶段一 AI 相关验收标准
+
+| 场景 | 预期结果 |
+|------|----------|
+| 首次打开 App | Onboarding 第 3 步出现 AI 配置，可跳过 |
+| 未配 Key 进入饮食录入 | 显示 `APIKeyPromptView`，点击跳转 AI 设置 |
+| 填入 DeepSeek Key 并测试连接 | 显示成功；饮食文字录入与 AI 顾问可用 |
+| 未配 Qwen 点击拍照 | 提示「可配置 Qwen 启用拍照，或使用文字录入」 |
+| 保存后重启 App | Key 从 Keychain 加载，状态总览显示「已就绪」 |
+| 清除密钥 | 二次确认后所有 AI 功能降级，本地数据不丢失 |
+
+### 3.6.8 DeepSeek API 技术规格（阶段一实现依据）
+
+| 项目 | 值 |
+|------|-----|
+| 服务商 | DeepSeek（深度求索） |
+| 申请地址 | [platform.deepseek.com](https://platform.deepseek.com) |
+| API 端点 | `https://api.deepseek.com/v1/chat/completions` |
+| 请求格式 | OpenAI Chat Completions 兼容 |
+| 默认模型 | `deepseek-chat` |
+| 认证方式 | `Authorization: Bearer <API_KEY>` |
+| 流式输出 | AI 顾问支持 `stream: true`（SSE） |
+
+**请求示例（食物录入）：**
+```json
+{
+  "model": "deepseek-chat",
+  "messages": [
+    {"role": "system", "content": "<FoodParsingPrompt>"},
+    {"role": "user", "content": "一碗米饭，两个鸡蛋"}
+  ]
+}
+```
+
+**与 Qwen 分工（不变）：**
+
+| 能力 | 服务商 | 端点 |
+|------|--------|------|
+| 文字（食物/顾问/报告辅助） | DeepSeek | `api.deepseek.com` |
+| 图像（拍照识食） | Qwen VL Plus | `dashscope.aliyuncs.com` 或国际站 |
+
+**改造注意：**
+- 文字请求/响应使用 OpenAI 标准 `ChatCompletion` 格式
+- `AIAdvisorView` 流式解析使用 OpenAI SSE 格式（`data: {...}` 行）
+- Qwen 相关代码（`parseFoodImage`、`qwenEndpoint`）**不做任何修改**
+
+---
+
+## 4. 统一健康数据架构（核心章节）
+
+### 4.1 UnifiedHealthContext 数据流
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     UnifiedHealthContext                     │
+│  （@Observable，App 启动时注入 Environment）                  │
+├─────────────────────────────────────────────────────────────┤
+│  输入源                                                       │
+│  ├─ CalorieCop：FoodEntry、UserGoal、FoodPreference          │
+│  ├─ HealthKit：静息/活动能量、锻炼、步数、体重、经期          │
+│  ├─ 体检档案：Report、HealthMetric、RiskFlag、CheckupPlan     │
+│  ├─ 待办：TodoItem、Appointment                              │
+│  └─ 周期：CycleProfile（末次月经、周期长度）                │
+│  └─ AI：AIServiceStatus（Key 就绪状态、能力开关）           │
+├─────────────────────────────────────────────────────────────┤
+│  计算输出（由各 Engine 纯函数生成）                            │
+│  ├─ dailyCalorieBudget      今日可摄入热量                    │
+│  ├─ macroTargets            蛋白/脂肪/碳水建议                │
+│  ├─ healthSummary           综合健康评估摘要                  │
+│  ├─ activeRiskFlags         当前高危列表                      │
+│  ├─ upcomingTodos           最近待办                          │
+│  ├─ cyclePhase              当前周期阶段                      │
+│  ├─ weeklyWorkoutPlan       本周训练安排                      │
+│  └─ workoutProgress         本周运动完成度                    │
+└─────────────────────────────────────────────────────────────┘
+          ↓ 驱动所有 ViewModel / View
+   首页环、减脂页、AI 顾问、待办、健康摘要
+```
+
+### 4.2 IntegratedTDEEEngine 计算逻辑
+
+**输入：**
+- HealthKit：`restingEnergy` + `activeEnergy`（当日或 7 日均值）
+- UserGoal：当前体重、目标体重、目标日期
+- HealthProfileEngine：体检约束（如尿酸高 → 提示低嘌呤，不直接改 TDEE，但影响 AI 建议）
+- 可选：用户手动体脂率（HealthKit 体脂或手动录入）
+
+**公式：**
+```
+TDEE = restingEnergy + activeEnergy × activityFactor（默认 1.0，可设置 0.9–1.2）
+需减脂肪公斤 = currentWeight - targetWeight
+每日赤字 = (7700 × 需减脂肪公斤) / 剩余天数（上限建议 750 kcal/天）
+dailyBudget = TDEE - 每日赤字
+```
+
+**宏量分配：**
+- 蛋白质 ≥ max(体重×1.6g, 健康档案建议下限)
+- 脂肪 25–30% 总热量
+- 剩余分配碳水
+
+**输出联动：**
+- 首页热量环：`remaining = dailyBudget - todayIntake + todayBurnAdjustment`
+- 食物确认页：展示「录入后剩余 X 大卡」
+- AI 顾问：注入 `dailyBudget`、`weeklyDeficitProgress`
+
+### 4.3 HealthProfileEngine 评估逻辑
+
+**单次报告导入后：**
+1. Vision OCR 提取字段 → 用户强制校对 → 存入 SwiftData
+2. 与同指标历史比对 → 生成趋势（↑ 恶化 / ↓ 改善 / → 持平）
+3. 规则引擎匹配 → 生成 `RiskFlag`
+4. 汇总为 `HealthSummary`（一页可读结论）
+
+**初始规则库（阶段二，至少 10 条）：**
+
+| 指标 | 触发条件 | 建议动作 |
+|------|----------|----------|
+| 肺结节 | ≥ 5mm 或增大 | 年度胸部 CT 复查，生成待办 |
+| 低密度脂蛋白 | 连续两次超标 | 3–6 月复查血脂 |
+| 空腹血糖 | ≥ 6.1 mmol/L | 建议内分泌科就诊 |
+| 甲状腺功能 TSH | 超出参考范围 | 3 月复查甲功 |
+| 血红蛋白 | 低于参考下限 | 建议血液科/补铁评估 |
+| 尿酸 | > 420 μmol/L（女） | 饮食低嘌呤提示，融入 AI 顾问 |
+| 肝功能 ALT/AST | 连续异常 | 1–3 月复查肝功能 |
+| 子宫肌瘤 | 增大趋势 | 妇科 B 超复查计划 |
+| 乳腺结节 | BI-RADS ≥ 4 | 立即就诊待办 |
+| 骨密度 T 值 | ≤ -1.0 | 补钙与负重运动建议 |
+
+> 规则以「提醒 + 复查建议」为主，**不做医学诊断**。所有风险卡片标注「仅供参考，请遵医嘱」。
+
+### 4.4 WorkoutPlanEngine 输出格式
+
+按当前周期阶段 + 减脂目标 + Watch 历史运动量，生成**本周结构化计划**：
+
+```
+示例（黄体期）：
+  周一：瑜伽 30min（低强度）
+  周三：快走 40min
+  周五：普拉提 30min
+  周六：休息或散步 20min
+  目标：中等强度 120min / 抗阻 0次（黄体期降级）
+
+示例（卵泡期）：
+  周二：力量训练 45min
+  周四：HIIT 20min
+  周六：力量训练 45min
+  周日：有氧 30min
+  目标：中等强度 150min / 抗阻 2次
+```
+
+完成度从 HealthKit `workout` 自动匹配（类型 + 时长），在减脂页与首页卡片展示。
+
+---
+
+## 5. 三阶段 MVP 开发计划
+
+### 阶段一：CalorieCop 融合 + 日常减脂可用（约 4–6 周）
+
+**目标：** 打开 App 就能记录饮食、看热量预算、设目标；5 Tab 骨架与莫兰迪 UI 就位；`UnifiedHealthContext` 跑通。
+
+#### 5.1.1 必须交付
+
+- [ ] Fork CalorieCop，重命名工程为 Bonne-Santé，保留清单全部功能可用
+- [ ] 实现 `UnifiedHealthContext` + `IntegratedTDEEEngine`
+- [ ] 扩展 `UserGoal`：目标体脂（可选）、期望达成日期、当前体脂（手动优先，HealthKit 可选）
+- [ ] 升级首页：周期阶段条（仅展示）+ 热量环形图 + 今日摄入/消耗/剩余
+- [ ] 5 Tab 导航就位，CalorieCop 页面迁入对应 Tab
+- [ ] AI 顾问 Prompt 注入：目标体重、今日热量预算、本周摄入均值（暂无体检数据）
+- [ ] 莫兰迪主题色、`Theme.swift`、共享组件（`CircularProgress`、`PhaseBar`）
+- [ ] 静态周期 tips 卡片（预置 3 阶段各 3 条文案，首页轮换展示）
+
+#### 5.1.2 本阶段不做
+
+- 体检报告 OCR
+- 完整待办系统
+- 运动日历热力图
+- 周期 UI 主题联动
+
+#### 5.1.3 阶段一验收标准
+
+| 场景 | 预期结果 |
+|------|----------|
+| 用中文输入「一碗米饭两个鸡蛋」 | 解析成功，热量计入今日日记，首页环更新 |
+| 拍照记录一餐 | Qwen 识食成功，确认后剩余热量实时更新 |
+| 设定目标体重 58kg、当前 65kg、90 天达成 | 每日预算按赤字公式计算，首页环显示剩余大卡 |
+| 绑定 Apple Watch，当日活动消耗 1800 kcal | TDEE 含 Watch 数据，预算联动变化 |
+| 打开 AI 顾问 | 对话知晓当前目标与今日摄入情况 |
+| 切换 Tab | 5 个 Tab 均可达，视觉风格统一 |
+
+---
+
+### 阶段二：健康档案闭环 + 待办 MVP（约 4–6 周）
+
+**目标：** 导入体检报告形成个人健康画像，风险评估驱动待办；健康数据真正反哺减脂引擎。
+
+#### 5.2.1 必须交付
+
+- [ ] 报告导入：相册截图（PNG/JPEG）+ 文件 App PDF（支持多页，逐页 OCR）
+- [ ] `ReportImporter`：Apple Vision OCR + **强制用户校对页**（编辑/删除/补字段）
+- [ ] OCR 增强策略：Vision 优先；识别率 < 70% 时可选调用 LLM 结构化抽取（用户确认后发送，脱敏处理）
+- [ ] 健康档案时间线：按日期倒序，指标旁 Swift Charts 迷你趋势图
+- [ ] `HealthProfileEngine` + `RiskAnalyzer`：初始 10 条规则
+- [ ] **综合健康摘要页**：异常项汇总 + 趋势一句话 + 关联待办入口
+- [ ] 复查计划 `CheckupPlan`：用户设频率，系统算下次日期，提前 30/7 天本地通知
+- [ ] **待办 Tab MVP**：列表、完成、延期、删除；风险卡片「建议复查」一键生成待办
+- [ ] 健康 → 减脂联动：异常指标影响 AI 顾问上下文与蛋白/饮食建议（如尿酸高）
+- [ ] 首页动态卡片：高危风险、下次体检、最近待办（有待办时展示）
+
+#### 5.2.2 阶段二验收标准
+
+| 场景 | 预期结果 |
+|------|----------|
+| 导入含「肺结节 5mm」的体检截图 | 校对后入库，时间线可见，摘要页有风险说明，可生成「年度 CT 复查」待办 |
+| 同一指标两次报告对比 | 趋势箭头与 RiskFlag 正确（如 LDL 连续升高） |
+| 设置肺结节每 12 个月复查 | 下次日期正确，提前 30 天收到本地推送 |
+| 从首页风险卡点击「建议复查」 | 待办 Tab 出现对应项，可标记完成 |
+| 导入后打开 AI 顾问 | 对话可引用健康摘要中的异常项 |
+| 首页展示 | 高危卡、下次体检、最近待办均来自 UnifiedHealthContext |
+
+---
+
+### 阶段三：女性周期深度整合 + 门诊日历 + 体验打磨（约 3–4 周）
+
+**目标：** 周期、运动、饮食、待办四位一体；视觉与交互达到可上架水准。
+
+#### 5.3.1 必须交付
+
+- [ ] `CycleEngine`：支持手动设定周期 / 读取 HealthKit 经期数据
+- [ ] 全局周期主题联动（经期/卵泡期/黄体期背景色温和变化）
+- [ ] 周期健身 & 饮食 tips 知识库，首页 + 减脂页卡片展示
+- [ ] `WorkoutPlanEngine`：按周期生成周训练计划，与 HealthKit 完成度对比
+- [ ] **运动日历**：月视图热力图 + 点击弹出当日锻炼详情 + 周统计卡片
+- [ ] 门诊截图导入：科室、医院、时间、主诉 OCR + 校对
+- [ ] EventKit 一键导入系统日历
+- [ ] 小成就：连续 7 天运动解锁勋章（我的页展示）
+- [ ] 微动效：卡片过渡、阶段色渐变；分享今日健康摘要图片（可选）
+
+#### 5.3.2 阶段三验收标准
+
+| 场景 | 预期结果 |
+|------|----------|
+| 处于黄体期第 18 天 | 首页阶段条、主题色、训练计划均为黄体期低强度方案 |
+| 本周完成 3 次 Watch 锻炼 | 运动日历热力图 3 格着色，周卡片显示「3/5 天」 |
+| 导入门诊预约截图 | 校对后待办出现，点击「加入日历」系统日历可见该事件 |
+| 连续 7 天有运动记录 | 我的页解锁满月勋章 |
+
+---
+
+### 未来迭代（不纳入当前三阶段）
+
+- 家庭成员报告共享（HealthKit 授权）
+- 体检报告模板库扩充（按医院格式优化 OCR）
+- 与医疗机构 API 对接（如有）
+- TestFlight 分发与 App Store 上架物料
+
+---
+
+## 6. 功能模块详述
+
+### 6.1 首页仪表盘
+
+**结构（上 → 下）：**
+1. 周期阶段条：`黄体期 · 第 18 天`（阶段三起主题色联动）
+2. 热量环形图：中间「剩余 X 大卡」，外环摄入/消耗进度
+3. 横向滑动卡片组：高危风险 / 下次体检 / 最近待办 / 今日训练建议 / 周期 tip
+4. 快捷操作：**记录饮食** / **导入报告**（阶段二起）
+
+**数据约束：** 仅通过 `DashboardViewModel` 读取 `UnifiedHealthContext`，禁止直接查询 SwiftData。
+
+### 6.2 健康档案 Tab
+
+- 报告列表与时间线
+- 单指标详情页（历史折线图 + 参考范围标注）
+- **综合健康摘要**（阶段二）：结论段落 + 异常清单 + 建议行动
+- 复查计划管理
+- 导入入口（截图 / PDF）
+
+### 6.3 减脂 Tab（CalorieCop 主战场）
+
+- 目标设定与进度（体重、体脂、期限）
+- 饮食日记：自然语言 + 拍照 + 食物偏好（完整保留）
+- 今日宏量进度条
+- 周训练计划与完成度（阶段三完整，阶段一可先显示 Watch 本周运动次数）
+- AI 顾问入口
+
+### 6.4 待办 Tab
+
+- 来源：手动创建 / 风险引擎 / 复查计划 / 门诊导入
+- 字段：标题、日期、地点、备注、关联指标、风险等级
+- 操作：完成、延期、删除、编辑、导入日历（阶段三）
+- 通知：UserNotifications 本地推送
+
+### 6.5 我的 Tab
+
+**信息架构（上 → 下）：**
+
+| 分组 | 内容 |
+|------|------|
+| 个人健康 | 周期设定（末次月经、周期天数） |
+| **AI 服务** | 状态总览入口 → `AISettingsView`；显示「已就绪 / 部分可用 / 未配置」 |
+| 权限管理 | HealthKit 授权状态、通知权限、日历权限（阶段三） |
+| 数据 | 导出 JSON、清除缓存 |
+| 关于 | 免责声明、版本号、开源致谢（CalorieCop） |
+| 成就 | 勋章展示（阶段三） |
+
+- AI 服务作为**独立设置组**，置顶显示（仅次于个人健康），不埋在列表底部
+- 列表行右侧显示实时状态徽章，无需进入才知是否已配置
+
+---
+
+## 7. 技术架构
+
+### 7.1 分层结构
+
+```
+[UI Layer]          SwiftUI Views, TabView, Theme
+     ↕
+[ViewModel Layer]   DashboardVM, HealthVM, WeightLossVM, TasksVM
+     ↕
+[Context Layer]     UnifiedHealthContext（核心，@Observable）
+     ↕
+[Service Layer]     HealthKitService, ReportImporter, CalendarService,
+                    CycleEngine, IntegratedTDEEEngine,
+                    HealthProfileEngine, WorkoutPlanEngine, RiskAnalyzer
+     ↕
+[Data Layer]        SwiftData
+     ↕
+[System]            HealthKit, Vision, EventKit, UserNotifications
+```
+
+**约束：**
+- Engine 层均为纯函数或无副作用计算，可单元测试
+- Service 层 `async throws` 接口
+- ViewModel 不直接访问 HealthKit，统一走 Service → Context
+
+### 7.2 完整数据模型
+
+```swift
+// ── CalorieCop 保留并扩展 ──
+@Model final class FoodEntry { /* 保留原字段 */ }
+@Model final class FoodPreference { /* 保留 */ }
+@Model final class UserGoal {
+    var currentWeight: Double
+    var targetWeight: Double
+    var targetBodyFat: Double?      // 新增
+    var currentBodyFat: Double?     // 新增，手动或 HealthKit
+    var targetDate: Date            // 新增
+}
+
+// ── 健康档案 ──
+@Model final class Report {
+    var fileName: String
+    var sourceType: String          // screenshot | pdf
+    var importDate: Date
+    var examDate: Date?
+    var metrics: [HealthMetric]
+    var isVerified: Bool            // 用户校对完成
+}
+
+@Model final class HealthMetric {
+    var name: String
+    var value: Double
+    var valueText: String           // 支持「5mm」等非纯数字
+    var unit: String
+    var referenceRange: String
+    var isAbnormal: Bool
+    var date: Date
+    var report: Report?
+}
+
+@Model final class RiskFlag {
+    var metricName: String
+    var severity: String            // low | medium | high
+    var currentValue: String
+    var trendDescription: String
+    var suggestedAction: String
+    var createdDate: Date
+    var isResolved: Bool
+}
+
+@Model final class CheckupPlan {
+    var metricName: String
+    var frequencyInMonths: Int
+    var lastExamDate: Date
+    var nextDueDate: Date
+    var reminderDays: [Int]         // 默认 [30, 7]
+}
+
+// ── 待办 ──
+@Model final class TodoItem {
+    var title: String
+    var dueDate: Date
+    var location: String?
+    var notes: String?
+    var source: String              // risk | checkup | appointment | manual
+    var relatedMetric: String?
+    var isCompleted: Bool
+    var calendarEventId: String?    // EventKit 关联
+}
+
+@Model final class Appointment {
+    var hospital: String
+    var department: String
+    var appointmentDate: Date
+    var chiefComplaint: String
+    var rawImagePath: String?
+}
+
+// ── 周期 ──
+@Model final class CycleProfile {
+    var lastPeriodStart: Date
+    var averageCycleLength: Int     // 默认 28
+    var averagePeriodLength: Int    // 默认 5
+}
+
+// ── 训练 ──
+@Model final class WorkoutPlanEntry {
+    var dayOfWeek: Int
+    var workoutType: String
+    var targetMinutes: Int
+    var intensity: String           // low | medium | high
+    var cyclePhase: String
+    var weekStartDate: Date
+}
+```
+
+### 7.3 系统权限
+
+| 权限 | 用途 | 阶段 |
+|------|------|------|
+| HealthKit 读取 | 能量、锻炼、步数、体重、经期 | 一 |
+| 网络 | DeepSeek / Qwen API 调用（饮食、顾问、拍照识食、可选报告辅助） | 一 |
+| 相册 / 文件 | 导入报告与门诊截图 | 二 / 三 |
+| 通知 | 复查提醒、周期阶段提示 | 二 |
+| EventKit 写入 | 门诊 / 复查导入日历 | 三 |
+| 相机 | 拍照识食 | 一 |
+| Keychain | API Key 安全存储 | 一 |
+
+### 7.4 隐私与安全
+
+- 所有体检、饮食、待办数据**仅存本地 SwiftData**，不上传服务器
+- API Key 存 **Keychain**（升级自 CalorieCop UserDefaults）；首次启动自动迁移
+- 若启用 LLM 辅助 OCR：仅发送用户确认后的脱敏文本（去除姓名、身份证号等），并在设置中可关闭
+- 健康类 App 免责声明：首次启动展示「非医疗诊断工具，请遵医嘱」
+
+---
+
+## 8. 项目文件结构（基于 CalorieCop 扩展）
+
+```
+BonneSante/
+├── App/
+│   ├── BonneSanteApp.swift
+│   └── ContentView.swift              # 5 Tab 根视图
+├── Models/
+│   ├── FoodEntry.swift                # 保留
+│   ├── UserGoal.swift                 # 扩展
+│   ├── Report.swift                   # 新增
+│   ├── TodoItem.swift                 # 新增
+│   ├── CycleProfile.swift             # 新增
+│   └── ...
+├── Services/
+│   ├── AIService/
+│   │   ├── DeepSeekService.swift      # 唯一文字 AI（食物录入、顾问）
+│   │   ├── AIServiceProtocol.swift    # 保留
+│   │   └── FoodParsingPrompt.swift    # 保留
+│   ├── HealthKitService.swift         # 扩展
+│   ├── UnifiedHealthContext.swift     # 新增（核心）
+│   ├── IntegratedTDEEEngine.swift     # 新增
+│   ├── HealthProfileEngine.swift      # 新增
+│   ├── ReportImporter.swift           # 新增
+│   ├── AIServiceStatus.swift          # 新增
+│   ├── RiskAnalyzer.swift             # 新增
+│   ├── CycleEngine.swift              # 新增
+│   ├── WorkoutPlanEngine.swift        # 新增
+│   └── CalendarService.swift          # 新增
+├── ViewModels/
+├── Views/
+│   ├── Dashboard/
+│   ├── Health/                        # 档案、摘要、导入校对
+│   ├── WeightLoss/                    # 饮食日记、训练计划
+│   ├── Tasks/
+│   ├── Settings/
+│   │   └── AISettingsView.swift       # 由 APIKeySetupView 升级
+│   └── Components/
+│       ├── CircularProgress.swift
+│       ├── PhaseBar.swift
+│       ├── RiskCard.swift
+│       └── HealthSummaryCard.swift
+├── Resources/
+│   └── Theme.swift
+└── .cursor/rules/          # Cursor AI 规则（见仓库根目录）
+```
+
+### 8.2 项目文档与 AI 规则
+
+| 文件 | 路径 | 用途 |
+|------|------|------|
+| 产品需求 | `PRD.txt` | 需求唯一真相源 |
+| 开发计划 | `DEVELOPMENT_PLAN.md` | 三阶段任务分解与排期 |
+| 项目记忆 | `MEMORY.md` | 架构决策、进度快照、速查表 |
+| 仓库说明 | `README.md` | 入口与快速开始 |
+| Cursor 规则 | `.cursor/rules/*.mdc` | AI 辅助编码约束 |
+
+---
+
+### 8.1 CalorieCop → Bonne-Santé 改造映射（阶段一执行顺序）
+
+| 步骤 | 操作 |
+|------|------|
+| 0 | **AI 迁移** ✅ 已完成 | `DeepSeekService` + `APIKeyManager` + 视图层已改造；Qwen 未动 |
+| 1 | Fork 并重命名 Target、Bundle ID、App 图标占位 |
+| 2 | 新增 `Theme.swift`，全局替换硬编码颜色 |
+| 3 | 重构 `ContentView` 为 5 Tab，原页面归入对应 Tab |
+| 4 | 升级 `AISettingsView`（DeepSeek Key + Qwen Key）+ Onboarding Step 3 |
+| 5 | 新增 `UnifiedHealthContext`，接入 `HealthKitService` + `UserGoal` + `FoodEntry` |
+| 6 | 实现 `IntegratedTDEEEngine`，改造 `CalorieBalanceView` → `CircularProgress` |
+| 7 | 改造 `AIAdvisorView`：DeepSeek 流式 + 注入 Context 数据 |
+| 8 | 确认保留清单全部回归测试通过 → 进入阶段二 |
+
+---
+
+## 9. Cursor 开发约束
+
+规则文件位于 `.cursor/rules/`（替代原 `.cursorrules` 草案）：
+
+| 规则文件 | 作用域 |
+|----------|--------|
+| `bonne-sante-core.mdc` | 始终生效：架构原则、AI 分工、合规 |
+| `swift-swiftui.mdc` | `CalorieCop/**/*.swift`：莫兰迪 UI 规范 |
+| `architecture.mdc` | Services/ViewModels：分层与 Context |
+| `ai-integration.mdc` | AI 相关文件：DeepSeek/Qwen 约束 |
+
+**摘要：**
+- 文字 AI 仅使用 DeepSeek；禁止使用 MiniMax API
+- 禁止删除 CalorieCop 保留清单中的任何核心功能
+- 所有健康与热量计算必须经 UnifiedHealthContext，禁止 View 层直接算 TDEE
+- UI：系统字体 + SF Symbols；色板用 Theme.swift；卡片 .regularMaterial，圆角 16
+- 间距 4 倍数网格；支持 Dark Mode
+- 每个新 View 必须带 Preview + 模拟数据
+- 体检 OCR 结果未经用户校对不得入库（isVerified = false 不同步到 Engine）
+- 风险规则输出必须含「仅供参考，请遵医嘱」
+- 作者注释：新增代码作者 jiali.qiu；Bug 修复作者 zhi.qu
+
+---
+
+## 10. 版本记录
+
+| 版本 | 日期 | 变更内容 |
+|------|------|----------|
+| 1.0 | 2026-06-18 | 初始功能清单 |
+| 2.0 | 2026-06-19 | 莫兰迪设计、底部导航、四阶段计划 |
+| 2.1 | 2026-06-19 | 以健康数据×CalorieCop 融合为主线；三阶段 MVP；UnifiedHealthContext |
+| 2.2 | 2026-06-19 | Clone CalorieCop 至本地；新增 §3.6 AI Key 配置专章；§11 设计审查；Keychain 升级 |
+| 2.3 | 2026-06-19 | **文字 AI 改用 DeepSeek**；Qwen VL 保留；§3.6.8 API 规格 |
+| 2.4 | 2026-06-19 | 步骤 0 DeepSeek 迁移已落地代码 |
+| 2.5 | 2026-06-19 | 新增 `DEVELOPMENT_PLAN.md`、`MEMORY.md`、`.cursor/rules/` |
+
+### v2.3 → v2.4：步骤 0 实施清单（DeepSeek 迁移）
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `Services/APIKeyManager.swift` | 改造 | 新增 DeepSeek 端点/Key；旧 `user_minimax_api_key` 自动迁移；**Qwen 不动** |
+| `Services/AIService/DeepSeekService.swift` | 唯一文字 AI | 模型 `deepseek-chat`；Qwen 识图代码同文件内保留 |
+| `Views/Settings/APIKeySetupView.swift` | 改造 | DeepSeek Key 区块；Qwen 区块不变 |
+| `Views/FoodInput/FoodInputView.swift` | 改造 | `DeepSeekService()` + `isDeepSeekConfigured` |
+| `Views/History/AIAdvisorView.swift` | 改造 | DeepSeek 端点 + 模型 + Key |
+| `Services/Secrets.swift.template` | 改造 | `deepSeekAPIKey` |
+| `CalorieCop.xcodeproj/project.pbxproj` | 改造 | 文件引用为 DeepSeekService |
+
+**步骤 0 验收：**
+
+| # | 场景 | 预期 |
+|---|------|------|
+| 1 | 设置页填入 DeepSeek Key | 测试连接成功（或保存后文字录入可用） |
+| 2 | 文字录入「一碗米饭」 | DeepSeek 解析返回营养信息 |
+| 3 | AI 顾问发消息 | 流式回复正常 |
+| 4 | 拍照识食（已配 Qwen） | 行为与迁移前一致 |
+| 5 | 旧版 Key 存于 `user_minimax_api_key` | 自动迁移为 DeepSeek Key（一次性兼容） |
+
+---
+
+## 11. 产品设计专业审查（Design Decision Chain）
+
+> 审查方法：基于 UED 设计思维决策链，对 PRD v2.3 做系统性评估。
+
+### 11.1 总体评分
+
+| 维度 | 得分 | 简评 |
+|------|------|------|
+| 用户目标清晰度 | **88/100** | 核心诉求「健康数据×减脂融合」已上升为第一原则 |
+| 信息架构 | **78/100** | 5 Tab 合理，但首页信息密度偏高，需分层 |
+| 任务流程完整性 | **82/100** | 主路径清晰；Onboarding、空状态、错误流 v2.2 已补 |
+| 视觉规范可执行性 | **85/100** | 莫兰迪色板明确；缺 Dark Mode 具体色值和语义色 Token 表 |
+| AI 配置体验 | **90/100**（v2.2） | 能力矩阵 + 多入口 + 降级策略，达到工具型 App 标准 |
+| 健康场景可信度 | **80/100** | 有免责声明；风险卡片需统一「非诊断」视觉语言 |
+| **综合** | **84/100** | 可作为开发总纲；按下方行动项补齐后可达 90+ |
+
+### 11.2 页面类型定性
+
+| 页面 | 类型 | 设计策略 |
+|------|------|----------|
+| 首页仪表盘 | 数据型 + 工具型 | 一屏一焦点：热量环为主视觉，卡片组次级 |
+| 健康档案 | 数据型 + 内容型 | 时间线 + 图表优先，摘要页用文字叙事降低焦虑 |
+| 减脂 Tab | 工具型 | 高频操作（记录饮食）置于拇指热区 |
+| 待办 | 列表型 | 日期排序，左滑操作，空状态引导导入 |
+| AI 设置 | 工具型 | 步骤式，状态可见，避免技术术语堆砌 |
+| AI 顾问 | 对话型 | 气泡简洁，输入框固定底部，流式输出 |
+
+### 11.3 主要优点（保留）
+
+1. **设计哲学与产品定位一致**：「温暖舒适」莫兰迪 + 女性健康，视觉策略选型正确。
+2. **UnifiedHealthContext** 解决了多 Tab 数据割裂的典型 PRD 缺陷。
+3. **三阶段 MVP** 让每阶段都有可交付价值，符合 Goal-Directed Design。
+4. **CalorieCop 保留清单** 防止改造时功能回退，工程可执行性强。
+5. **v2.3 AI 选型** DeepSeek（文字）+ Qwen（视觉）分工清晰，DeepSeek OpenAI 兼容格式降低改造风险。
+
+### 11.4 待改进项（建议写入下一版或阶段一同步落地）
+
+#### P0 级（阶段一必须做）
+
+| # | 问题 | 建议 |
+|---|------|------|
+| 1 | 首页信息过载：周期条 + 热量环 + 4 类滑动卡片 + 快捷按钮 | 卡片组默认只显示 2 张，其余「查看全部」；热量环占首屏 40% 视觉权重 |
+| 2 | 缺 Dark Mode 色值 | 补充 `Theme.swift` Token 表：浅色 + 深色各一套，WCAG AA 对比度 ≥ 4.5:1 |
+| 3 | 缺空状态设计 | 每个 Tab 定义 Empty State 插画策略（SF Symbol 大号 + 一句引导 + CTA） |
+| 4 | 高危风险视觉过重可能引发焦虑 | 用 `#E8A0A0` 低饱和警示 + 柔和文案，避免纯红 Alert 样式 |
+| 5 | AI 设置页沿用 CalorieCop 蓝色按钮 | 统一为莫兰迪主色 `#ADC8F5`，destructive 保持系统红 |
+
+#### P1 级（阶段二前补充到 PRD）
+
+| # | 问题 | 建议 |
+|---|------|------|
+| 6 | 体检导入校对页未定义 | 新增「报告校对页」线框：左图右表，逐行可编辑，底部「确认入库」 |
+| 7 | 健康摘要页信息层级未细化 | 首屏只显示 3 条最重要结论 + 「查看完整指标」 |
+| 8 | 周期主题色与全局莫兰迪可能冲突 | 周期色仅作用于 PhaseBar 和 tips 卡片边框，不整页染色 |
+
+#### P2 级（阶段三或打磨期）
+
+| # | 问题 | 建议 |
+|---|------|------|
+| 9 | 视觉深度层未定义 | 首页至少 3 层：背景 → Material 卡片 → 内容；避免纯白平板感 |
+| 10 | 微动效未量化 | 卡片切换 0.3s ease-out；热量环进度 0.6s spring；阶段色渐变 0.8s |
+| 11 | 成就系统易显幼稚 | 勋章用 SF Symbols 线条风格，不用 emoji 奖杯 |
+
+### 11.5 关键用户路径审查
+
+```
+路径 A：首次使用 → 记录一餐
+Onboarding → AI 配置 → 首页 → 减脂 Tab → 文字录入 → 确认 → 热量环更新
+✅ v2.3 已覆盖；需确保 Step 3 不超过 60 秒完成（仅填 DeepSeek Key 即可）
+
+路径 B：导入体检 → 获得风险待办
+健康 Tab → 导入 → Vision OCR → 校对页 → 摘要 → 风险卡 → 生成待办
+⚠️ 校对页 UI 需在阶段二 PRD 细化
+
+路径 C：未配 API Key 想用 AI 顾问
+减脂 Tab → AI 顾问 → 拦截卡 → AI 设置 → 测试连接 → 返回对话
+✅ v2.3 已覆盖（DeepSeek Key）
+```
+
+### 11.6 设计交付物清单（阶段一建议同步产出）
+
+- [ ] `Theme.swift`：Color / Font / Spacing Token（含 Dark Mode）
+- [ ] 首页线框（标注视觉权重比例）
+- [ ] `AISettingsView` 高保真稿或 SwiftUI Preview
+- [ ] Onboarding 4 步原型
+- [ ] 5 个 Tab 空状态组件规范
+- [ ] 组件状态矩阵（default / loading / empty / error / disabled）
+
+---
+
+**下一步建议：** 步骤 0 代码已完成。请在 **Mac + Xcode** 编译运行验证；通过后继续 §8.1 步骤 1（重命名工程）及 `Theme.swift`。

@@ -1,0 +1,39 @@
+---
+description: Bonne-Santé 核心开发原则与架构约束（始终生效）
+alwaysApply: true
+---
+
+# Bonne-Santé 核心规则
+
+## 必读文档
+
+开发前先读：`PRD.txt`、`MEMORY.md`、`DEVELOPMENT_PLAN.md`。
+
+## 最高原则
+
+健康数据整合必须与 CalorieCop 减脂能力融合，经 `UnifiedHealthContext` 统一驱动。禁止各 Tab 孤立维护健康/TDEE 状态。
+
+## 保留清单（禁止删除）
+
+自然语言食物录入、Qwen 拍照识食、食物偏好、饮食日记、热量收支、目标体重、AI 顾问、历史记录、API Key 配置、HealthKit、SwiftData。
+
+## AI 服务商
+
+- 文字：**仅 DeepSeek**（`DeepSeekService`，`deepseek-chat`）— **禁止使用 MiniMax**
+- 图像：**Qwen VL**（保留原代码，勿改 `parseFoodImage` 逻辑）
+- 体检 OCR：**Apple Vision**（设备端，无需 Key）
+
+## 作者
+
+- 新增代码：`jiali.qiu`
+- Bug 修复：`zhi.qu`
+
+## 医疗合规
+
+风险与健康建议必须标注「仅供参考，请遵医嘱」。不做医学诊断。
+
+## 数据安全
+
+- 体检/饮食/待办仅存本地 SwiftData
+- API Key 目标存储：Keychain（迁移自 UserDefaults）
+- 体检 OCR 未经用户校对：`isVerified = false`，不同步 Engine

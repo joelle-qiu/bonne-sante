@@ -1,0 +1,38 @@
+---
+description: DeepSeek 与 Qwen AI 接入规范
+globs: CalorieCop/**/AIService/**/*.swift,CalorieCop/**/APIKeyManager.swift,CalorieCop/**/Settings/**/*.swift,CalorieCop/**/AIAdvisorView.swift
+alwaysApply: false
+---
+
+# AI 接入规则
+
+**禁止使用 MiniMax**。文字处理仅 DeepSeek + Qwen 识图。
+
+## DeepSeek（文字，必须）
+
+- 端点：`https://api.deepseek.com/v1/chat/completions`
+- 模型：`deepseek-chat`
+- 格式：OpenAI Chat Completions 兼容
+- 用途：食物文字解析、AI 顾问、可选报告结构化
+
+```swift
+// ✅ 正确
+guard let key = APIKeyManager.deepSeekAPIKey else { throw ... }
+let service = DeepSeekService()
+```
+
+## Qwen VL（图像，可选）
+
+- **不要修改** `parseFoodImage` / `parseFoodImageMultiple` 核心逻辑
+- 端点由 `APIKeyManager.qwenEndpoint` 按地区切换
+- 未配置时降级：提示用户用文字录入或手动填写
+
+## Key 管理
+
+- 用户 Key 存 Keychain（目标态）；兼容 UserDefaults 迁移
+- 设置页：DeepSeek 必填区块 + Qwen 可选区块
+- 未配 DeepSeek：显示 `APIKeyPromptView`，不阻断 App 其他功能
+
+## 隐私
+
+AI 请求仅发送食物描述或用户确认后的脱敏报告文本。体检原始图片不上传云端。

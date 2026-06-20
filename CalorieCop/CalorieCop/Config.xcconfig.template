@@ -1,0 +1,6 @@
+// Bonne-Santé / CalorieCop Configuration Template
+// Copy this file to Config.xcconfig and fill in your API keys
+// Config.xcconfig is gitignored for security
+
+DEEPSEEK_API_KEY = your_api_key_here
+QWEN_API_KEY = your_api_key_here

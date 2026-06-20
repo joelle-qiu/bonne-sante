@@ -1,0 +1,35 @@
+---
+description: 架构分层与 UnifiedHealthContext 约束
+globs: CalorieCop/**/Services/**/*.swift,CalorieCop/**/ViewModels/**/*.swift
+alwaysApply: false
+---
+
+# 架构规则
+
+## 分层
+
+```
+Views → ViewModels → UnifiedHealthContext → Services/Engines → SwiftData / 系统框架
+```
+
+## Engine 层（纯函数，可单测）
+
+- `IntegratedTDEEEngine`：TDEE、每日赤字、宏量建议
+- `HealthProfileEngine`：体检评估、约束输出
+- `RiskAnalyzer`：风险规则匹配
+- `CycleEngine`：周期阶段计算
+- `WorkoutPlanEngine`：周训练计划
+
+## Service 层
+
+- 接口：`async throws`
+- ViewModel 禁止直接访问 HealthKit，统一走 Service
+
+## UnifiedHealthContext
+
+`@Observable`，App 启动注入 Environment。所有 Dashboard、减脂、AI 顾问读取此对象。
+
+## 禁止
+
+- View 层直接计算 TDEE
+- 未校对 Report 写入 `HealthProfileEngine`

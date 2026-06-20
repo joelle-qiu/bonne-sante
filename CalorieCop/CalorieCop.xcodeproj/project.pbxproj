@@ -1,0 +1,706 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1000001238ABCDE /* CalorieCopApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100001238ABCDE /* CalorieCopApp.swift */; };
+		A1000002238ABCDE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100002238ABCDE /* ContentView.swift */; };
+		A1000003238ABCDE /* FoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100003238ABCDE /* FoodEntry.swift */; };
+		A1000004238ABCDE /* NutritionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100004238ABCDE /* NutritionInfo.swift */; };
+		A1000005238ABCDE /* AIServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100005238ABCDE /* AIServiceProtocol.swift */; };
+		A1000006238ABCDE /* DeepSeekService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100006238ABCDE /* DeepSeekService.swift */; };
+		A1000007238ABCDE /* FoodParsingPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100007238ABCDE /* FoodParsingPrompt.swift */; };
+		A1000008238ABCDE /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100008238ABCDE /* HealthKitService.swift */; };
+		A1000009238ABCDE /* APIKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100009238ABCDE /* APIKeyManager.swift */; };
+		A100000A238ABCDE /* FoodInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000A238ABCDE /* FoodInputView.swift */; };
+		A100000B238ABCDE /* FoodConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000B238ABCDE /* FoodConfirmationView.swift */; };
+		A100000C238ABCDE /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000C238ABCDE /* DashboardView.swift */; };
+		A100000D238ABCDE /* FoodListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000D238ABCDE /* FoodListView.swift */; };
+		A100000E238ABCDE /* NutritionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000E238ABCDE /* NutritionCard.swift */; };
+		A100000F238ABCDE /* CalorieBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110000F238ABCDE /* CalorieBalanceView.swift */; };
+		A1000010238ABCDE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100010238ABCDE /* Extensions.swift */; };
+		A1000011238ABCDE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1100011238ABCDE /* Assets.xcassets */; };
+		A1000012238ABCDE /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1100012238ABCDE /* HealthKit.framework */; };
+		A1000014238ABCDE /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100014238ABCDE /* HistoryView.swift */; };
+		A1000015238ABCDE /* DayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100015238ABCDE /* DayDetailView.swift */; };
+		A1000016238ABCDE /* AIAdvisorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100016238ABCDE /* AIAdvisorView.swift */; };
+		A1000017238ABCDE /* UserGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100017238ABCDE /* UserGoal.swift */; };
+		A1000018238ABCDE /* WeightChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100018238ABCDE /* WeightChartView.swift */; };
+		A1000019238ABCDE /* GoalSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100019238ABCDE /* GoalSettingView.swift */; };
+		A100001A238ABCDE /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001A238ABCDE /* GoalsView.swift */; };
+		A100001B238ABCDE /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001B238ABCDE /* Secrets.swift */; };
+		A100001C238ABCDE /* WeightEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001C238ABCDE /* WeightEntry.swift */; };
+		A100001D238ABCDE /* ManualWeightEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001D238ABCDE /* ManualWeightEntryView.swift */; };
+		A100001E238ABCDE /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001E238ABCDE /* UserSettings.swift */; };
+		A100001F238ABCDE /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001F238ABCDE /* ChatMessage.swift */; };
+		A1000022238ABCDE /* FoodPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100022238ABCDE /* FoodPreference.swift */; };
+		A1000023238ABCDE /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100023238ABCDE /* DebugLogger.swift */; };
+		A1000024238ABCDE /* APIKeySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100024238ABCDE /* APIKeySetupView.swift */; };
+		A1000025238ABCDE /* DataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100025238ABCDE /* DataMigrationService.swift */; };
+		A1000030238ABCDE /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100030238ABCDE /* Theme.swift */; };
+		A1000031238ABCDE /* IntegratedTDEEEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100031238ABCDE /* IntegratedTDEEEngine.swift */; };
+		A1000032238ABCDE /* UnifiedHealthContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100032238ABCDE /* UnifiedHealthContext.swift */; };
+		A1000033238ABCDE /* AIServiceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100033238ABCDE /* AIServiceStatus.swift */; };
+		A1000034238ABCDE /* CycleProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100034238ABCDE /* CycleProfile.swift */; };
+		A1000035238ABCDE /* CycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100035238ABCDE /* CycleEngine.swift */; };
+		A1000036238ABCDE /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100036238ABCDE /* EmptyStateView.swift */; };
+		A1000037238ABCDE /* CircularProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100037238ABCDE /* CircularProgress.swift */; };
+		A1000038238ABCDE /* PhaseBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100038238ABCDE /* PhaseBar.swift */; };
+		A1000039238ABCDE /* HomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100039238ABCDE /* HomeDashboardView.swift */; };
+		A100003A238ABCDE /* HealthPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003A238ABCDE /* HealthPlaceholderView.swift */; };
+		A100003B238ABCDE /* TasksPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003B238ABCDE /* TasksPlaceholderView.swift */; };
+		A100003C238ABCDE /* WeightLossTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003C238ABCDE /* WeightLossTabView.swift */; };
+		A100003D238ABCDE /* SettingsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003D238ABCDE /* SettingsTabView.swift */; };
+		A100003E238ABCDE /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003E238ABCDE /* KeychainService.swift */; };
+		A100003F238ABCDE /* DeepSeekAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110003F238ABCDE /* DeepSeekAPIClient.swift */; };
+		A1000040238ABCDE /* AISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100040238ABCDE /* AISettingsView.swift */; };
+		A1000041238ABCDE /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100041238ABCDE /* OnboardingView.swift */; };
+		A1000042238ABCDE /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100042238ABCDE /* AppRootView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A1100001238ABCDE /* CalorieCopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieCopApp.swift; sourceTree = "<group>"; };
+		A1100002238ABCDE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A1100003238ABCDE /* FoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodEntry.swift; sourceTree = "<group>"; };
+		A1100004238ABCDE /* NutritionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionInfo.swift; sourceTree = "<group>"; };
+		A1100005238ABCDE /* AIServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIServiceProtocol.swift; sourceTree = "<group>"; };
+		A1100006238ABCDE /* DeepSeekService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekService.swift; sourceTree = "<group>"; };
+		A1100007238ABCDE /* FoodParsingPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodParsingPrompt.swift; sourceTree = "<group>"; };
+		A1100008238ABCDE /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		A1100009238ABCDE /* APIKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyManager.swift; sourceTree = "<group>"; };
+		A110000A238ABCDE /* FoodInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodInputView.swift; sourceTree = "<group>"; };
+		A110000B238ABCDE /* FoodConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodConfirmationView.swift; sourceTree = "<group>"; };
+		A110000C238ABCDE /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A110000D238ABCDE /* FoodListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodListView.swift; sourceTree = "<group>"; };
+		A110000E238ABCDE /* NutritionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionCard.swift; sourceTree = "<group>"; };
+		A110000F238ABCDE /* CalorieBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieBalanceView.swift; sourceTree = "<group>"; };
+		A1100010238ABCDE /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		A1100011238ABCDE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1100012238ABCDE /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		A1100014238ABCDE /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A1100015238ABCDE /* DayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailView.swift; sourceTree = "<group>"; };
+		A1100016238ABCDE /* AIAdvisorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAdvisorView.swift; sourceTree = "<group>"; };
+		A1100017238ABCDE /* UserGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserGoal.swift; sourceTree = "<group>"; };
+		A1100018238ABCDE /* WeightChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartView.swift; sourceTree = "<group>"; };
+		A1100019238ABCDE /* GoalSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettingView.swift; sourceTree = "<group>"; };
+		A110001A238ABCDE /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
+		A110001B238ABCDE /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
+		A110001C238ABCDE /* WeightEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightEntry.swift; sourceTree = "<group>"; };
+		A110001D238ABCDE /* ManualWeightEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualWeightEntryView.swift; sourceTree = "<group>"; };
+		A110001E238ABCDE /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		A110001F238ABCDE /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		A1100020238ABCDE /* CalorieCop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalorieCop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1100021238ABCDE /* CalorieCop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalorieCop.entitlements; sourceTree = "<group>"; };
+		A1100022238ABCDE /* FoodPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodPreference.swift; sourceTree = "<group>"; };
+		A1100023238ABCDE /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		A1100024238ABCDE /* APIKeySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeySetupView.swift; sourceTree = "<group>"; };
+		A1100025238ABCDE /* DataMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataMigrationService.swift; sourceTree = "<group>"; };
+		A1100030238ABCDE /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		A1100031238ABCDE /* IntegratedTDEEEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegratedTDEEEngine.swift; sourceTree = "<group>"; };
+		A1100032238ABCDE /* UnifiedHealthContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedHealthContext.swift; sourceTree = "<group>"; };
+		A1100033238ABCDE /* AIServiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIServiceStatus.swift; sourceTree = "<group>"; };
+		A1100034238ABCDE /* CycleProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleProfile.swift; sourceTree = "<group>"; };
+		A1100035238ABCDE /* CycleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleEngine.swift; sourceTree = "<group>"; };
+		A1100036238ABCDE /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		A1100037238ABCDE /* CircularProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgress.swift; sourceTree = "<group>"; };
+		A1100038238ABCDE /* PhaseBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseBar.swift; sourceTree = "<group>"; };
+		A1100039238ABCDE /* HomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardView.swift; sourceTree = "<group>"; };
+		A110003A238ABCDE /* HealthPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthPlaceholderView.swift; sourceTree = "<group>"; };
+		A110003B238ABCDE /* TasksPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksPlaceholderView.swift; sourceTree = "<group>"; };
+		A110003C238ABCDE /* WeightLossTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightLossTabView.swift; sourceTree = "<group>"; };
+		A110003D238ABCDE /* SettingsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTabView.swift; sourceTree = "<group>"; };
+		A110003E238ABCDE /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		A110003F238ABCDE /* DeepSeekAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekAPIClient.swift; sourceTree = "<group>"; };
+		A1100040238ABCDE /* AISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsView.swift; sourceTree = "<group>"; };
+		A1100041238ABCDE /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		A1100042238ABCDE /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1200001238ABCDE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000012238ABCDE /* HealthKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1300000238ABCDE = {
+			isa = PBXGroup;
+			children = (
+				A1300001238ABCDE /* CalorieCop */,
+				A1300002238ABCDE /* Frameworks */,
+				A1300003238ABCDE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1300001238ABCDE /* CalorieCop */ = {
+			isa = PBXGroup;
+			children = (
+				A1100021238ABCDE /* CalorieCop.entitlements */,
+				A1300010238ABCDE /* App */,
+				A1300011238ABCDE /* Models */,
+				A1300012238ABCDE /* Services */,
+				A1300013238ABCDE /* Views */,
+				A1300014238ABCDE /* Utilities */,
+				A1300015238ABCDE /* Resources */,
+			);
+			path = CalorieCop;
+			sourceTree = "<group>";
+		};
+		A1300002238ABCDE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1100012238ABCDE /* HealthKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1300003238ABCDE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1100020238ABCDE /* CalorieCop.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1300010238ABCDE /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A1100001238ABCDE /* CalorieCopApp.swift */,
+				A1100002238ABCDE /* ContentView.swift */,
+				A1100042238ABCDE /* AppRootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A1300011238ABCDE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1100003238ABCDE /* FoodEntry.swift */,
+				A1100004238ABCDE /* NutritionInfo.swift */,
+				A1100017238ABCDE /* UserGoal.swift */,
+				A110001C238ABCDE /* WeightEntry.swift */,
+				A110001E238ABCDE /* UserSettings.swift */,
+				A110001F238ABCDE /* ChatMessage.swift */,
+				A1100022238ABCDE /* FoodPreference.swift */,
+				A1100034238ABCDE /* CycleProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1300012238ABCDE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1300016238ABCDE /* AIService */,
+				A1100008238ABCDE /* HealthKitService.swift */,
+				A1100009238ABCDE /* APIKeyManager.swift */,
+				A110001B238ABCDE /* Secrets.swift */,
+				A1100023238ABCDE /* DebugLogger.swift */,
+				A1100025238ABCDE /* DataMigrationService.swift */,
+				A1100031238ABCDE /* IntegratedTDEEEngine.swift */,
+				A1100032238ABCDE /* UnifiedHealthContext.swift */,
+				A1100033238ABCDE /* AIServiceStatus.swift */,
+				A1100035238ABCDE /* CycleEngine.swift */,
+				A110003E238ABCDE /* KeychainService.swift */,
+				A110003F238ABCDE /* DeepSeekAPIClient.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1300013238ABCDE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A130001D238ABCDE /* Home */,
+				A130001E238ABCDE /* Health */,
+				A130001F238ABCDE /* WeightLoss */,
+				A1300020238ABCDE /* Tasks */,
+				A1300017238ABCDE /* FoodInput */,
+				A1300018238ABCDE /* Dashboard */,
+				A130001A238ABCDE /* History */,
+				A130001B238ABCDE /* Goals */,
+				A1300019238ABCDE /* Components */,
+				A130001C238ABCDE /* Settings */,
+				A1300021238ABCDE /* Onboarding */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A130001D238ABCDE /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				A1100039238ABCDE /* HomeDashboardView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		A130001E238ABCDE /* Health */ = {
+			isa = PBXGroup;
+			children = (
+				A110003A238ABCDE /* HealthPlaceholderView.swift */,
+			);
+			path = Health;
+			sourceTree = "<group>";
+		};
+		A130001F238ABCDE /* WeightLoss */ = {
+			isa = PBXGroup;
+			children = (
+				A110003C238ABCDE /* WeightLossTabView.swift */,
+			);
+			path = WeightLoss;
+			sourceTree = "<group>";
+		};
+		A1300020238ABCDE /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				A110003B238ABCDE /* TasksPlaceholderView.swift */,
+			);
+			path = Tasks;
+			sourceTree = "<group>";
+		};
+		A1300014238ABCDE /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A1100010238ABCDE /* Extensions.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A1300015238ABCDE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1100011238ABCDE /* Assets.xcassets */,
+				A1100030238ABCDE /* Theme.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A1300016238ABCDE /* AIService */ = {
+			isa = PBXGroup;
+			children = (
+				A1100005238ABCDE /* AIServiceProtocol.swift */,
+				A1100006238ABCDE /* DeepSeekService.swift */,
+				A1100007238ABCDE /* FoodParsingPrompt.swift */,
+			);
+			path = AIService;
+			sourceTree = "<group>";
+		};
+		A1300017238ABCDE /* FoodInput */ = {
+			isa = PBXGroup;
+			children = (
+				A110000A238ABCDE /* FoodInputView.swift */,
+				A110000B238ABCDE /* FoodConfirmationView.swift */,
+			);
+			path = FoodInput;
+			sourceTree = "<group>";
+		};
+		A1300018238ABCDE /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				A110000C238ABCDE /* DashboardView.swift */,
+				A110000D238ABCDE /* FoodListView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		A1300019238ABCDE /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A110000E238ABCDE /* NutritionCard.swift */,
+				A110000F238ABCDE /* CalorieBalanceView.swift */,
+				A1100036238ABCDE /* EmptyStateView.swift */,
+				A1100037238ABCDE /* CircularProgress.swift */,
+				A1100038238ABCDE /* PhaseBar.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A130001A238ABCDE /* History */ = {
+			isa = PBXGroup;
+			children = (
+				A1100014238ABCDE /* HistoryView.swift */,
+				A1100015238ABCDE /* DayDetailView.swift */,
+				A1100016238ABCDE /* AIAdvisorView.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		A130001B238ABCDE /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+				A1100018238ABCDE /* WeightChartView.swift */,
+				A1100019238ABCDE /* GoalSettingView.swift */,
+				A110001A238ABCDE /* GoalsView.swift */,
+				A110001D238ABCDE /* ManualWeightEntryView.swift */,
+			);
+			path = Goals;
+			sourceTree = "<group>";
+		};
+		A130001C238ABCDE /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A1100024238ABCDE /* APIKeySetupView.swift */,
+				A1100040238ABCDE /* AISettingsView.swift */,
+				A110003D238ABCDE /* SettingsTabView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A1300021238ABCDE /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				A1100041238ABCDE /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1400001238ABCDE /* CalorieCop */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1500002238ABCDE /* Build configuration list for PBXNativeTarget "CalorieCop" */;
+			buildPhases = (
+				A1400002238ABCDE /* Sources */,
+				A1200001238ABCDE /* Frameworks */,
+				A1400003238ABCDE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CalorieCop;
+			productName = CalorieCop;
+			productReference = A1100020238ABCDE /* CalorieCop.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1600001238ABCDE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A1400001238ABCDE = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A1500001238ABCDE /* Build configuration list for PBXProject "CalorieCop" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = A1300000238ABCDE;
+			productRefGroup = A1300003238ABCDE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1400001238ABCDE /* CalorieCop */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1400003238ABCDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000011238ABCDE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1400002238ABCDE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001238ABCDE /* CalorieCopApp.swift in Sources */,
+				A1000002238ABCDE /* ContentView.swift in Sources */,
+				A1000003238ABCDE /* FoodEntry.swift in Sources */,
+				A1000004238ABCDE /* NutritionInfo.swift in Sources */,
+				A1000005238ABCDE /* AIServiceProtocol.swift in Sources */,
+				A1000006238ABCDE /* DeepSeekService.swift in Sources */,
+				A1000007238ABCDE /* FoodParsingPrompt.swift in Sources */,
+				A1000008238ABCDE /* HealthKitService.swift in Sources */,
+				A1000009238ABCDE /* APIKeyManager.swift in Sources */,
+				A100000A238ABCDE /* FoodInputView.swift in Sources */,
+				A100000B238ABCDE /* FoodConfirmationView.swift in Sources */,
+				A100000C238ABCDE /* DashboardView.swift in Sources */,
+				A100000D238ABCDE /* FoodListView.swift in Sources */,
+				A100000E238ABCDE /* NutritionCard.swift in Sources */,
+				A100000F238ABCDE /* CalorieBalanceView.swift in Sources */,
+				A1000010238ABCDE /* Extensions.swift in Sources */,
+				A1000014238ABCDE /* HistoryView.swift in Sources */,
+				A1000015238ABCDE /* DayDetailView.swift in Sources */,
+				A1000016238ABCDE /* AIAdvisorView.swift in Sources */,
+				A1000017238ABCDE /* UserGoal.swift in Sources */,
+				A1000018238ABCDE /* WeightChartView.swift in Sources */,
+				A1000019238ABCDE /* GoalSettingView.swift in Sources */,
+				A100001A238ABCDE /* GoalsView.swift in Sources */,
+				A100001B238ABCDE /* Secrets.swift in Sources */,
+				A100001C238ABCDE /* WeightEntry.swift in Sources */,
+				A100001D238ABCDE /* ManualWeightEntryView.swift in Sources */,
+				A100001E238ABCDE /* UserSettings.swift in Sources */,
+				A100001F238ABCDE /* ChatMessage.swift in Sources */,
+				A1000022238ABCDE /* FoodPreference.swift in Sources */,
+				A1000023238ABCDE /* DebugLogger.swift in Sources */,
+				A1000024238ABCDE /* APIKeySetupView.swift in Sources */,
+				A1000025238ABCDE /* DataMigrationService.swift in Sources */,
+				A1000030238ABCDE /* Theme.swift in Sources */,
+				A1000031238ABCDE /* IntegratedTDEEEngine.swift in Sources */,
+				A1000032238ABCDE /* UnifiedHealthContext.swift in Sources */,
+				A1000033238ABCDE /* AIServiceStatus.swift in Sources */,
+				A1000034238ABCDE /* CycleProfile.swift in Sources */,
+				A1000035238ABCDE /* CycleEngine.swift in Sources */,
+				A1000036238ABCDE /* EmptyStateView.swift in Sources */,
+				A1000037238ABCDE /* CircularProgress.swift in Sources */,
+				A1000038238ABCDE /* PhaseBar.swift in Sources */,
+				A1000039238ABCDE /* HomeDashboardView.swift in Sources */,
+				A100003A238ABCDE /* HealthPlaceholderView.swift in Sources */,
+				A100003B238ABCDE /* TasksPlaceholderView.swift in Sources */,
+				A100003C238ABCDE /* WeightLossTabView.swift in Sources */,
+				A100003D238ABCDE /* SettingsTabView.swift in Sources */,
+				A100003E238ABCDE /* KeychainService.swift in Sources */,
+				A100003F238ABCDE /* DeepSeekAPIClient.swift in Sources */,
+				A1000040238ABCDE /* AISettingsView.swift in Sources */,
+				A1000041238ABCDE /* OnboardingView.swift in Sources */,
+				A1000042238ABCDE /* AppRootView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1700001238ABCDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1700002238ABCDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1700003238ABCDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CalorieCop/CalorieCop.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZSS6WXY389;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bonne-Santé";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bonne-Santé需要使用相机来拍摄食物照片进行营养分析。";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Bonne-Santé需要读取您的健康数据来追踪卡路里消耗与运动。";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Bonne-Santé需要访问您的健康数据。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Bonne-Santé需要访问您的照片来选择食物图片或体检报告。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.caloriecop.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1700004238ABCDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CalorieCop/CalorieCop.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZSS6WXY389;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bonne-Santé";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bonne-Santé需要使用相机来拍摄食物照片进行营养分析。";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Bonne-Santé需要读取您的健康数据来追踪卡路里消耗与运动。";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Bonne-Santé需要访问您的健康数据。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Bonne-Santé需要访问您的照片来选择食物图片或体检报告。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.caloriecop.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1500001238ABCDE /* Build configuration list for PBXProject "CalorieCop" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1700001238ABCDE /* Debug */,
+				A1700002238ABCDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1500002238ABCDE /* Build configuration list for PBXNativeTarget "CalorieCop" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1700003238ABCDE /* Debug */,
+				A1700004238ABCDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1600001238ABCDE /* Project object */;
+}
