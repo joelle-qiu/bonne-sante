@@ -1,6 +1,6 @@
 ---
 description: SwiftUI 与莫兰迪设计规范（Bonne-Santé iOS 视图）
-globs: CalorieCop/**/*.swift
+globs: BonneSante/**/*.swift
 alwaysApply: false
 ---
 
@@ -10,16 +10,23 @@ alwaysApply: false
 
 - 字体：系统 San Francisco + Dynamic Type
 - 图标：仅 SF Symbols 5
-- 颜色：使用 `Theme.swift`，禁止硬编码系统 `.blue`
-  - 主色 `#ADC8F5`、背景 `#F9FBFF`、强调 `#E5A5CF`、警示 `#E8A0A0`
-- 卡片：`.regularMaterial`，圆角 16pt，无硬阴影
+- 颜色：使用 `Theme.swift`，**禁止硬编码**系统 `.blue` / `.orange` / `.green` / `.purple`
+  - 品牌：主色 `#ADC8F5`、背景 `#F9FBFF`、强调 `#E5A5CF`、警示 `#E8A0A0`
+  - 数据可视化：必须用 `Theme.energyActive/Basal/Consumed`、`Theme.macroProtein/Carbs/Fat`
+  - **日间模式一律莫兰迪低饱和**；布局可参考 Apple 健康，配色不可照搬系统高饱和色
+- 卡片：圆角 16pt（`morandiCard()`），浅色用白底轻阴影，深色用 `cardDark`
 - 间距：4 倍数网格，水平边距 20pt
+- 深色模式：文字/轨道用 `adaptiveTextPrimary/Secondary`，保证 WCAG 可读性
 
 ## 组件
 
-- 热量进度：`CircularProgress`
-- 周期展示：`PhaseBar`
-- 每个新 View 必须包含 `#Preview` + 模拟数据
+- 首页能量：`DailyEnergyBoard`（三环 + 磁贴，非旧 `CircularProgress` 单列）
+- 首页营养：`NutritionMacroBars`
+- 首页复查：`CompactCheckupReminders`（仅 `CheckupPlan`，禁止 `RiskCard`）
+- 周期展示：`PhaseBar` + `CycleTipsCard`；`@Environment(\.cyclePhase)` 由 `ContentView` 注入
+- 周期色：仅 `PhaseBar` / `CycleTipsCard` 边框与背景（`Theme.phaseBarBackground`），禁止整页染色
+- 快捷按钮：`MorandiQuickActionButtonStyle`（primary 实心 / secondary 描边，成对对称）
+- 每个新 View 必须包含 `#Preview` + 模拟数据（含浅色/深色）
 
 ## 导航
 
@@ -27,8 +34,17 @@ alwaysApply: false
 
 ## 空状态
 
-每 Tab 需 Empty State：大号 SF Symbol + 引导文案 + CTA。
+每 Tab 需 Empty State：大号 SF Symbol + 引导文案 + CTA。  
+首页复查待办**无数据时不占位**，直接隐藏区块。
 
-## 首页信息层级
+## 首页信息层级（用户确认 · 不可违反）
 
-热量环为主视觉（约 40%）；滑动卡片默认最多 2 张可见。
+**每日刷新数据优先；低频提醒置后。**
+
+```
+周期条 → 今日能量（主视觉 ~40%）→ 今日营养 → 快捷操作 → 今日饮食（≤3条）→ [周期tip 仅未设置时] → 复查待办（最底）
+```
+
+- **禁止**在首页放大型风险卡 / 健康摘要卡片（去健康 Tab）
+- 底部「复查待办」只展示已生成的 `CheckupPlan`，最多 2 条紧凑行
+- 能量磁贴：活动 / 基础 / 已摄入须为大号数字，不可用小字塞在圆环下方

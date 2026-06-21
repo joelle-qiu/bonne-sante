@@ -1,6 +1,6 @@
 ---
 description: 架构分层与 UnifiedHealthContext 约束
-globs: CalorieCop/**/Services/**/*.swift,CalorieCop/**/ViewModels/**/*.swift
+globs: BonneSante/**/Services/**/*.swift,BonneSante/**/ViewModels/**/*.swift
 alwaysApply: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: DeepSeek 与 Qwen AI 接入规范
-globs: CalorieCop/**/AIService/**/*.swift,CalorieCop/**/APIKeyManager.swift,CalorieCop/**/Settings/**/*.swift,CalorieCop/**/AIAdvisorView.swift
+globs: BonneSante/**/AIService/**/*.swift,BonneSante/**/APIKeyManager.swift,BonneSante/**/Settings/**/*.swift,BonneSante/**/AIAdvisorView.swift
 alwaysApply: false
 ---
 

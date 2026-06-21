@@ -1,9 +1,9 @@
 # Bonne-Santé 开发计划
 
 **依据文档**：`PRD.txt` v2.4  
-**更新日期**：2026-06-19  
+**更新日期**：2026-06-22（AI 配置 + 目标设置 HealthKit 同步）  
 **预计总工期**：11–16 周（三阶段 MVP）  
-**代码路径**：`CalorieCop/`（阶段一完成后重命名为 BonneSante）
+**代码路径**：`BonneSante/`
 
 ---
 
@@ -14,7 +14,7 @@
 | 产品 | 女性专属 iOS 健康助手（原生 App） |
 | 核心原则 | **健康数据整合 × CalorieCop 减脂能力融合**，经 `UnifiedHealthContext` 统一驱动 |
 | 技术栈 | SwiftUI、SwiftData、HealthKit、Vision、EventKit、DeepSeek + Qwen VL |
-| 开发环境 | Windows Cursor 编码 → SSH 远程 Mac mini（Xcode 编译） |
+| 工程 | Target `BonneSante`，Bundle ID `com.bonnesante.app`，显示名 Bonne-Santé |
 | 设计规范 | 莫兰迪色系、5 Tab、SF Symbols、`.regularMaterial` 卡片 |
 
 ---
@@ -22,23 +22,31 @@
 ## 2. 当前进度
 
 ```
-[████████████████░░░░] 阶段一约 85%
+[████████████████████] 阶段一 100% ✅
 
-✅ 已完成
-  - PRD v2.5、开发计划、记忆文件、Cursor 规则
+✅ 阶段一已完成（2026-06-20）
   - 步骤 0：DeepSeek 迁移
-  - 步骤 1.2：显示名 Bonne-Santé（Bundle ID 暂保留）
-  - 步骤 1.3：Theme.swift（莫兰迪 + Dark Mode Token）
-  - 步骤 1.4–1.5：5 Tab 导航 + 页面迁入
-  - 步骤 1.6–1.7：UnifiedHealthContext + IntegratedTDEEEngine
-  - 步骤 1.8：UserGoal 扩展（体脂字段）
-  - 步骤 1.9（部分）：首页热量环 + 周期条 + tips + 快捷操作
-  - 步骤 1.10：AISettingsView + KeychainService + DeepSeek 连接测试
-  - 步骤 1.11：Onboarding 4 步引导（AppRootView）
-  - 步骤 1.12：AI 顾问注入 UnifiedHealthContext 今日概览
+  - 步骤 1.1：Mac 编译验证（Deployment Target → iOS 17.0）
+  - 步骤 1.2：工程重命名 BonneSante + Bundle ID com.bonnesante.app
+  - 步骤 1.3–1.12：Theme、5 Tab、UnifiedContext、Onboarding、AI 顾问
+  - 步骤 1.14：回归验收全部通过
 
-⏸ 等待 Mac mini
-  - 步骤 1.1 / 1.14：编译验证与回归测试
+```
+[████████░░░░░░░░░░░░] 阶段三 ~25%（周期引擎已启动）
+
+⏳ 阶段二 ~80%（并行收尾）
+  - 复查计划 UI、阶段二真机验收
+
+🚀 阶段三（当前焦点 · 2026-06-21）
+  - CycleEngine 知识库 + HealthKit 经期同步 ✅
+  - PhaseBar / CycleTipsCard 主题联动 ✅
+  - WorkoutPlanEngine、运动日历 ⏳
+
+📌 2026-06-22 增量
+  - Qwen API 连接测试 + 默认大陆站 ✅
+  - GoalSetting / Onboarding HealthKit 身体档案预填 ✅
+  - 真机验收 Qwen 识食 + 目标预填 ⏳
+```
 ```
 
 ---
@@ -79,8 +87,8 @@ gantt
 | ID | 任务 | 依赖 | 产出文件 | 估时 |
 |----|------|------|----------|------|
 | 1.0 | DeepSeek 迁移 | — | `DeepSeekService.swift` 等 | ✅ 完成 |
-| 1.1 | Mac 编译验证步骤 0 | 1.0 | — | 0.5d |
-| 1.2 | 重命名 Target / Bundle ID / 显示名 | 1.1 | `project.pbxproj`、`Info.plist` | 1d |
+| 1.1 | Mac 编译验证 | 1.0 | — | ✅ 完成 |
+| 1.2 | 重命名 Target / Bundle ID / 显示名 | 1.1 | `BonneSante.xcodeproj` | ✅ 完成 |
 | 1.3 | 创建 `Theme.swift`（含 Dark Mode） | 1.2 | `Resources/Theme.swift` | 1d |
 | 1.4 | 5 Tab 根导航骨架 | 1.3 | `ContentView.swift`、`TabRoot/` | 2d |
 | 1.5 | 迁入 CalorieCop 页面到对应 Tab | 1.4 | 各 View 路径调整 | 2d |
@@ -89,10 +97,12 @@ gantt
 | 1.8 | 扩展 `UserGoal`（体脂、期限） | 1.6 | `Models/UserGoal.swift` | 1d |
 | 1.9 | 首页：热量环 + 周期条 + 快捷操作 | 1.7 | `CircularProgress`、`PhaseBar` | 3d |
 | 1.10 | 升级 `AISettingsView` + Keychain | 1.4 | `AISettingsView.swift` | ✅ 完成 |
+| 1.10b | Qwen 连接测试 + 大陆站默认 | 1.10 | `QwenAPIClient.swift` | ✅ 2026-06-22 |
 | 1.11 | Onboarding 4 步流程 | 1.10 | `Views/Onboarding/` | ✅ 完成 |
+| 1.11b | Onboarding / 目标设置 HealthKit 预填 | 1.11 | `HealthKitService.fetchBodyProfile` | ✅ 2026-06-22 |
 | 1.12 | AI 顾问注入 Context 数据 | 1.6 | `AIAdvisorView.swift` | ✅ 完成 |
 | 1.13 | 静态周期 tips + 空状态组件 | 1.9 | `Components/` | 1d |
-| 1.14 | 阶段一回归测试 | 全部 | 测试记录 | 2d |
+| 1.14 | 阶段一回归测试 | 全部 | 测试记录 | ✅ 完成 |
 
 **阶段一关键路径**：1.1 → 1.2 → 1.3 → 1.4 → 1.6 → 1.7 → 1.9 → 1.14
 
@@ -108,12 +118,12 @@ gantt
 
 ### 4.3 阶段一验收清单（来自 PRD §5.1.3）
 
-- [ ] 中文食物录入 → 热量计入，首页环更新
-- [ ] Qwen 拍照识食 → 剩余热量实时更新
-- [ ] 目标体重设定 → 每日预算正确
-- [ ] Apple Watch 消耗 → TDEE 联动
-- [ ] AI 顾问知晓目标与摄入
-- [ ] 5 Tab 可达且视觉统一
+- [x] 中文食物录入 → 热量计入，首页环更新
+- [x] Qwen 拍照识食 → 剩余热量实时更新（或文字录入降级）
+- [x] 目标体重设定 → 每日预算正确
+- [x] Apple Watch 消耗 → TDEE 联动（模拟器用估算值）
+- [x] AI 顾问知晓目标与摄入
+- [x] 5 Tab 可达且视觉统一
 
 ---
 
@@ -134,14 +144,15 @@ gantt
 
 ## 6. 阶段三详细任务
 
-| 模块 | 核心任务 | 关键文件 |
-|------|----------|----------|
-| 周期 | CycleEngine + HealthKit 经期 | `CycleEngine.swift`、`CycleProfile.swift` |
-| 主题联动 | 三期背景色 + `@Environment(\.cyclePhase)` | `Theme.swift` 扩展 |
-| 训练 | WorkoutPlanEngine + 完成度 | `WorkoutPlanEngine.swift` |
-| 运动日历 | 月热力图 + 日详情 | `Views/WeightLoss/WorkoutCalendarView.swift` |
-| 门诊 | 截图 OCR + EventKit | `CalendarService.swift` |
-| 打磨 | 微动效、勋章、分享卡片 | `Views/Settings/AchievementsView.swift` |
+| 模块 | 核心任务 | 状态 | 关键文件 |
+|------|----------|------|----------|
+| 周期 | CycleEngine + HealthKit 经期 | **进行中** | `CycleEngine.swift`、`CycleProfile.swift`、`HealthKitService.swift` |
+| 主题联动 | 三期背景色 + `@Environment(\.cyclePhase)` | **进行中** | `Theme.swift`、`PhaseBar.swift` |
+| Tips | 周期饮食/训练知识库 + 首页/营养 Tab | **进行中** | `CycleTipsCard.swift` |
+| 训练 | WorkoutPlanEngine + 完成度 | 未开始 | `WorkoutPlanEngine.swift` |
+| 运动日历 | 月热力图 + 日详情 | 未开始 | `WorkoutCalendarView.swift` |
+| 门诊 | 截图 OCR + EventKit | 未开始 | `CalendarService.swift` |
+| 打磨 | 微动效、勋章、分享卡片 | 未开始 | `AchievementsView.swift` |
 
 ---
 
@@ -202,4 +213,5 @@ Views（SwiftUI）
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.0 | 2026-06-19 | 初版，对齐 PRD v2.4 |
+| 1.1 | 2026-06-20 | 阶段一完成：Mac 验收、工程重命名 BonneSante |
+| 1.2 | 2026-06-22 | Qwen 测试连接、默认大陆站；目标设置 HealthKit 身体档案预填 |

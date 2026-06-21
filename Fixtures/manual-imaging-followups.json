@@ -1,0 +1,928 @@
+{"examDate":"2024-09-03","assessmentNote":"本次体检发现肝低回声（血管瘤可能）、子宫肌瘤可能、总胆固醇增高、双侧甲状腺回声欠均匀、乳腺增生、颈椎生理曲度变直、子宫颈腺囊肿（纳氏囊肿）、窦性心律不齐、牙结石。建议按各条目专科随访或复查。","metrics":[{"name":"身高","value":165.5,"unit":"cm","referenceRange":"","isAbnormal":false,"section":"基础数据","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"体重","value":52.8,"unit":"Kg","referenceRange":"","isAbnormal":false,"section":"基础数据","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"体重指数","value":19.3,"unit":"","referenceRange":"18.5-23.99","isAbnormal":false,"section":"基础数据","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"收缩压","value":100,"unit":"mmHg","referenceRange":"90.0-139.0","isAbnormal":false,"section":"基础数据","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"舒张压","value":72,"unit":"mmHg","referenceRange":"60.0-89.0","isAbnormal":false,"section":"基础数据","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"白细胞计数","value":4.70,"unit":"10^9/L","referenceRange":"3.5—9.5","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"红细胞计数","value":4.09,"unit":"10^12/L","referenceRange":"3.8-5.1","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"血红蛋白","value":128.0,"unit":"g/L","referenceRange":"115-150","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"红细胞比容","value":0.38,"unit":"L/L","referenceRange":"0.35-0.45","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"平均红细胞体积","value":92.00,"unit":"fL","referenceRange":"82-100","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"平均红细胞血红蛋白含量","value":31.30,"unit":"fL","referenceRange":"27.0-34.0","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"平均红细胞血红蛋白浓度","value":340.00,"unit":"pg","referenceRange":"316-355","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"红细胞分布宽度-变异系数","value":11.90,"unit":"%","referenceRange":"11-16","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"血小板计数","value":175.00,"unit":"10^9/L","referenceRange":"125-350","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"平均血小板体积","value":8.60,"unit":"fL","referenceRange":"7.0-13.0","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"血小板分布宽度","value":15.80,"unit":"%","referenceRange":"10-20","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"淋巴细胞百分比","value":40.70,"unit":"%","referenceRange":"20-50","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"中性粒细胞百分比","value":50.10,"unit":"%","referenceRange":"40.0-75.0","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"淋巴细胞绝对值","value":1.93,"unit":"10^9/L","referenceRange":"1.1-3.2","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"中性粒细胞绝对值","value":2.37,"unit":"10^9/L","referenceRange":"1.8-6.3","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"红细胞分布宽度-标准差","value":39.00,"unit":"g/L","referenceRange":"35-54","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"血小板压积","value":0.150,"unit":"%","referenceRange":"0.108-0.282","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"单核细胞百分比","value":4.40,"unit":"%","referenceRange":"3.0-10.0","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"单核细胞绝对值","value":0.21,"unit":"10^9/L","referenceRange":"0.1-0.6","isAbnormal":false,"section":"血常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿比重","value":1.015,"unit":"","referenceRange":"1.010—1.025","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿酸碱度","value":6.0,"unit":"","referenceRange":"4.5-8.0","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿白细胞","valueText":"阴性","unit":"Cell/uL","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿亚硝酸盐","valueText":"阴性","unit":"","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿蛋白质","valueText":"阴性","unit":"g/L","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿糖","valueText":"阴性","unit":"mmol/L","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿酮体","valueText":"阴性","unit":"mmol/L","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿胆原","valueText":"阴性","unit":"umol/L","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿胆红素","valueText":"阴性","unit":"umol/L","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿隐血","valueText":"阴性","unit":"Cell/uL","referenceRange":"阴性","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿镜检红细胞","value":0,"unit":"","referenceRange":"0-3","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿镜检白细胞","value":0,"unit":"/HP","referenceRange":"0-5","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"管型","value":0,"unit":"","referenceRange":"","isAbnormal":false,"section":"尿常规","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"丙氨酸氨基转移酶","value":12,"unit":"U/L","referenceRange":"0—40","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"天门冬氨酸氨基转移酶","value":18,"unit":"U/L","referenceRange":"0—35","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"γ-谷氨酰转移酶","value":10,"unit":"U/L","referenceRange":"7—45","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿素","value":4.6,"unit":"mmol/L","referenceRange":"2.6—7.5","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"肌酐","value":57,"unit":"umol/L","referenceRange":"41—73","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"尿酸","value":261,"unit":"umol/L","referenceRange":"150-360","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"空腹血葡萄糖","value":4.70,"unit":"mmol/L","referenceRange":"3.9-6.1","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"总胆固醇","value":6.75,"unit":"mmol/L","referenceRange":"0-5.2","isAbnormal":true,"section":"血液生化","visitDate":"2024-09-03","severityRank":2,"assessmentNote":"总胆固醇增高，建议戒烟限酒，低脂低胆固醇饮食，加强运动，3-6个月复查血脂和肝脏B超"},{"name":"甘油三酯","value":1.56,"unit":"mmol/L","referenceRange":"0.40-1.70","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"高密度脂蛋白胆固醇","value":1.99,"unit":"mmol/L","referenceRange":"1.0-2.1","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"低密度脂蛋白胆固醇","value":3.07,"unit":"mmol/L","referenceRange":"0-3.37","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"甲胎蛋白定量","value":1.94,"unit":"ng/ml","referenceRange":"0-13","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"},{"name":"癌胚抗原定量","value":0.99,"unit":"ng/ml","referenceRange":"0-5","isAbnormal":false,"section":"血液生化","visitDate":"2024-09-03","severityRank":0,"assessmentNote":"未见明显异常"}],"findings":[{"category":"影像","title":"肝脏","detail":"肝脏形态大小正常，表面光滑，包膜完整，肝内回声分布均匀，血管纹理走行清晰，门静脉正常。CDFI:血流显示正常；肝左叶可见低回声，大小约44×36mm，边界清楚，CDFI：未见明显血流信号","conclusion":"肝低回声，血管瘤可能","morphology":"hemangioma","organSite":"liver","isAbnormal":true,"visitDate":"2024-09-03","severityRank":3,"primarySizeMm":44,"secondarySizeMm":36,"assessmentNote":"建议专科进一步检查"},{"category":"影像","title":"子宫","detail":"子宫内见边界尚清晰的两枚偏低回声区，大者位于前壁处，大小约12×11mm，CDFI:内见血流信号","conclusion":"子宫肌瘤可能","morphology":"fibroid","organSite":"uterus","isAbnormal":true,"visitDate":"2024-09-03","severityRank":3,"primarySizeMm":12,"secondarySizeMm":11,"assessmentNote":"建议及时到医院妇科进一步诊治"},{"category":"影像","title":"甲状腺","detail":"双侧甲状腺形态大小正常，表面光滑，包膜完整，腺体增粗，回声欠均匀。CDFI:血流显示正常","conclusion":"","morphology":"echo_abnormal","organSite":"thyroid","isAbnormal":true,"visitDate":"2024-09-03","severityRank":2,"assessmentNote":"建议结合甲状腺功能等检查结果，内分泌科就诊随访"},{"category":"影像","title":"乳腺","detail":"双侧乳腺腺体致密内部回声增强，结构紊乱，分布不均腺管未见明显扩张，CDFI:未见明显异常血流信号","conclusion":"乳腺增生","morphology":"hyperplasia","organSite":"breast","isAbnormal":true,"visitDate":"2024-09-03","severityRank":2,"assessmentNote":"建议及时到医院乳腺专科诊治和随访，保持心情愉快，注意膳食平衡，慎用化妆品和含雌激素的药物"},{"category":"影像","title":"颈椎","detail":"颈椎生理曲度变直，各椎体及附件骨质未见异常，椎间隙均匀","conclusion":"颈椎生理曲度变直","morphology":"structural","organSite":"spine","isAbnormal":true,"visitDate":"2024-09-03","severityRank":2,"assessmentNote":"若无症状可不需特殊处理；若出现头晕、头痛、双手麻木等不适，请到专科治疗。适度颈部活动，改变不良用颈习惯，适当理疗、按摩"},{"category":"妇科","title":"子宫颈","detail":"宫颈可见无回声区，大小约4×3mm","conclusion":"子宫颈腺囊肿（纳氏囊肿）","morphology":"cyst","organSite":"cervix","morphologyTags":["cyst"],"isAbnormal":true,"visitDate":"2024-09-03","severityRank":1,"primarySizeMm":4,"secondarySizeMm":3,"assessmentNote":"定期复查"},{"category":"心电图","title":"心电图","detail":"心率72次/分，窦性心律不齐","conclusion":"窦性心律不齐","morphology":"arrhythmia","organSite":"heart","isAbnormal":true,"visitDate":"2024-09-03","severityRank":1,"assessmentNote":"多见于儿童和一些正常人，如无自觉症状，无需特殊处理，必要时可到医院专科诊疗"},{"category":"外科/其他","title":"牙结石","detail":"牙结石","conclusion":"牙结石","morphology":"stone","organSite":"dental","isAbnormal":true,"visitDate":"2024-09-03","severityRank":1,"assessmentNote":"建议到口腔科洁牙，保持口腔清洁"}],"recommendations":["肝低回声，血管瘤可能：建议专科进一步检查","子宫肌瘤可能：建议及时到医院妇科进一步诊治","窦性心律不齐：多见于儿童和一些正常人，如无自觉症状，无需特殊处理必要时可到医院专科诊疗","总胆固醇增高：建议戒烟限酒，低脂、低胆固醇饮食，如少吃油腻及煎烤类食物，少吃动物内脏等，多食蔬菜水果。加强运动，促进脂质代谢。每3-6个月复查一次血脂和肝脏B超，复查前请低脂饮食3天。如血脂持续增高，请在医生指导下使用降脂药物","双侧甲状腺腺体回声欠均匀：建议结合甲状腺功能等检查结果，内分泌科就诊随访","乳腺增生：建议及时到医院乳腺专科诊治和随访，根据医院医瞩进一步检查和定期复查。保持心情愉快，善于疏泄不良情绪，避免精神过度紧张。注意膳食平衡，减少脂肪摄入量，多吃蔬菜与水果。慎用化妆品和含雌激素的药物","颈椎生理曲度变直：若无症状可不需特殊处理；若出现头晕、头痛、双手麻木等不适，请到专科治疗。适度颈部活动，改变不良用颈习惯。适当理疗、按摩","子宫颈腺囊肿（纳氏囊肿）：定期复查","牙结石：建议到口腔科洁牙，保持口腔清洁"]}
+
+{"examDate":"2025-10-31","assessmentNote":"总胆固醇及低密度脂蛋白升高、宫颈糜烂样改变、阴道炎、子宫肌瘤、双乳房小叶增生，建议按主检建议分别随访或就诊。","metrics":[{"name":"身高","value":167,"unit":"cm","referenceRange":"","isAbnormal":false,"section":"基础数据","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"体重","value":57,"unit":"kg","referenceRange":"","isAbnormal":false,"section":"基础数据","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"体重指数","value":20.44,"unit":"","referenceRange":"18.00 ~ 24.00","isAbnormal":false,"section":"基础数据","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"收缩压","value":111,"unit":"mmHg","referenceRange":"90.00 ~ 140.00","isAbnormal":false,"section":"基础数据","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"舒张压","value":65,"unit":"mmHg","referenceRange":"","isAbnormal":false,"section":"基础数据","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"直接胆红素","value":2,"unit":"μmol/L","referenceRange":"0-6.84","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"γ-谷氨酰转肽酶","value":11,"unit":"U/L","referenceRange":"7-45","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"碱性磷酸酶","value":48,"unit":"U/L","referenceRange":"35-100","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"天门冬氨酸氨基转移酶","value":14,"unit":"U/L","referenceRange":"13-35","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"幽门螺杆菌抗体","value":4.3,"unit":"AU/mL","referenceRange":"0-15","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"总胆红素","value":8.7,"unit":"μmol/L","referenceRange":"0-23.0","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"乳酸脱氢酶","value":115,"unit":"U/L","referenceRange":"120-250","isAbnormal":true,"section":"血液生化","visitDate":"2025-10-31","severityRank":1,"assessmentNote":"轻度偏低，无明确临床意义，建议随访"},{"name":"甘油三酯","value":0.46,"unit":"mmol/L","referenceRange":"适宜: <1.70, 增高: 1.70-2.30, 很高: >2.30","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"总胆固醇","value":5.57,"unit":"mmol/L","referenceRange":"适宜: <5.20, 增高: 5.20-6.20, 很高: >6.20","isAbnormal":true,"section":"血液生化","visitDate":"2025-10-31","severityRank":2,"assessmentNote":"高脂血症，建议合理膳食，有效运动，内分泌科门诊就诊随访"},{"name":"高密度脂蛋白","value":1.74,"unit":"mmol/L","referenceRange":"0.9-2.0","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"低密度脂蛋白","value":3.52,"unit":"mmol/L","referenceRange":"低危人群: <3.4, 中、高危人群: <2.6, 极高危人群: <1.8, 超高危人群: <1.4","isAbnormal":true,"section":"血液生化","visitDate":"2025-10-31","severityRank":2,"assessmentNote":"高脂血症，建议合理膳食，有效运动，内分泌科门诊就诊随访"},{"name":"非高密度脂蛋白","value":3.83,"unit":"mmol/L","referenceRange":"1.8-4.1","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"白细胞计数","value":6.08,"unit":"x10^9/L","referenceRange":"3.5-9.5","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜中性细胞%","value":56.3,"unit":"%","referenceRange":"40-75","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"淋巴细胞%","value":35.2,"unit":"%","referenceRange":"20-50","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"单核细胞%","value":5.8,"unit":"%","referenceRange":"3.0-10.0","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜酸性细胞%","value":2,"unit":"%","referenceRange":"0.4-8","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜碱性细胞%","value":0.7,"unit":"%","referenceRange":"0.0-1.0","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜中性细胞绝对值","value":3.42,"unit":"x10^9/L","referenceRange":"1.8-6.3","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"淋巴细胞绝对值","value":2.14,"unit":"x10^9/L","referenceRange":"1.1-3.2","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"单核细胞绝对值","value":0.35,"unit":"x10^9/L","referenceRange":"0.1-0.6","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜酸粒细胞绝对值","value":0.12,"unit":"x10^9/L","referenceRange":"0.02-0.52","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"嗜碱粒细胞绝对值","value":0.04,"unit":"x10^9/L","referenceRange":"0.0-0.06","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"红细胞计数","value":4.15,"unit":"x10^12/L","referenceRange":"3.8-5.1","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"血红蛋白","value":125,"unit":"g/L","referenceRange":"115-150","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"红细胞压积","value":38.2,"unit":"%","referenceRange":"35.0-45.0","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"平均红细胞体积","value":92,"unit":"f1","referenceRange":"82-100","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"平均血红蛋白含量","value":30.1,"unit":"pg","referenceRange":"27-34","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"平均血红蛋白浓度","value":327,"unit":"g/L","referenceRange":"316-354","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"红细胞分布宽度","value":12.5,"unit":"%","referenceRange":"11.5-16.0","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"血小板计数","value":216,"unit":"x10^9/L","referenceRange":"125-350","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"平均血小板体积","value":10.2,"unit":"f1","referenceRange":"8.0-12.5","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"有核红细胞绝对值","value":0,"unit":"x10^9/L","referenceRange":"0-0.01","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"有核红细胞百分比","value":0,"unit":"/100个白细胞","referenceRange":"0-1","isAbnormal":false,"section":"血常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"糖类抗原(CA19-9)","value":7.93,"unit":"U/ml","referenceRange":"0-27","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"癌胚抗原","value":0.96,"unit":"ng/ml","referenceRange":"0-4.7","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"甲胎蛋白","value":2.34,"unit":"ng/mL","referenceRange":"0-7","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿白细胞","valueText":"neg","unit":"","referenceRange":"neg","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿胆原","valueText":"normal","unit":"","referenceRange":"normal","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿胆红素","valueText":"neg","unit":"","referenceRange":"neg","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿亚硝酸盐","valueText":"neg","unit":"","referenceRange":"neg","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿糖","valueText":"normal","unit":"","referenceRange":"normal","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿酮体","valueText":"neg","unit":"","referenceRange":"neg","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"真菌","value":0,"unit":"个/uL","referenceRange":"0-1","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"红细胞","value":4,"unit":"个/uL","referenceRange":"0-8","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"病理管型","value":0,"unit":"个/uL","referenceRange":"","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"白细胞","value":3,"unit":"个/uL","referenceRange":"0-14","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿比重","value":1.02,"unit":"","referenceRange":"1.003-1.03","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿潜血","valueText":"+","unit":"","referenceRange":"neg","isAbnormal":true,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":1,"assessmentNote":"尿潜血阳性，建议复查"},{"name":"管型","value":0,"unit":"个/uL","referenceRange":"0-1","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"结晶","value":0,"unit":"个/uL","referenceRange":"0-14","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"电导率","value":22.3,"unit":"","referenceRange":"3-39","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"异常红细胞","value":75,"unit":"%","referenceRange":"","isAbnormal":true,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":1,"assessmentNote":"异常红细胞比例增高，建议复查"},{"name":"正常红细胞","value":25,"unit":"%","referenceRange":"","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"粘液丝","value":14,"unit":"个/uL","referenceRange":"0-28","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"小圆上皮细胞","value":0,"unit":"个/uL","referenceRange":"","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"上皮细胞","value":2,"unit":"个/uL","referenceRange":"0-28","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿蛋白","valueText":"neg","unit":"","referenceRange":"neg","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿酸碱度","value":6,"unit":"","referenceRange":"4.5-8.0","isAbnormal":false,"panel":"尿常规","section":"尿常规","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"EGFR-EPI","value":135,"unit":"","referenceRange":"","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"EGFR_EDMD(4)","value":157,"unit":"","referenceRange":"","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿素氮","value":6.19,"unit":"mmol/L","referenceRange":"2.6-7.5","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"肌酐","value":42,"unit":"μmol/L","referenceRange":"41-73","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"尿酸","value":264.5,"unit":"μmol/L","referenceRange":"155-428","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"丙氨酸氨基转移酶(ALT)","value":11,"unit":"U/L","referenceRange":"7-40","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"空腹血糖","value":4.41,"unit":"mmol/L","referenceRange":"3.9-6.1","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"血沉","value":7,"unit":"mm/h","referenceRange":"0-20.0","isAbnormal":false,"section":"血液生化","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"滴虫","valueText":"未查见","unit":"","referenceRange":"未查见","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"清洁度","valueText":"II","unit":"","referenceRange":"I-II","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"脓细胞","value":30,"unit":"/HP","referenceRange":"0-5","isAbnormal":true,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":2,"assessmentNote":"阴道炎，建议妇科门诊治疗"},{"name":"上皮细胞","valueText":"1/2视野","unit":"/HP","referenceRange":"","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"线索细胞","valueText":"未查见","unit":"/HP","referenceRange":"未查见","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"过氧化氢","valueText":"阳性","unit":"","referenceRange":"阴性","isAbnormal":true,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":1,"assessmentNote":"阴道微生态异常，建议妇科门诊治疗"},{"name":"白细胞脂酶","valueText":"阳性","unit":"","referenceRange":"阴性","isAbnormal":true,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":1,"assessmentNote":"阴道微生态异常，建议妇科门诊治疗"},{"name":"唾液酸苷酶","valueText":"阴性","unit":"","referenceRange":"阴性","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""},{"name":"霉菌","valueText":"未查见","unit":"","referenceRange":"未查见","isAbnormal":false,"panel":"阴道分泌物","section":"妇科","visitDate":"2025-10-31","severityRank":0,"assessmentNote":""}],"findings":[{"category":"影像","title":"双乳","detail":"两侧乳腺组织增厚，回声分布不均匀，呈粗大片状，点状回声。","conclusion":"双乳房小叶增生","morphology":"hyperplasia","organSite":"breast","isAbnormal":true,"visitDate":"2025-10-31","severityRank":2,"assessmentNote":"建议：（1）定期自查乳房；（2）保持精神舒畅，情绪稳定；（3）调节内分泌紊乱；（4）发现疑问及时乳腺外科门诊诊治。"},{"category":"影像","title":"甲状腺","detail":"甲状腺腺体回声正常，分布均匀，回声强度正常，血流信号正常。","conclusion":"甲状腺未见明显异常","morphology":"normal","organSite":"thyroid","isAbnormal":false,"visitDate":"2025-10-31","severityRank":0,"assessmentNote":"未见明显异常，常规体检随访即可。"},{"category":"影像","title":"肝脏、胆囊、脾、胰、肾","detail":"肝脏、胆囊、脾脏、肾脏目前未见明显异常。胰腺大小形态正常，内部回声均匀，胰尾显示不清。","conclusion":"肝脏、胆囊、脾脏、肾脏目前未见明显异常；胰腺目前未见明显异常","morphology":"normal","organSite":"liver","isAbnormal":false,"visitDate":"2025-10-31","severityRank":0,"assessmentNote":"未见明显异常，常规体检随访即可。"},{"category":"影像","title":"胸片","detail":"胸廓无异常。两肺纹理清晰，肺野透亮度正常，未见明显活动性病变。两肺门影不大，气管、纵隔无偏移，心影形态、大小未见明显异常。两肋膈角锐利，两膈面光整。","conclusion":"心肺未见明显异常","morphology":"normal","organSite":"lung","isAbnormal":false,"visitDate":"2025-10-31","severityRank":0,"assessmentNote":"未见明显异常，常规体检随访即可。"},{"category":"妇科","title":"子宫","detail":"子宫肌层可见实质性低回声区，大小约：15×16×17mm；双卵巢（-）","conclusion":"子宫肌瘤","morphology":"fibroid","organSite":"uterus","isAbnormal":true,"visitDate":"2025-10-31","severityRank":3,"assessmentNote":"子宫肌瘤，建议妇科门诊随访，定期复查，必要时进一步治疗。"},{"category":"妇科","title":"宫颈","detail":"妇科常规检查见宫颈糜烂样改变，巴氏涂片结果：巴氏I级","conclusion":"宫颈糜烂样改变","morphology":"erosion","organSite":"cervix","isAbnormal":true,"visitDate":"2025-10-31","severityRank":2,"assessmentNote":"请结合临床TCT、HPV等相关检查，宫颈疾病专科门诊就诊随访，必要时进一步诊治。"},{"category":"心电图","title":"心电图","detail":"心率：84bpm P:86ms QRS:82ms P-R:128ms QRS电轴：77° QT/QTc:350/414ms RV5/SV1:1.21/0.94mV RV5+Sv1=1.21+0.94mV","conclusion":"正常心电图","morphology":"normal","organSite":"heart","isAbnormal":false,"visitDate":"2025-10-31","severityRank":0,"assessmentNote":"未见明显异常，常规体检随访即可。"},{"category":"外科","title":"外科常规","detail":"双侧乳腺小叶增生；肛指放弃；甲状腺未及明显异常；浅表淋巴结未及明显异常；四肢关节正常；脊柱正常；颈部肿块无","conclusion":"乳房小叶增生；肛指放弃","morphology":"hyperplasia","organSite":"breast","isAbnormal":true,"visitDate":"2025-10-31","severityRank":2,"assessmentNote":"建议：（1）定期自查乳房；（2）保持精神舒畅，情绪稳定；（3）调节内分泌紊乱；（4）发现疑问及时乳腺外科门诊诊治。"},{"category":"妇科","title":"阴道","detail":"阴道分泌物常规：清洁度II，脓细胞30/HP，过氧化氢阳性，白细胞脂酶阳性，滴虫未查见，霉菌未查见，线索细胞未查见","conclusion":"阴道炎","morphology":"infection","organSite":"cervix","isAbnormal":true,"visitDate":"2025-10-31","severityRank":2,"assessmentNote":"阴道炎，建议妇科门诊治疗。"},{"category":"其他","title":"既往史","detail":"慢性病史无，传染病史无，药物过敏史无，外伤史无，吸烟史无","conclusion":"无","morphology":"normal","organSite":"other","isAbnormal":false,"visitDate":"2025-10-31","severityRank":0,"assessmentNote":""}],"recommendations":["高脂血症：合理膳食，有效运动，内分泌科门诊就诊随访。","宫颈糜烂样改变：请结合临床TCT、HPV等相关检查，宫颈疾病专科门诊就诊随访，必要时进一步诊治。","阴道炎：妇科门诊治疗。","子宫肌瘤：妇科门诊随访，定期复查，必要时进一步治疗。","乳腺小叶增生（B超）：（1）定期自查乳房；（2）保持精神舒畅，情绪稳定；（3）调节内分泌紊乱；（4）发现疑问及时乳腺外科门诊诊治。"]}
+
+
+```json
+{
+  "examDate": "2026-06-04",
+  "assessmentNote": "右肺上叶磨玻璃结节及双肺微小结节，较2025年相仿，建议继续年度CT随访；肝多发血管瘤及FNH可能，建议普美显MRI进一步明确或肝胆外科随访；乙肝表面抗体强阳性，提示具有保护力；其余化验指标大致正常，部分血脂及蛋白电泳轻微异常，建议低脂饮食及定期复查。",
+  "metrics": [
+    {
+      "panel": "血脂全套",
+      "section": "血液生化",
+      "visitDate": "2025-03-31",
+      "items": [
+        {
+          "name": "甘油三酯",
+          "value": 0.46,
+          "unit": "mmol/L",
+          "referenceRange": "0-1.7",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "总胆固醇",
+          "value": 5.57,
+          "unit": "mmol/L",
+          "referenceRange": "4.0-6.0",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "略偏高，建议低脂饮食"
+        },
+        {
+          "name": "高密度脂蛋白",
+          "value": 1.74,
+          "unit": "mmol/L",
+          "referenceRange": "0.9-2.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "低密度脂蛋白",
+          "value": 3.52,
+          "unit": "mmol/L",
+          "referenceRange": "0.0-2.3",
+          "isAbnormal": true,
+          "severityRank": 2,
+          "assessmentNote": "超出参考上限，建议3月复查血脂"
+        },
+        {
+          "name": "非高密度脂蛋白",
+          "value": 3.83,
+          "unit": "mmol/L",
+          "referenceRange": "0.0-1.0",
+          "isAbnormal": true,
+          "severityRank": 2,
+          "assessmentNote": "超出参考上限，建议复查"
+        }
+      ]
+    },
+    {
+      "panel": "全血细胞分析",
+      "section": "血常规",
+      "visitDate": "2025-03-31",
+      "items": [
+        {
+          "name": "白细胞计数",
+          "value": 6.08,
+          "unit": "×10^9/L",
+          "referenceRange": "3.5-9.5",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "中性粒细胞百分比",
+          "value": 56.3,
+          "unit": "%",
+          "referenceRange": "40-75",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "淋巴细胞百分比",
+          "value": 35.2,
+          "unit": "%",
+          "referenceRange": "20-50",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "单核细胞百分比",
+          "value": 1.8,
+          "unit": "%",
+          "referenceRange": "0.1-0.6",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "轻微偏高，可能无临床意义"
+        },
+        {
+          "name": "嗜酸性粒细胞百分比",
+          "value": 0.7,
+          "unit": "%",
+          "referenceRange": "0.02-0.5",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "轻微偏高"
+        },
+        {
+          "name": "嗜碱性粒细胞百分比",
+          "value": 0.1,
+          "unit": "%",
+          "referenceRange": "0.0-0.1",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        }
+      ]
+    },
+    {
+      "panel": "免疫组(RM)",
+      "section": "血液生化",
+      "visitDate": "2025-03-31",
+      "items": [
+        {
+          "name": "促甲状腺激素",
+          "value": 1.06,
+          "unit": "",
+          "referenceRange": "0.56--5.91",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "甲状腺球蛋白抗体",
+          "value": 14.50,
+          "unit": "",
+          "referenceRange": "0.00--115.00",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "抗甲状腺过氧化物酶抗体",
+          "value": 0.40,
+          "unit": "",
+          "referenceRange": "0.00--9.00",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "抗促甲状腺激素受体抗体",
+          "value": 0.80,
+          "unit": "",
+          "referenceRange": "0.00--1.75",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "甲状腺球蛋白",
+          "value": 7.52,
+          "unit": "",
+          "referenceRange": "1.15--131.00",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "三碘甲状腺原氨酸",
+          "value": 1.60,
+          "unit": "",
+          "referenceRange": "0.60--1.55",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "轻微偏高，建议内分泌科随访"
+        },
+        {
+          "name": "甲状腺素",
+          "value": 15.86,
+          "unit": "",
+          "referenceRange": "5.42--12.74",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "轻微偏高，建议内分泌科随访"
+        },
+        {
+          "name": "游离三碘甲状腺原氨酸",
+          "value": 3.31,
+          "unit": "",
+          "referenceRange": "2.30--4.80",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "游离甲状腺素",
+          "value": 0.91,
+          "unit": "",
+          "referenceRange": "0.62--1.24",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        }
+      ]
+    },
+    {
+      "panel": "凝血功能",
+      "section": "血液生化",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "凝血酶原时间",
+          "value": 11.8,
+          "unit": "秒",
+          "referenceRange": "10.0 -- 13.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "凝血酶原时间比值",
+          "value": 1.03,
+          "unit": "",
+          "referenceRange": "0.80 -- 1.20",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "活化部分凝血活酶时间",
+          "value": 26.6,
+          "unit": "秒",
+          "referenceRange": "25 -- 31.3",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "纤维蛋白原",
+          "value": 305,
+          "unit": "mg/dL",
+          "referenceRange": "200 -- 400",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "国际标准化比值",
+          "value": 0.96,
+          "unit": "",
+          "referenceRange": "0.50 -- 1.20",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "凝血酶时间",
+          "value": 18.1,
+          "unit": "秒",
+          "referenceRange": "14.0 -- 21.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "D-二聚体",
+          "value": 0.42,
+          "unit": "",
+          "referenceRange": "0.00 -- 0.42",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常上限，建议随访"
+        }
+      ]
+    },
+    {
+      "panel": "心肌标志物/感染",
+      "section": "血液生化",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "心肌肌钙蛋白T",
+          "value": 0.004,
+          "unit": "ng/mL",
+          "referenceRange": "<0.014",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "肌酸激酶MB质量",
+          "value": 1.1,
+          "unit": "ng/mL",
+          "referenceRange": "0 -- 3.61",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "氨基末端利钠肽前体",
+          "value": 59.5,
+          "unit": "pg/mL",
+          "referenceRange": "0 -- 100",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "降钙素原",
+          "value": 0.04,
+          "unit": "ng/mL",
+          "referenceRange": "<0.5",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "肌红蛋白",
+          "value": 23.9,
+          "unit": "ng/mL",
+          "referenceRange": "25 -- 58",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "略低于正常下限，可能无临床意义"
+        }
+      ]
+    },
+    {
+      "panel": "乙肝/丙肝血清学",
+      "section": "感染免疫",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "乙肝病毒表面抗原",
+          "valueText": "(-)0.399",
+          "unit": "COI",
+          "referenceRange": "<1.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        },
+        {
+          "name": "乙肝病毒核心抗体",
+          "valueText": "(+)0.110",
+          "unit": "COI",
+          "referenceRange": ">1.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        },
+        {
+          "name": "乙肝病毒e抗体",
+          "valueText": "(-)1.600",
+          "unit": "COI",
+          "referenceRange": ">1.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        },
+        {
+          "name": "乙肝病毒e抗原",
+          "valueText": "(-)0.120",
+          "unit": "COI",
+          "referenceRange": "<1.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        },
+        {
+          "name": "乙肝病毒表面抗体",
+          "valueText": ">1000",
+          "unit": "COI",
+          "referenceRange": "<1.0",
+          "isAbnormal": true,
+          "severityRank": 0,
+          "assessmentNote": "强阳性，具有保护力"
+        },
+        {
+          "name": "丙肝病毒抗体",
+          "valueText": "(-)0.042",
+          "unit": "COI",
+          "referenceRange": "<1.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        }
+      ]
+    },
+    {
+      "panel": "病毒抗体",
+      "section": "感染免疫",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "人类免疫缺陷病毒抗体",
+          "valueText": "阴性",
+          "unit": "",
+          "referenceRange": "采用化学发光法",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        },
+        {
+          "name": "梅毒特异性抗体",
+          "valueText": "阴性",
+          "unit": "",
+          "referenceRange": "采用化学发光法",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        }
+      ]
+    },
+    {
+      "panel": "PCR",
+      "section": "感染免疫",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "乙型肝炎病毒核酸",
+          "valueText": "低于检出下限",
+          "unit": "IU/mL",
+          "referenceRange": "实时荧光定量检测，最低检出限：20",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "低于检出下限"
+        }
+      ]
+    },
+    {
+      "panel": "血常规（中山）",
+      "section": "血常规",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "红细胞计数",
+          "value": 4.09,
+          "unit": "×10^12/L",
+          "referenceRange": "3.80 -- 5.10",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "血红蛋白",
+          "value": 122,
+          "unit": "g/L",
+          "referenceRange": "115 -- 150",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "红细胞压积",
+          "value": 36.9,
+          "unit": "%",
+          "referenceRange": "35 -- 45",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "平均血红蛋白量",
+          "value": 29.8,
+          "unit": "pg",
+          "referenceRange": "27.0 -- 34.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "平均血红蛋白浓度",
+          "value": 331,
+          "unit": "g/L",
+          "referenceRange": "316 -- 354",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "平均红细胞体积",
+          "value": 90.2,
+          "unit": "fL",
+          "referenceRange": "82 -- 100",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "嗜碱性粒细胞百分比",
+          "value": 0.8,
+          "unit": "%",
+          "referenceRange": "0 -- 1",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "嗜酸性粒细胞百分比",
+          "value": 3.5,
+          "unit": "%",
+          "referenceRange": "0.4 -- 8.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "淋巴细胞百分比",
+          "value": 41.4,
+          "unit": "%",
+          "referenceRange": "20 -- 50",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "单核细胞百分比",
+          "value": 5.9,
+          "unit": "%",
+          "referenceRange": "3.0 -- 10",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "中性粒细胞百分比",
+          "value": 48.4,
+          "unit": "%",
+          "referenceRange": "40 -- 75",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "血小板计数",
+          "value": 4.88,
+          "unit": "×10^9/L",
+          "referenceRange": "125 -- 350",
+          "isAbnormal": true,
+          "severityRank": 4,
+          "assessmentNote": "显著低于正常下限，建议血液科就诊"
+        },
+        {
+          "name": "白细胞计数",
+          "value": 4.88,
+          "unit": "×10^9/L",
+          "referenceRange": "3.5 -- 9.5",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "嗜碱性粒细胞数",
+          "value": 0.04,
+          "unit": "×10^9/L",
+          "referenceRange": "0 -- 0.06",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "嗜酸性粒细胞数",
+          "value": 0.17,
+          "unit": "×10^9/L",
+          "referenceRange": "0.02 -- 0.52",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "淋巴细胞数",
+          "value": 2.0,
+          "unit": "×10^9/L",
+          "referenceRange": "1.1 -- 3.2",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "单核细胞数",
+          "value": 0.29,
+          "unit": "×10^9/L",
+          "referenceRange": "0.1 -- 0.6",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "平均血小板体积",
+          "value": 10.4,
+          "unit": "fL",
+          "referenceRange": "9.4 -- 18.5",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "血小板压积",
+          "value": 0.20,
+          "unit": "%",
+          "referenceRange": "0.10 -- 0.40",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "血小板体积分布宽度",
+          "value": 10.9,
+          "unit": "%",
+          "referenceRange": "9.0 -- 21.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "大血小板比率",
+          "value": 27.0,
+          "unit": "%",
+          "referenceRange": "14.0 -- 46.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "红细胞体积分布宽度CV",
+          "value": 12.5,
+          "unit": "%",
+          "referenceRange": "8.0 -- 16.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "红细胞体积分布宽度SD",
+          "value": 42.0,
+          "unit": "fL",
+          "referenceRange": "34.0 -- 86.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        }
+      ]
+    },
+    {
+      "panel": "蛋白电泳/肝功能",
+      "section": "血液生化",
+      "visitDate": "2025-05-28",
+      "items": [
+        {
+          "name": "胆甾醇酶",
+          "value": 5884,
+          "unit": "U/L",
+          "referenceRange": "5000 -- 12000",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "总胆红素",
+          "value": 7.3,
+          "unit": "μmol/L",
+          "referenceRange": "3.4 -- 20.4",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "白蛋白",
+          "value": 46,
+          "unit": "g/L",
+          "referenceRange": "35 -- 55",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "直接胆红素",
+          "value": 1.5,
+          "unit": "μmol/L",
+          "referenceRange": "0.0 -- 6.8",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "球蛋白",
+          "value": 20,
+          "unit": "g/L",
+          "referenceRange": "20 -- 40",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "总蛋白",
+          "value": 66,
+          "unit": "g/L",
+          "referenceRange": "65 -- 85",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "蛋白电泳Alb",
+          "value": 67.1,
+          "unit": "%",
+          "referenceRange": "55.8 -- 66.1",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "轻微偏高"
+        },
+        {
+          "name": "白球比值",
+          "value": 2.3,
+          "unit": "",
+          "referenceRange": "1.2 -- 2.4",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "丙氨酸氨基转移酶",
+          "value": 14,
+          "unit": "U/L",
+          "referenceRange": "7 -- 40",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "门冬氨酸氨基转移酶",
+          "value": 16,
+          "unit": "U/L",
+          "referenceRange": "13 -- 35",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "蛋白电泳α2",
+          "value": 7.1,
+          "unit": "%",
+          "referenceRange": "7.1 -- 11.8",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        }
+      ]
+    },
+    {
+      "panel": "肝功能（中山）",
+      "section": "血液生化",
+      "visitDate": "2025-03-31",
+      "items": [
+        {
+          "name": "直接胆红素",
+          "value": 2.0,
+          "unit": "μmol/L",
+          "referenceRange": "0-6.84",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "Y-谷氨酰转肽酶",
+          "value": 11,
+          "unit": "U/L",
+          "referenceRange": "7-45",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "碱性磷酸酶",
+          "value": 48,
+          "unit": "U/L",
+          "referenceRange": "35-100",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "天门冬氨酸氨基转移酶",
+          "value": 14,
+          "unit": "U/L",
+          "referenceRange": "13-35",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "总胆红素",
+          "value": 8.7,
+          "unit": "μmol/L",
+          "referenceRange": "0-23.0",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "正常"
+        },
+        {
+          "name": "乳酸脱氢酶",
+          "value": 115,
+          "unit": "U/L",
+          "referenceRange": "120-250",
+          "isAbnormal": true,
+          "severityRank": 1,
+          "assessmentNote": "略低于正常下限，可能无临床意义"
+        }
+      ]
+    },
+    {
+      "panel": "幽门螺旋杆菌抗体",
+      "section": "感染免疫",
+      "visitDate": "2025-03-31",
+      "items": [
+        {
+          "name": "幽门螺旋杆菌抗体",
+          "value": 4.30,
+          "unit": "AU/mL",
+          "referenceRange": "0-15",
+          "isAbnormal": false,
+          "severityRank": 0,
+          "assessmentNote": "阴性"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "category": "影像",
+      "title": "肺部",
+      "detail": "【尺寸】磨玻璃主结节约5mm（Im94，5.3mm）；微小结节3-5mm（Im121/243/145/272）；CT值-648Hu（2025年）及-709Hu（2026年）。双侧胸廓对称，气管居中，双侧肺门结构清楚，纵隔居中，未见淋巴结肿大及胸腔积液。",
+      "conclusion": "右肺上叶磨玻璃结节，左肺下叶、右肺上叶微小结节，较2025年3月相仿。",
+      "morphology": "nodule",
+      "organSite": "lung",
+      "primarySizeMm": 5,
+      "secondarySizeMm": 5,
+      "ctValueHu": -709,
+      "isAbnormal": true,
+      "visitDate": "2026-06-04",
+      "severityRank": 3,
+      "assessmentNote": "5mm磨玻璃结节及微小结节，较前相仿，建议年度CT随访。"
+    },
+    {
+      "category": "影像",
+      "title": "肺部",
+      "detail": "【尺寸】磨玻璃主结节约5.3mm（Im94）；微小结节3-5mm（Im121/243）；CT值-648Hu。双侧胸廓对称，气管居中，双侧肺门结构清楚，纵隔居中，未见淋巴结肿大及胸腔积液。",
+      "conclusion": "右肺上叶磨玻璃结节，左肺下叶、右肺上叶微小结节，建议随访。",
+      "morphology": "nodule",
+      "organSite": "lung",
+      "primarySizeMm": 5.3,
+      "secondarySizeMm": 5,
+      "ctValueHu": -648,
+      "isAbnormal": true,
+      "visitDate": "2025-03-31",
+      "severityRank": 3,
+      "assessmentNote": "5.3mm磨玻璃结节，建议随访。"
+    }
+  ],
+  "recommendations": [
+    "右肺上叶磨玻璃结节及双肺微小结节，较前相仿，建议年度CT随访。"
+  ]
+}
+```
+
+
+肝部血管瘤报告汇总：
+```json
+{
+  "examDate": "2025-09-05",
+  "assessmentNote": "肝血管瘤介入术后原病灶明显减小，余多发血管瘤及FNH稳定，建议继续随访。",
+  "metrics": [],
+  "findings": [
+    {
+      "category": "影像",
+      "title": "肝脏",
+      "detail": "【尺寸】血管瘤较大灶约25mm（14mm×25mm）；FNH约17mm（1.7×1.3cm）。肝血管瘤介入术后，肝脏表面光滑，各叶比例匀称，肝内见多发异常信号灶，较大位于肝左叶，大小约14mm×25mm，T1WI为低信号，T2WI为明显高信号，边界清楚，动态增强后早期病灶周边结节状强化，并随时间延长逐渐充填病灶中央，呈高信号灶，部分持续强化；另肝左内叶动脉期明显强化灶，大小约1.7×1.3cm，DWI略高信号，余期等信号；肝内血管未见异常。",
+      "conclusion": "肝血管瘤介入术后，原肝左外叶血管瘤较前（25-1-17）明显减小，余肝多发血管瘤较前相仿，肝左内叶FNH。",
+      "morphology": "hemangioma",
+      "organSite": "liver",
+      "morphologyTags": ["hemangioma", "FNH"],
+      "isAbnormal": true,
+      "visitDate": "2025-09-05",
+      "severityRank": 3,
+      "assessmentNote": "术后改变，原病灶明显减小，余病灶稳定，建议按原定计划随访复查。",
+      "primarySizeMm": 25,
+      "secondarySizeMm": 17
+    },
+    {
+      "category": "影像",
+      "title": "肝脏",
+      "detail": "【尺寸】血管瘤较大灶约60mm（6×3.9cm）；FNH约17mm（1.7×1.3cm）。肝脏表面光滑，各叶比例匀称，肝内见多发异常信号灶，较大位于肝左叶，大小约6×3.9cm，T1WI为低信号，T2WI为明显高信号，边界清楚，动态增强后早期病灶周边结节状、团块状强化，并随时间延长逐渐充填病灶中央，呈高信号灶，部分持续强化，肝胆特异期低信号，左内叶动脉期强化灶，大小约1.7×1.3cm，DWI略高信号，余期等信号，肝胆特异期略混杂等高信号；肝内血管未见异常。",
+      "conclusion": "肝多发血管瘤，肝左内叶FNH。",
+      "morphology": "hemangioma",
+      "organSite": "liver",
+      "morphologyTags": ["hemangioma", "FNH"],
+      "isAbnormal": true,
+      "visitDate": "2025-01-17",
+      "severityRank": 3,
+      "assessmentNote": "肝多发血管瘤及FNH，较前相仿，建议定期随访。",
+      "primarySizeMm": 60,
+      "secondarySizeMm": 17
+    },
+    {
+      "category": "影像",
+      "title": "肝脏",
+      "detail": "【尺寸】血管瘤较大灶约56mm（5.6×3.4cm）；FNH尺寸未明确。肝脏表面光滑，各叶比例匀称，肝内见多发异常信号灶，较大位于肝左叶，大小约5.6×3.4cm，T1WI为低信号，T2WI为明显高信号，边界清楚，动态增强后早期病灶周边结节状、团块状强化，并随时间延长逐渐充填病灶中央，呈高信号灶，部分持续强化，左内叶动脉期强化灶，DWI稍高信号，余期等信号；肝内血管未见异常。",
+      "conclusion": "肝多发血管瘤，肝左内叶FNH可能，建议普美显增强检查。",
+      "morphology": "hemangioma",
+      "organSite": "liver",
+      "morphologyTags": ["hemangioma", "FNH"],
+      "isAbnormal": true,
+      "visitDate": "2024-10-19",
+      "severityRank": 3,
+      "assessmentNote": "建议普美显增强检查以进一步明确FNH诊断。",
+      "primarySizeMm": 56
+    }
+  ],
+  "recommendations": [
+    "肝左内叶FNH可能，建议普美显增强检查（2024-10-19报告）"
+  ]
+}
