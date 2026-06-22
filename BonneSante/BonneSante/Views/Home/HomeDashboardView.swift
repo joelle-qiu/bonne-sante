@@ -131,14 +131,16 @@ struct HomeDashboardView: View {
             ))
         }
 
-        let activeRisks = riskFlags.prefix(3)
+        let activeRisks = riskFlags.prefix(2)
         if !activeRisks.isEmpty {
+            let names = activeRisks.map(\.metricName).joined(separator: " · ")
+            let suffix = riskFlags.count > 2 ? " 等" : ""
             items.append(HomeInsightCarousel.Item(
                 id: "risk",
                 symbol: "exclamationmark.triangle.fill",
                 tint: Theme.adaptiveWarning(colorScheme),
                 title: "健康关注",
-                subtitle: activeRisks.map(\.metricName).joined(separator: " · ")
+                subtitle: names + suffix
             ))
         }
 

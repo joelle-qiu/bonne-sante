@@ -35,21 +35,23 @@ struct HomeInsightCarousel: View {
     }
 
     private func card(_ item: Item) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             Image(systemName: item.symbol)
                 .font(.title3)
                 .foregroundStyle(item.tint)
             Text(item.title)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                .lineLimit(2)
+                .lineLimit(1)
             Text(item.subtitle)
                 .font(.caption)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer(minLength: 0)
         }
-        .frame(width: 168, alignment: .leading)
+        .frame(width: 168, height: 108, alignment: .topLeading)
         .padding(14)
         .background(Theme.cardBackground(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
