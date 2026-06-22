@@ -64,6 +64,7 @@ struct HistoryView: View {
                     historyList
                 }
             }
+            .cycleThemedPageBackground()
             .navigationTitle("历史记录")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -115,6 +116,7 @@ struct HistoryView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
     }
 }
 

@@ -104,7 +104,7 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .cycleThemedPageBackground()
             .navigationTitle("今日概览")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

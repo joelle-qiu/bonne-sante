@@ -43,7 +43,7 @@ struct HealthSummaryView: View {
                 )
             }
         }
-        .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+        .cycleThemedPageBackground()
         .navigationTitle("健康摘要")
         .task(id: summaryTaskToken) {
             await reloadSummary()
@@ -166,92 +166,6 @@ struct HealthSummaryView: View {
                         department: risk.department,
                         onScheduleCheckup: { months in
                             let lastExam = reports.first?.examDate
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
                             try? HealthArchiveService.setupCheckupPlan(
                                 from: risk,
                                 months: months,

@@ -9,20 +9,22 @@ struct EmptyStateView: View {
     var actionTitle: String?
     var action: (() -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: symbol)
                 .font(.system(size: 48))
-                .foregroundStyle(Theme.primary)
+                .foregroundStyle(Theme.brandPrimary(colorScheme))
 
             Text(title)
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
 
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(Theme.textSecondary)
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -32,8 +34,8 @@ struct EmptyStateView: View {
                         .fontWeight(.medium)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(Theme.primary)
-                        .foregroundStyle(Theme.textPrimary)
+                        .background(Theme.brandPrimary(colorScheme))
+                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusButton))
                 }
                 .padding(.horizontal, Theme.horizontalPadding)

@@ -3,7 +3,8 @@ import SwiftData
 
 struct GoalsView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var healthKitService = HealthKitService()
+    @Environment(\.healthContext) private var healthContext
+    @Environment(\.colorScheme) private var colorScheme
     @Query private var goals: [UserGoal]
     @Query(sort: \WeightEntry.date, order: .reverse) private var manualWeightEntries: [WeightEntry]
     @Query private var settings: [UserSettings]
@@ -25,64 +26,47 @@ struct GoalsView: View {
     private var combinedWeightHistory: [WeightRecord] {
         var allRecords: [WeightRecord] = []
 
-        // Add HealthKit records
-        allRecords.append(contentsOf: healthKitService.dailyWeights)
+        allRecords.append(contentsOf: healthContext?.healthKitService.dailyWeights ?? [])
 
-        // Add manual records
         for entry in manualWeightEntries {
             allRecords.append(WeightRecord(date: entry.date, weight: entry.weight))
         }
 
-        // Sort by date and remove duplicates (prefer HealthKit for same day)
         let grouped = Dictionary(grouping: allRecords) { record in
             Calendar.current.startOfDay(for: record.date)
         }
 
-        return grouped.map { (date, records) in
-            // Just return the first record for each day
+        return grouped.map { (_, records) in
             records.first!
         }.sorted { $0.date < $1.date }
     }
 
     private var currentWeight: Double? {
-        // Prefer most recent weight from any source
-        let latestManual = manualWeightEntries.first?.weight
-        let latestHealthKit = healthKitService.currentWeight
-
-        if let manual = latestManual, let healthKit = latestHealthKit {
-            // Return whichever is more recent
-            if let manualDate = manualWeightEntries.first?.date {
-                if let hkDate = healthKitService.weightHistory.first?.date {
-                    return manualDate > hkDate ? manual : healthKit
-                }
-            }
-            return healthKit
-        }
-
-        return latestManual ?? latestHealthKit
+        healthContext?.currentWeight
+            ?? manualWeightEntries.first?.weight
+            ?? healthContext?.healthKitService.currentWeight
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Weight Chart
                     WeightChartView(
                         weightHistory: combinedWeightHistory,
                         targetWeight: currentGoal?.targetWeight,
                         weightUnit: weightUnit
                     )
 
-                    // Goal Progress
                     if let goal = currentGoal {
                         goalProgressCard(goal)
+                        bodyCompositionCard(goal)
                     } else {
                         noGoalCard
                     }
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .cycleThemedPageBackground()
             .navigationTitle("目标")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -97,7 +81,6 @@ struct GoalsView: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
-                        // Weight unit toggle
                         Menu {
                             ForEach(WeightUnit.allCases, id: \.self) { unit in
                                 Button {
@@ -136,10 +119,15 @@ struct GoalsView: View {
                 ManualWeightEntryView()
             }
             .task {
-                await healthKitService.requestAuthorization()
+                await healthContext?.healthKitService.requestAuthorization()
+                await healthContext?.healthKitService.fetchWeightHistory()
+                await healthContext?.healthKitService.fetchBodyProfile()
+                syncUserGoalFromHealthKit()
             }
             .refreshable {
-                await healthKitService.fetchWeightHistory()
+                await healthContext?.healthKitService.fetchWeightHistory()
+                await healthContext?.healthKitService.fetchBodyProfile()
+                syncUserGoalFromHealthKit()
             }
         }
     }
@@ -151,6 +139,12 @@ struct GoalsView: View {
             let newSettings = UserSettings(weightUnit: unit)
             modelContext.insert(newSettings)
         }
+    }
+
+    private func syncUserGoalFromHealthKit() {
+        guard let goal = currentGoal,
+              let profile = healthContext?.healthKitService.bodyProfile else { return }
+        goal.mergeHealthKitProfile(profile, modelContext: modelContext)
     }
 
     private var noGoalCard: some View {
@@ -254,9 +248,86 @@ struct GoalsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
+
+    @ViewBuilder
+    private func bodyCompositionCard(_ goal: UserGoal) -> some View {
+        let profile = healthContext?.healthKitService.bodyProfile ?? .empty
+        let bodyFat = profile.bodyFatPercent ?? goal.currentBodyFat
+        let leanMass = profile.leanBodyMassKg ?? goal.currentLeanBodyMassKg
+        let weight = currentWeight
+
+        if bodyFat == nil && leanMass == nil && goal.targetBodyFat == nil && goal.effectiveTargetLeanMassKg == nil {
+            EmptyView()
+        } else {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("体成分")
+                    .font(.headline)
+
+                if let weight {
+                    compositionRow(title: "体重", value: formatWeight(weight))
+                }
+
+                if let bodyFat {
+                    compositionRow(title: "体脂率", value: String(format: "%.1f%%", bodyFat))
+                    if let weight {
+                        compositionRow(
+                            title: "脂肪量",
+                            value: String(format: "%.1f kg", weight * bodyFat / 100)
+                        )
+                    }
+                    if let target = goal.targetBodyFat {
+                        compositionRow(
+                            title: "目标体脂",
+                            value: String(format: "%.1f%%", target),
+                            accent: .blue
+                        )
+                    }
+                }
+
+                if let leanMass {
+                    compositionRow(title: "去脂体重", value: String(format: "%.1f kg", leanMass))
+                    if let target = goal.effectiveTargetLeanMassKg, goal.targetBodyFat != nil {
+                        compositionRow(
+                            title: "目标去脂体重",
+                            value: String(format: "%.1f kg", target),
+                            accent: Theme.link(colorScheme)
+                        )
+                    }
+                }
+
+                if bodyFat == nil && leanMass == nil {
+                    Text("在 Apple 健康中记录体脂/去脂体重后，或于目标设置中手动填写。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if profile.bodyFatPercent != nil || profile.leanBodyMassKg != nil {
+                    Label("数据来自 Apple 健康", systemImage: "heart.text.square")
+                        .font(.caption2)
+                        .foregroundStyle(.green)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.cardBackground(colorScheme))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
+            .shadow(color: .black.opacity(colorScheme == .dark ? 0.25 : 0.1), radius: 5, x: 0, y: 2)
+        }
+    }
+
+    private func compositionRow(title: String, value: String, accent: Color = .primary) -> some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(accent)
+        }
+    }
 }
 
 #Preview {
     GoalsView()
         .modelContainer(for: [UserGoal.self, WeightEntry.self, UserSettings.self], inMemory: true)
+        .healthContext(UnifiedHealthContext())
 }

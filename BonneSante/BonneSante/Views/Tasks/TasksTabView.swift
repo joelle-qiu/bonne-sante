@@ -13,7 +13,7 @@ struct TasksTabView: View {
     @State private var newDueDate = Date()
 
     private var fitnessTodos: [TodoItem] {
-        todos.filter { $0.sourceType.isFitnessTask }
+        todos.filter { $0.sourceType.isFitnessTask && $0.seriesKey.isEmpty }
     }
 
     private var openTodos: [TodoItem] {
@@ -33,10 +33,20 @@ struct TasksTabView: View {
                     } label: {
                         Label("减脂目标", systemImage: "target")
                     }
+                    NavigationLink {
+                        WorkoutPlanView()
+                    } label: {
+                        Label("训练计划", systemImage: "figure.run")
+                    }
+                    NavigationLink {
+                        WorkoutCalendarView()
+                    } label: {
+                        Label("运动日历", systemImage: "calendar")
+                    }
                 }
 
                 if !openTodos.isEmpty {
-                    Section("训练计划") {
+                    Section("其他训练提醒") {
                         ForEach(openTodos, id: \.id) { item in
                             TodoRow(item: item, onToggle: {
                                 toggleComplete(item)
@@ -64,20 +74,21 @@ struct TasksTabView: View {
                 }
 
                 if openTodos.isEmpty && completedTodos.isEmpty {
-                    Section("训练计划") {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("暂无训练计划")
-                                .font(.subheadline.weight(.medium))
-                            Text("添加跑步、力量训练等，到期会收到本地提醒。体检复查请在「健康 → 复查提醒」设置。")
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("从这里开始", systemImage: "figure.run")
+                                .font(.subheadline.weight(.semibold))
+                            Text("设置减脂目标并生成周训练计划；门诊预约请在「健康」Tab 导入。")
                                 .font(.caption)
-                                .foregroundStyle(Theme.textSecondary)
+                                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 6)
                     }
                 }
             }
             .listStyle(.insetGrouped)
-            .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+            .scrollContentBackground(.hidden)
+            .cycleThemedPageBackground()
             .navigationTitle("训练")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -161,9 +172,65 @@ struct TasksTabView: View {
         for index in offsets {
             let item = list[index]
             TodoService.cancelNotifications(for: item.id)
+            if !item.calendarEventIdentifier.isEmpty {
+                try? CalendarService.removeEvent(identifier: item.calendarEventIdentifier)
+            }
             modelContext.delete(item)
         }
         try? modelContext.save()
+    }
+}
+
+struct AppointmentTodoRow: View {
+    let item: TodoItem
+    var isCompleted: Bool = false
+    let onToggle: () -> Void
+    var onAddCalendar: (() -> Void)? = nil
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Button(action: onToggle) {
+                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isCompleted ? Theme.adaptiveAccent(colorScheme) : Theme.adaptiveTextSecondary(colorScheme))
+                    .font(.title3)
+            }
+            .buttonStyle(.plain)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.title)
+                    .font(.headline)
+                    .strikethrough(isCompleted)
+                if !item.department.isEmpty {
+                    Text(item.department)
+                        .font(.caption)
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                }
+                Text(item.dueDate.formatted(date: .abbreviated, time: .shortened))
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                if let location = item.location, !location.isEmpty {
+                    Text(location)
+                        .font(.caption2)
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                }
+            }
+            Spacer()
+            if let onAddCalendar, !isCompleted, item.calendarEventIdentifier.isEmpty {
+                Button {
+                    onAddCalendar()
+                } label: {
+                    Image(systemName: "calendar.badge.plus")
+                }
+                .buttonStyle(.borderless)
+            } else if !item.calendarEventIdentifier.isEmpty {
+                Image(systemName: "calendar")
+                    .foregroundStyle(Theme.adaptiveAccent(colorScheme))
+                    .font(.caption)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 
@@ -202,5 +269,6 @@ private struct TodoRow: View {
 
 #Preview {
     TasksTabView()
-        .modelContainer(for: [TodoItem.self, UserGoal.self, WeightEntry.self], inMemory: true)
+        .modelContainer(for: [TodoItem.self, UserGoal.self, WeightEntry.self, WorkoutPlanEntry.self, WorkoutPlanPreferences.self], inMemory: true)
+        .healthContext(UnifiedHealthContext())
 }

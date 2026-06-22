@@ -168,6 +168,16 @@ enum ReportImporter {
 
     // MARK: - Public
 
+    /// 仅 OCR 提取纯文本（门诊预约截图等）
+    static func recognizePlainText(in image: UIImage) async throws -> String {
+        let lines = try await recognizeLayoutLines(in: image)
+        let text = lines.map(\.text).joined(separator: "\n")
+        guard !text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty else {
+            throw ImportError.noTextRecognized
+        }
+        return text
+    }
+
     static func importImage(
         _ image: UIImage,
         fileName: String,

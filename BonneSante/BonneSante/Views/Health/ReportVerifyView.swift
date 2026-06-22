@@ -423,6 +423,8 @@ struct ReportVerifyView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .cycleThemedPageBackground()
         .navigationTitle(navigationTitleText)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(item: $summaryRoute) { route in

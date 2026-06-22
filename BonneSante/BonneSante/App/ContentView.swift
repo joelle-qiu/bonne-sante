@@ -33,8 +33,17 @@ struct ContentView: View {
                     Label("我的", systemImage: "person.crop.circle")
                 }
         }
-        .tint(Theme.brandPrimary(colorScheme))
+        .tint(tabAccentColor)
         .cyclePhase(healthContext?.cyclePhaseInfo.phase ?? .unknown)
+        .animation(.easeInOut(duration: 0.35), value: healthContext?.cyclePhaseInfo.phase)
+    }
+
+    private var tabAccentColor: Color {
+        let phase = healthContext?.cyclePhaseInfo.phase ?? .unknown
+        if phase == .unknown {
+            return Theme.brandPrimary(colorScheme)
+        }
+        return Theme.phaseAccent(phase, colorScheme)
     }
 }
 

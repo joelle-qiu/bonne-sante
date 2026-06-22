@@ -10,6 +10,14 @@ struct DailyEnergyBoard: View {
     let basalEnergy: Double
     let totalBurned: Double
     let isUsingWatchData: Bool
+    /// 智能 BMR 来源（如「Watch 7日均值」）
+    var bmrSourceLabel: String? = nil
+    /// TDEE 来源短标签
+    var tdeeSourceLabel: String? = nil
+    /// 今日 Watch 活动消耗（与 7 日均值对照）
+    var todayActiveEnergy: Double? = nil
+    /// 活动消耗基准说明（如「7日均值」）
+    var activeSourceLabel: String? = nil
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -47,7 +55,15 @@ struct DailyEnergyBoard: View {
                 .font(.headline)
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
             Spacer()
-            if isUsingWatchData {
+            if let bmrSourceLabel, !bmrSourceLabel.isEmpty {
+                Label("BMR · \(bmrSourceLabel)", systemImage: "applewatch")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Theme.brandPrimary(colorScheme).opacity(colorScheme == .dark ? 0.22 : 0.35))
+                    .clipShape(Capsule())
+            } else if isUsingWatchData {
                 Label("Apple Watch", systemImage: "applewatch")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
@@ -116,14 +132,16 @@ struct DailyEnergyBoard: View {
                 value: Int(activeEnergy),
                 unit: "大卡",
                 color: Theme.energyActive(colorScheme),
-                icon: "figure.run"
+                icon: "figure.run",
+                caption: activeSourceLabel
             )
             EnergyMetricTile(
                 title: "基础",
                 value: Int(basalEnergy),
                 unit: "大卡",
                 color: Theme.energyBasal(colorScheme),
-                icon: "bed.double.fill"
+                icon: "bed.double.fill",
+                caption: bmrSourceLabel
             )
             EnergyMetricTile(
                 title: "已摄入",
@@ -136,14 +154,26 @@ struct DailyEnergyBoard: View {
     }
 
     private var footerSummary: some View {
-        HStack {
-            Label("总消耗 \(Int(totalBurned).formatted())", systemImage: "flame.fill")
-                .font(.caption)
-                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            Spacer()
-            Text("已摄入 \(Int(consumed).formatted()) 大卡")
-                .font(.caption)
-                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Label("日均总消耗 \(Int(totalBurned).formatted())", systemImage: "flame.fill")
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                if let tdeeSourceLabel {
+                    Text("· \(tdeeSourceLabel)")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                }
+                Spacer()
+                Text("已摄入 \(Int(consumed).formatted()) 大卡")
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            }
+            if let todayActiveEnergy, abs(todayActiveEnergy - activeEnergy) > 15 {
+                Text("今日活动 \(Int(todayActiveEnergy).formatted()) 大卡 · 活动基准 \(Int(activeEnergy).formatted()) 大卡/天")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            }
         }
     }
 }
@@ -180,6 +210,7 @@ private struct EnergyMetricTile: View {
     let unit: String
     let color: Color
     let icon: String
+    var caption: String? = nil
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -201,6 +232,13 @@ private struct EnergyMetricTile: View {
             Text(unit)
                 .font(.caption2)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            if let caption, !caption.isEmpty {
+                Text(caption)
+                    .font(.system(size: 9))
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)

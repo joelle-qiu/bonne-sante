@@ -52,6 +52,7 @@ enum ImagingFollowUpEnricher {
             copy.severityRank = 3
         }
 
+        copy.assessmentNote = ReportMetricNormalizer.dedupeAssessmentNote(copy.assessmentNote)
         return copy
     }
 

@@ -47,4 +47,33 @@ final class FoodEntry {
             mealType: mealType ?? nutrition.resolvedMealType
         )
     }
+
+    /// 转为可编辑的营养信息（保留原记录日期）
+    func asNutritionInfo() -> NutritionInfo {
+        let startOfEntry = Calendar.current.startOfDay(for: createdAt)
+        let startOfToday = Calendar.current.startOfDay(for: Date())
+        let daysAgo = Calendar.current.dateComponents([.day], from: startOfEntry, to: startOfToday).day ?? 0
+        return NutritionInfo(
+            foodName: foodName,
+            grams: grams,
+            calories: calories,
+            protein: protein,
+            carbohydrates: carbohydrates,
+            fat: fat,
+            confidence: "manual",
+            notes: nil,
+            daysAgo: daysAgo,
+            mealType: resolvedMealType
+        )
+    }
+
+    /// 用编辑后的营养数据更新条目（不改动 createdAt）
+    func apply(nutrition: NutritionInfo) {
+        foodName = nutrition.foodName
+        grams = nutrition.grams
+        calories = nutrition.calories
+        protein = nutrition.protein
+        carbohydrates = nutrition.carbohydrates
+        fat = nutrition.fat
+    }
 }

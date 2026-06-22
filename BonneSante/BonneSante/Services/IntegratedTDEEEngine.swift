@@ -12,6 +12,10 @@ enum IntegratedTDEEEngine {
         var activeEnergy: Double
         var activityFactor: Double = 1.0
         var bmrFallback: Double?
+        /// 去脂体重（kg），有则优先 Katch-McArdle 蛋白计算
+        var leanBodyMassKg: Double?
+        /// 建议蛋白（已由 HealthIntelligenceEngine 校准时可传入）
+        var proteinGramsOverride: Double?
     }
 
     struct Output {
@@ -21,6 +25,10 @@ enum IntegratedTDEEEngine {
         var proteinGrams: Double
         var fatRatio: Double = 0.28
         var carbCalories: Double
+        /// 脂肪目标克数（dailyBudget × fatRatio ÷ 9）
+        var fatGrams: Double
+        /// 碳水目标克数（剩余热量 ÷ 4）
+        var carbGrams: Double
     }
 
     static func calculate(_ input: Input) -> Output {
@@ -40,21 +48,38 @@ enum IntegratedTDEEEngine {
         }
 
         let dailyBudget = max(tdee - dailyDeficit, 1200)
-        let proteinGrams = input.currentWeight * 1.6
-        let fatCalories = dailyBudget * 0.28
+        let proteinGrams = input.proteinGramsOverride ?? proteinFromBody(
+            weightKg: input.currentWeight,
+            leanMassKg: input.leanBodyMassKg
+        )
+        let fatRatio = 0.28
+        let fatCalories = dailyBudget * fatRatio
         let proteinCalories = proteinGrams * 4
         let carbCalories = max(dailyBudget - fatCalories - proteinCalories, 0)
+        let fatGrams = fatCalories / 9
+        let carbGrams = carbCalories / 4
 
         return Output(
             tdee: tdee,
             dailyDeficit: dailyDeficit,
             dailyBudget: dailyBudget,
             proteinGrams: proteinGrams,
-            carbCalories: carbCalories
+            fatRatio: fatRatio,
+            carbCalories: carbCalories,
+            fatGrams: fatGrams,
+            carbGrams: carbGrams
         )
     }
 
     static func remainingCalories(budget: Double, consumed: Double) -> Double {
         budget - consumed
+    }
+
+    private static func proteinFromBody(weightKg: Double, leanMassKg: Double?) -> Double {
+        let byWeight = weightKg * 1.6
+        if let lean = leanMassKg, lean > 0 {
+            return max(byWeight, lean * 2.0)
+        }
+        return byWeight
     }
 }

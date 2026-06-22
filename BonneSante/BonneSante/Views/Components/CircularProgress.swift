@@ -23,7 +23,7 @@ struct CircularProgress: View {
                 .trim(from: 0, to: progress)
                 .stroke(Theme.brandPrimary(colorScheme), style: StrokeStyle(lineWidth: 14, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-                .animation(.spring(duration: 0.6), value: progress)
+                .animation(Theme.Motion.progressSpring, value: progress)
 
             VStack(spacing: 4) {
                 Text(remaining > 0 ? "剩余" : "超出")

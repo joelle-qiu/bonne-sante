@@ -65,6 +65,11 @@ struct FoodConfirmationView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
+            .cycleThemedPageBackground()
             .navigationTitle("确认食物")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

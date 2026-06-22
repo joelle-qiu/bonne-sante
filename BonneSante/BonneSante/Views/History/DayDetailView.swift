@@ -6,6 +6,7 @@ struct DayDetailView: View {
     let date: Date
     @State private var entries: [FoodEntry]
     @State private var entryToDelete: FoodEntry?
+    @State private var entryToEdit: FoodEntry?
     @State private var showingDeleteConfirmation = false
     @State private var showingBackfillSheet = false
 
@@ -78,7 +79,7 @@ struct DayDetailView: View {
                         Text("食物明细")
                             .font(.headline)
                         Spacer()
-                        Text("长按可删除")
+                        Text("点击编辑 · 长按删除")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -103,7 +104,16 @@ struct DayDetailView: View {
                         .padding()
                         .background(Color(.systemGray6))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .contentShape(RoundedRectangle(cornerRadius: 10))
+                        .onTapGesture {
+                            entryToEdit = entry
+                        }
                         .contextMenu {
+                            Button {
+                                entryToEdit = entry
+                            } label: {
+                                Label("编辑", systemImage: "pencil")
+                            }
                             Button(role: .destructive) {
                                 entryToDelete = entry
                                 showingDeleteConfirmation = true
@@ -116,7 +126,7 @@ struct DayDetailView: View {
             }
             .padding()
         }
-        .background(Color(.systemGroupedBackground))
+        .cycleThemedPageBackground()
         .navigationTitle(formatDate(date))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -127,6 +137,11 @@ struct DayDetailView: View {
                     Image(systemName: "plus.circle.fill")
                     Text("补录")
                 }
+            }
+        }
+        .sheet(item: $entryToEdit) { entry in
+            SingleFoodEditView(nutrition: entry.asNutritionInfo()) { updated in
+                updateEntry(entry, with: updated)
             }
         }
         .sheet(isPresented: $showingBackfillSheet) {
@@ -158,6 +173,13 @@ struct DayDetailView: View {
                 Text("确定要删除「\(entry.foodName)」吗？此操作无法撤销。")
             }
         }
+    }
+
+    private func updateEntry(_ entry: FoodEntry, with nutrition: NutritionInfo) {
+        entry.apply(nutrition: nutrition)
+        try? modelContext.save()
+        refreshEntries()
+        entryToEdit = nil
     }
 
     private func deleteEntry(_ entry: FoodEntry) {

@@ -207,7 +207,7 @@ CalorieCop/
 ## Privacy
 
 - All food data is stored locally on your device using SwiftData
-- API keys are stored locally in UserDefaults (never uploaded)
+- API keys are stored locally in **Keychain** (never uploaded; legacy UserDefaults keys auto-migrate)
 - HealthKit data never leaves your device
 - API calls only send food descriptions (no personal data)
 

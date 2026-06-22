@@ -1,9 +1,9 @@
 # Bonne-Santé 开发计划
 
 **依据文档**：`PRD.txt` v2.4  
-**更新日期**：2026-06-22（AI 配置 + 目标设置 HealthKit 同步）  
+**更新日期**：2026-06-22（心情模式收尾 + 满月勋章 + 文档同步）  
 **预计总工期**：11–16 周（三阶段 MVP）  
-**代码路径**：`BonneSante/`
+**代码路径**：`BonneSante/` · SwiftData Schema **v17**
 
 ---
 
@@ -24,29 +24,24 @@
 ```
 [████████████████████] 阶段一 100% ✅
 
-✅ 阶段一已完成（2026-06-20）
-  - 步骤 0：DeepSeek 迁移
-  - 步骤 1.1：Mac 编译验证（Deployment Target → iOS 17.0）
-  - 步骤 1.2：工程重命名 BonneSante + Bundle ID com.bonnesante.app
-  - 步骤 1.3–1.12：Theme、5 Tab、UnifiedContext、Onboarding、AI 顾问
-  - 步骤 1.14：回归验收全部通过
+[██████████████████░░] 阶段二 ~90%（代码完成，真机走查进行中）
 
-```
-[████████░░░░░░░░░░░░] 阶段三 ~25%（周期引擎已启动）
+[██████████████████░░] 阶段三 ~90%（P1/P2 完成，待真机走查）
 
-⏳ 阶段二 ~80%（并行收尾）
-  - 复查计划 UI、阶段二真机验收
+🚀 阶段三（2026-06-22 最新）
+  - CycleEngine + HealthKit 经期 + 全局周期主题 ✅
+  - WorkoutPlanEngine + AI 换动作 + 营养分日联动 ✅
+  - 心情模式（天气排课 · 舞蹈/游泳 · AI 温馨提醒）✅
+  - WorkoutCalendarView 月热力图 + 周统计 ✅
+  - 门诊预约 OCR + EventKit ✅
+  - 连续 7 天运动 · 满月勋章（我的页）✅
+  - 微动效 / 分享摘要 / 首页洞察条 / 复查卡片 UI ✅
+  - 本周安排 Mon→Sun 排序 ✅
 
-🚀 阶段三（当前焦点 · 2026-06-21）
-  - CycleEngine 知识库 + HealthKit 经期同步 ✅
-  - PhaseBar / CycleTipsCard 主题联动 ✅
-  - WorkoutPlanEngine、运动日历 ⏳
-
-📌 2026-06-22 增量
-  - Qwen API 连接测试 + 默认大陆站 ✅
-  - GoalSetting / Onboarding HealthKit 身体档案预填 ✅
-  - 真机验收 Qwen 识食 + 目标预填 ⏳
-```
+📌 下一步
+  - 阶段二/三 PRD 真机走查（`PHASE2_ACCEPTANCE.md`）
+  - TestFlight / 正式 Schema 迁移策略
+  - git 首次整理提交（BonneSante 工程）
 ```
 
 ---
@@ -147,12 +142,13 @@ gantt
 | 模块 | 核心任务 | 状态 | 关键文件 |
 |------|----------|------|----------|
 | 周期 | CycleEngine + HealthKit 经期 | **进行中** | `CycleEngine.swift`、`CycleProfile.swift`、`HealthKitService.swift` |
-| 主题联动 | 三期背景色 + `@Environment(\.cyclePhase)` | **进行中** | `Theme.swift`、`PhaseBar.swift` |
+| 主题联动 | 三期背景色 + `@Environment(\.cyclePhase)` | **已完成** | `Theme.swift`、`ContentView.swift` |
 | Tips | 周期饮食/训练知识库 + 首页/营养 Tab | **进行中** | `CycleTipsCard.swift` |
-| 训练 | WorkoutPlanEngine + 完成度 | 未开始 | `WorkoutPlanEngine.swift` |
-| 运动日历 | 月热力图 + 日详情 | 未开始 | `WorkoutCalendarView.swift` |
-| 门诊 | 截图 OCR + EventKit | 未开始 | `CalendarService.swift` |
-| 打磨 | 微动效、勋章、分享卡片 | 未开始 | `AchievementsView.swift` |
+| 训练 | WorkoutPlanEngine + 完成度 + AI 换动作 | **已完成首包** | `WorkoutPlanEngine.swift`、`WorkoutPlanView.swift` |
+| 运动日历 | 月热力图 + 日详情 + 周统计 | **已完成首包** | `WorkoutCalendarView.swift`、`WorkoutCalendarEngine.swift` |
+| 门诊 | 预约截图 OCR + EventKit | **已完成首包** | `ClinicAppointmentImportView.swift`、`CalendarService.swift` |
+| 打磨 | 微动效、分享卡片 | 未开始 | `Theme.swift` |
+| 成就 | 连续 7 天满月勋章 | **已完成** | `ExerciseStreakEngine.swift`、`ExerciseStreakBadgeCard.swift` |
 
 ---
 
@@ -214,4 +210,4 @@ Views（SwiftUI）
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.1 | 2026-06-20 | 阶段一完成：Mac 验收、工程重命名 BonneSante |
-| 1.2 | 2026-06-22 | Qwen 测试连接、默认大陆站；目标设置 HealthKit 身体档案预填 |
+| 1.2 | 2026-06-22 | 心情模式收尾；满月勋章；Schema v17；验收清单场景 14–15 |

@@ -16,7 +16,7 @@ struct OnboardingView: View {
 
     // 减脂目标
     @State private var currentWeight: Double = 58
-    @State private var targetWeight: Double = 52
+    @State private var targetWeight: Double = 50
     @State private var height: Double = 165
     @State private var age: Int = 28
     @State private var gender: String = "female"
@@ -102,6 +102,12 @@ struct OnboardingView: View {
                     await healthContext?.healthKitService.requestAuthorization()
                     healthKitRequested = true
                     await applyHealthKitToGoalFields()
+                    if let healthKit = healthContext?.healthKitService {
+                        _ = await WorkoutPlanService.inferPreferencesFromHealthKitIfNeeded(
+                            healthKit: healthKit,
+                            modelContext: modelContext
+                        )
+                    }
                 }
             } label: {
                 Label("授权 HealthKit", systemImage: "heart.fill")
@@ -260,8 +266,14 @@ struct OnboardingView: View {
         }
 
         if profile.currentWeightKg != nil {
-            targetWeight = max(currentWeight - 3, 40)
-            synced.append("目标体重建议")
+            if gender == "male" {
+                targetWeight = max(currentWeight - 3, 40)
+                synced.append("目标体重建议")
+            } else {
+                targetWeight = UserGoal.femaleDefaultTargetWeightKg
+            }
+        } else if gender == "female" {
+            targetWeight = UserGoal.femaleDefaultTargetWeightKg
         }
 
         healthKitSyncedFields = Set(synced)

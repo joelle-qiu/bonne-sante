@@ -103,6 +103,7 @@ struct AISettingsView: View {
             .padding()
         }
         .scrollDismissesKeyboard(.interactively)
+        .cycleThemedPageBackground()
         .onAppear {
             selectedRegion = APIKeyManager.region
         }

@@ -16,7 +16,14 @@ enum TodoService {
         center.removePendingNotificationRequests(withIdentifiers: notificationIDs(for: item.id))
 
         let content = UNMutableNotificationContent()
-        content.title = item.sourceType.isFitnessTask ? "训练提醒" : "Bonne-Santé 提醒"
+        switch item.sourceType {
+        case .fitness:
+            content.title = "训练提醒"
+        case .appointment:
+            content.title = "门诊提醒"
+        default:
+            content.title = "Bonne-Santé 提醒"
+        }
         content.body = item.title
         content.sound = .default
 

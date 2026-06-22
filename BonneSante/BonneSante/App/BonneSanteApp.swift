@@ -3,24 +3,46 @@ import SwiftData
 
 @main
 struct BonneSanteApp: App {
-    @State private var healthContext = UnifiedHealthContext()
-
     var sharedModelContainer: ModelContainer = SwiftDataContainerFactory.makeContainer()
 
     var body: some Scene {
         WindowGroup {
-            AppRootView()
-                .healthContext(healthContext)
-                .tint(Theme.primary)
+            AppAppearanceHost()
                 .onAppear {
                     let context = sharedModelContainer.mainContext
                     DataMigrationService.migrateIfNeeded(modelContext: context)
                 }
-                .task {
-                    await healthContext.healthKitService.requestAuthorization()
-                    await TodoService.requestAuthorization()
-                }
         }
         .modelContainer(sharedModelContainer)
+    }
+}
+
+/// 根容器：注入健康上下文 + 用户选择的外观模式
+/// @author jiali.qiu
+private struct AppAppearanceHost: View {
+    @State private var healthContext = UnifiedHealthContext()
+    @Query private var settingsList: [UserSettings]
+    @Environment(\.modelContext) private var modelContext
+
+    private var appearance: AppAppearanceMode {
+        settingsList.first?.preferredAppearance ?? .system
+    }
+
+    var body: some View {
+        AppRootView()
+            .healthContext(healthContext)
+            .preferredColorScheme(appearance.colorScheme)
+            .tint(Theme.primary)
+            .task {
+                ensureUserSettings()
+                await healthContext.healthKitService.requestAuthorization()
+                await TodoService.requestAuthorization()
+            }
+    }
+
+    private func ensureUserSettings() {
+        guard settingsList.isEmpty else { return }
+        modelContext.insert(UserSettings())
+        try? modelContext.save()
     }
 }

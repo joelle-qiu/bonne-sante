@@ -14,6 +14,8 @@ final class TodoItem {
     var relatedMetric: String?
     var department: String = ""
     var seriesKey: String = ""
+    /// EventKit 事件 identifier（加入系统日历后写入）
+    var calendarEventIdentifier: String = ""
     var isCompleted: Bool
     var createdDate: Date
 
@@ -26,6 +28,7 @@ final class TodoItem {
         relatedMetric: String? = nil,
         department: String = "",
         seriesKey: String = "",
+        calendarEventIdentifier: String = "",
         isCompleted: Bool = false
     ) {
         self.id = UUID()
@@ -37,6 +40,7 @@ final class TodoItem {
         self.relatedMetric = relatedMetric
         self.department = department
         self.seriesKey = seriesKey
+        self.calendarEventIdentifier = calendarEventIdentifier
         self.isCompleted = isCompleted
         self.createdDate = Date()
     }

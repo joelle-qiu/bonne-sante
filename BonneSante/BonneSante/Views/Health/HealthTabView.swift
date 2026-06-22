@@ -7,6 +7,7 @@ struct HealthTabView: View {
     @Query(sort: \Report.examDate, order: .reverse) private var reports: [Report]
     @Query(filter: #Predicate<RiskFlag> { !$0.isResolved }) private var activeRisks: [RiskFlag]
     @Query(sort: \CheckupPlan.nextDueDate) private var checkupPlans: [CheckupPlan]
+    @Query(sort: \TodoItem.dueDate) private var todos: [TodoItem]
 
     @Environment(\.modelContext) private var modelContext
     @State private var showImport = false
@@ -38,7 +39,7 @@ struct HealthTabView: View {
                     reportList
                 }
             }
-            .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+            .cycleThemedPageBackground()
             .navigationTitle("档案")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -82,6 +83,27 @@ struct HealthTabView: View {
         do {
             try HealthArchiveService.deleteReport(report, modelContext: modelContext)
             reportPendingDelete = nil
+        } catch {
+            deleteErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func toggleAppointmentComplete(_ item: TodoItem) {
+        item.isCompleted.toggle()
+        if item.isCompleted {
+            TodoService.cancelNotifications(for: item.id)
+        } else {
+            TodoService.scheduleReminders(for: item)
+        }
+        try? modelContext.save()
+    }
+
+    @MainActor
+    private func addAppointmentToCalendar(_ item: TodoItem) async {
+        do {
+            let eventID = try await CalendarService.addAppointment(for: item)
+            item.calendarEventIdentifier = eventID
+            try? modelContext.save()
         } catch {
             deleteErrorMessage = error.localizedDescription
         }
@@ -155,6 +177,25 @@ struct HealthTabView: View {
                             .foregroundStyle(Theme.textSecondary)
                     }
                 }
+
+                NavigationLink {
+                    ClinicAppointmentImportView()
+                } label: {
+                    Label("导入门诊预约", systemImage: "calendar.badge.plus")
+                }
+            }
+
+            let openAppointments = todos.filter { $0.sourceType == .appointment && !$0.isCompleted }
+            if !openAppointments.isEmpty {
+                Section("门诊预约") {
+                    ForEach(openAppointments, id: \.id) { item in
+                        AppointmentTodoRow(
+                            item: item,
+                            onToggle: { toggleAppointmentComplete(item) },
+                            onAddCalendar: { Task { await addAppointmentToCalendar(item) } }
+                        )
+                    }
+                }
             }
 
             ForEach(ReportDisplayFormatter.groupedByYear(reports), id: \.year) { group in
@@ -177,6 +218,7 @@ struct HealthTabView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
     }
 
     private var verifiedCount: Int {
@@ -280,7 +322,8 @@ struct ReportDetailView: View {
                 Section {
                     NavigationLink {
                         HealthMetricTrendView(
-                            focusPanelId: focusPanelIdForFirstAbnormal
+                            focusPanelId: focusPanelIdForFirstAbnormal,
+                            focusLineId: focusLineIdForFirstAbnormal
                         )
                     } label: {
                         Label("查看健康趋势", systemImage: "chart.xyaxis.line")
@@ -344,11 +387,56 @@ struct ReportDetailView: View {
 
     private var focusPanelIdForFirstAbnormal: String? {
         guard let metric = HealthMetricTrendEngine.highlightMetrics(from: report).first else { return nil }
+        return trendFocusPanelId(for: metric)
+    }
+
+    private var focusLineIdForFirstAbnormal: String? {
+        guard let metric = HealthMetricTrendEngine.highlightMetrics(from: report).first else { return nil }
+        return trendFocusLineId(for: metric)
+    }
+
+    private func trendFocusPanelId(for metric: HealthMetric) -> String? {
+        if metric.category == "异常发现" {
+            return HealthFindingTrendEngine.inferPanelId(forFindingName: metric.name)
+        }
         return HealthMetricTrendEngine.inferPanelId(forMetricName: metric.name)
+    }
+
+    private func trendFocusLineId(for metric: HealthMetric) -> String? {
+        if metric.category == "异常发现" {
+            guard let key = FindingNameCanonicalizer.canonicalKey(for: metric) else { return nil }
+            return FindingNameCanonicalizer.normalizedTrendKey(key, metric: metric)
+        }
+        let key = MetricNameCanonicalizer.canonicalKey(for: metric.name)
+        return key.hasPrefix("raw.") ? nil : key
+    }
+
+    private func canLinkMetricToTrend(_ metric: HealthMetric) -> Bool {
+        report.isVerified && verifiedReportCount >= 2 && trendFocusLineId(for: metric) != nil
     }
 
     @ViewBuilder
     private func metricRow(_ metric: HealthMetric) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            metricRowContent(metric)
+            if canLinkMetricToTrend(metric) {
+                NavigationLink {
+                    HealthMetricTrendView(
+                        focusPanelId: trendFocusPanelId(for: metric),
+                        focusLineId: trendFocusLineId(for: metric)
+                    )
+                } label: {
+                    Image(systemName: "chart.xyaxis.line")
+                        .font(.body)
+                        .foregroundStyle(Theme.primaryDark)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func metricRowContent(_ metric: HealthMetric) -> some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(metric.name)
@@ -363,7 +451,7 @@ struct ReportDetailView: View {
                         .foregroundStyle(Theme.textSecondary)
                 }
                 if !metric.assessmentNote.isEmpty {
-                    let note = metric.assessmentNote
+                    let note = ReportMetricNormalizer.dedupeAssessmentNote(metric.assessmentNote)
                     if let conclusion = conclusionLine(for: metric),
                        !metric.valueText.contains(conclusion.replacingOccurrences(of: "结论：", with: "")) {
                         Text(conclusion)
@@ -426,7 +514,7 @@ struct ReportDetailView: View {
 
     /// 从 assessmentNote 提取「结论：…」行（入库时 valueText 可能已含结论）
     private func conclusionLine(for metric: HealthMetric) -> String? {
-        let note = metric.assessmentNote.trimmingCharacters(in: .whitespacesAndNewlines)
+        let note = ReportMetricNormalizer.dedupeAssessmentNote(metric.assessmentNote)
         if note.hasPrefix("结论：") || note.hasPrefix("结论:") {
             return note
         }

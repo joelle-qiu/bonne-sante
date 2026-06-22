@@ -5,6 +5,8 @@ import SwiftData
 /// @author jiali.qiu
 struct WeightLossTabView: View {
     @Environment(\.healthContext) private var healthContext
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
 
     @Query(sort: \FoodEntry.createdAt, order: .reverse) private var allEntries: [FoodEntry]
     @Query private var goals: [UserGoal]
@@ -14,8 +16,14 @@ struct WeightLossTabView: View {
     @Query(filter: #Predicate<RiskFlag> { !$0.isResolved }) private var riskFlags: [RiskFlag]
     @Query(sort: \TodoItem.dueDate) private var todos: [TodoItem]
     @Query private var checkupPlans: [CheckupPlan]
+    @Query private var workoutPreferences: [WorkoutPlanPreferences]
+
+    @State private var weekEntriesCache: [WorkoutPlanEntry] = []
+    @State private var weeklyNutritionDaysCache: [WorkoutNutritionPlanner.WeeklyNutritionDay] = []
 
     private var currentGoal: UserGoal? { goals.first }
+
+    private var weekStart: Date { WorkoutPlanService.startOfWeek() }
 
     private var currentWeight: Double? {
         healthContext?.healthKitService.currentWeight
@@ -35,6 +43,32 @@ struct WeightLossTabView: View {
     var body: some View {
         NavigationStack {
             List {
+                if !weeklyNutritionDaysCache.isEmpty {
+                    Section("本周营养目标") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            if weekEntriesCache.count > 0 {
+                                Text("本周 \(weekEntriesCache.count) 场训练 · 全周按排课区分训练日/休息日")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(Theme.adaptiveAccent(colorScheme))
+                            }
+                            WeeklyNutritionStrip(
+                                days: weeklyNutritionDaysCache,
+                                compact: true,
+                                baselineCalories: healthContext?.baselineDailyBudget
+                            )
+                            if let note = healthContext?.nutritionAdjustmentNote {
+                                Text("今日：\(note)")
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                            }
+                            Text("今日摄入与蛋白/碳水/脂肪进度见首页仪表盘。")
+                                .font(.caption2)
+                                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                        }
+                        .listRowBackground(Color.clear)
+                    }
+                }
+
                 if let info = healthContext?.cyclePhaseInfo, info.phase != .unknown {
                     Section("周期关怀") {
                         CycleTipsCard(phaseInfo: info, compact: true)
@@ -70,12 +104,31 @@ struct WeightLossTabView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .cycleThemedPageBackground()
             .navigationTitle("营养")
             .task { await refreshContext() }
+            .onAppear { reloadWeekNutritionCache() }
+        }
+    }
+
+    private func reloadWeekNutritionCache() {
+        weekEntriesCache = WorkoutPlanService.entriesForWeek(weekStart, modelContext: modelContext)
+        if let prefs = workoutPreferences.first,
+           WorkoutNutritionPlanner.hasActivePlan(prefs) {
+            weeklyNutritionDaysCache = WorkoutNutritionPlanner.weeklyNutritionDays(
+                prefs: prefs,
+                trainingWeekdays: weekEntriesCache.map(\.dayOfWeek),
+                weekStart: weekStart,
+                baselineCalories: healthContext?.baselineDailyBudget
+            )
+        } else {
+            weeklyNutritionDaysCache = []
         }
     }
 
     private func refreshContext() async {
+        let isTrainingDay = WorkoutPlanService.hasPlannedSession(modelContext: modelContext)
         await healthContext?.refresh(
             foodEntries: allEntries,
             goals: goals,
@@ -84,8 +137,11 @@ struct WeightLossTabView: View {
             reports: reports,
             riskFlags: riskFlags,
             todos: todos,
-            checkupPlans: checkupPlans
+            checkupPlans: checkupPlans,
+            workoutPreferences: workoutPreferences.first,
+            isTrainingDayToday: isTrainingDay
         )
+        reloadWeekNutritionCache()
     }
 }
 

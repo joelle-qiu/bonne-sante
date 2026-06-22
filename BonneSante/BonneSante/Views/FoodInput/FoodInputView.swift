@@ -130,6 +130,7 @@ struct FoodInputView: View {
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
+            .cycleThemedPageBackground()
             .navigationTitle(isBackfillMode ? "补录食物" : "记录食物")
             .toolbar {
                 if isAPIConfigured {
@@ -764,7 +765,9 @@ struct MultipleFoodConfirmationView: View {
                     }
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
+            .cycleThemedPageBackground()
             .navigationTitle("确认食物")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

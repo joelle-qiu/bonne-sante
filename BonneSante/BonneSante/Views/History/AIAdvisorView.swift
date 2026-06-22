@@ -219,6 +219,7 @@ struct AIAdvisorView: View {
                 .background(Color(.systemBackground))
                 }  // End of else block for API configured
             }
+            .cycleThemedPageBackground()
             .navigationTitle("AI顾问")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

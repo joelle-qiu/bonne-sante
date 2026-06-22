@@ -75,7 +75,8 @@ struct StagedImportFlowView: View {
 
     private var preparingPlaceholder: some View {
         ZStack {
-            Theme.pageBackground(colorScheme).ignoresSafeArea()
+            CycleThemedBackground()
+                .ignoresSafeArea()
             VStack(spacing: 16) {
                 ProgressView()
                     .controlSize(.large)

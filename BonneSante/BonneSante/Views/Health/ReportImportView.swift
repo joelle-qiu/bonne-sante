@@ -66,7 +66,7 @@ struct ReportImportView: View {
                 .padding(.horizontal, Theme.horizontalPadding)
                 .padding(.vertical, 16)
             }
-            .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+            .cycleThemedPageBackground()
             .navigationTitle("导入报告")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

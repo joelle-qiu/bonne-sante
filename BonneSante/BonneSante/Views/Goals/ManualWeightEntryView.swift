@@ -39,6 +39,8 @@ struct ManualWeightEntryView: View {
                     .foregroundStyle(.blue)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .cycleThemedPageBackground()
             .navigationTitle("记录体重")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

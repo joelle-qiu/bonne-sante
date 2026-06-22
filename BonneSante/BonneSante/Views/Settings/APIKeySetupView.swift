@@ -12,6 +12,7 @@ struct APIKeySetupView: View {
                 onComplete?()
                 dismiss()
             })
+            .cycleThemedPageBackground()
             .navigationTitle("API 设置")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

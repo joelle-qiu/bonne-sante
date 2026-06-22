@@ -368,8 +368,29 @@ enum ReportMetricNormalizer {
         if finding.assessmentNote.isEmpty || isPlaceholderAssessmentNote(finding.assessmentNote) {
             finding.assessmentNote = note
         } else if !finding.assessmentNote.contains(conclusion) {
-            finding.assessmentNote = "\(finding.assessmentNote)；\(conclusion)"
+            finding.assessmentNote = dedupeAssessmentNote("\(finding.assessmentNote)；\(note)")
         }
+    }
+
+    /// 合并 assessmentNote 时去除重复分句（；分隔）
+    static func dedupeAssessmentNote(_ note: String) -> String {
+        let trimmed = note.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+
+        let parts = trimmed
+            .components(separatedBy: CharacterSet(charactersIn: "；;"))
+            .map { $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        var seen = Set<String>()
+        var unique: [String] = []
+        for part in parts {
+            let normalized = RiskAnalyzer.normalize(part)
+            if seen.insert(normalized).inserted {
+                unique.append(part)
+            }
+        }
+        return unique.joined(separator: "；")
     }
 
     /// 是否为本地兜底占位文案（应在提取到真实结论后覆盖）

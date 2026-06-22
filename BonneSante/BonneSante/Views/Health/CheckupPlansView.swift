@@ -17,10 +17,10 @@ struct CheckupPlansView: View {
             if plans.isEmpty {
                 emptyState
             } else {
-                planList
+                planScroll
             }
         }
-        .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+        .cycleThemedPageBackground()
         .navigationTitle("复查提醒")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -73,55 +73,56 @@ struct CheckupPlansView: View {
         }
     }
 
-    private var planList: some View {
-        List {
-            Section {
+    private var planScroll: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
                 Text("到期前 30 天、7 天本地通知。复查后可点「已完成」更新下次日期。")
                     .font(.caption)
-                    .foregroundStyle(Theme.textSecondary)
-            }
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
 
-            Section("共 \(plans.count) 项") {
-                ForEach(plans, id: \.id) { plan in
-                    planRow(plan)
+                ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in
+                    planCard(plan)
+                        .morandiCardAppear(delay: Double(index) * 0.04)
                 }
-            }
 
-            Section {
                 Text(RiskFlag.medicalDisclaimer)
                     .font(.caption2)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
             }
+            .padding(.horizontal, Theme.horizontalPadding)
+            .padding(.vertical, 16)
         }
-        .listStyle(.insetGrouped)
     }
 
-    private func planRow(_ plan: CheckupPlan) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
+    private func planCard(_ plan: CheckupPlan) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(plan.metricName)
                         .font(.headline)
+                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                     if !plan.department.isEmpty {
                         Text(plan.department)
                             .font(.caption)
-                            .foregroundStyle(Theme.textSecondary)
+                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                     }
                 }
                 Spacer()
                 dueBadge(plan)
             }
 
-            HStack(spacing: 12) {
-                Text("每 \(plan.frequencyInMonths) 个月")
+            HStack(spacing: 8) {
+                Label("每 \(plan.frequencyInMonths) 个月", systemImage: "arrow.triangle.2.circlepath")
                     .font(.caption)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 Text("下次 \(ReportDisplayFormatter.examDateLabel(plan.nextDueDate))")
-                    .font(.caption.weight(.medium))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(isOverdue(plan) ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextPrimary(colorScheme))
             }
 
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Menu {
                     ForEach([1, 3, 6, 12], id: \.self) { months in
                         Button("\(months) 个月") {
@@ -130,14 +131,22 @@ struct CheckupPlansView: View {
                     }
                 } label: {
                     Text("改周期")
-                        .font(.caption.bold())
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Theme.brandPrimary(colorScheme).opacity(0.18))
+                        .clipShape(Capsule())
                 }
 
                 Button {
                     markCompletedToday(plan)
                 } label: {
                     Text("已完成")
-                        .font(.caption.bold())
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Theme.energyActive(colorScheme).opacity(0.22))
+                        .clipShape(Capsule())
                 }
 
                 Spacer()
@@ -149,9 +158,20 @@ struct CheckupPlansView: View {
                         .font(.caption)
                 }
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, 2)
+        .padding(16)
+        .background(Theme.cardBackground(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cornerRadiusCard)
+                .strokeBorder(
+                    isOverdue(plan)
+                        ? Theme.adaptiveWarning(colorScheme).opacity(0.45)
+                        : Theme.brandPrimary(colorScheme).opacity(0.15),
+                    lineWidth: 1
+                )
+        )
     }
 
     @ViewBuilder
@@ -160,11 +180,19 @@ struct CheckupPlansView: View {
         if days < 0 {
             Text("已逾期")
                 .font(.caption2.bold())
-                .foregroundStyle(Theme.warning)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Theme.adaptiveWarning(colorScheme))
+                .clipShape(Capsule())
         } else if days <= 30 {
             Text("\(days) 天后")
                 .font(.caption2.bold())
-                .foregroundStyle(Theme.primaryDark)
+                .foregroundStyle(Theme.brandPrimary(colorScheme))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Theme.brandPrimary(colorScheme).opacity(0.18))
+                .clipShape(Capsule())
         }
     }
 

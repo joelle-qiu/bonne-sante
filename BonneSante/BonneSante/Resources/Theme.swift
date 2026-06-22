@@ -20,7 +20,7 @@ enum Theme {
     static let warningDark = Color(hex: 0xFF9E9E)
     static let cardDark = Color(hex: 0x2C2C30)
     static let textPrimaryDark = Color(hex: 0xF5F5F7)
-    static let textSecondaryDark = Color(hex: 0xB8B8BE)
+    static let textSecondaryDark = Color(hex: 0xD1D1D6)
     static let linkDark = Color(hex: 0x7EC8FF)
 
     // MARK: - Layout
@@ -30,10 +30,30 @@ enum Theme {
     static let cornerRadiusInput: CGFloat = 10
     static let horizontalPadding: CGFloat = 20
 
+    // MARK: - Motion（PRD §11.4 P2）
+
+    enum Motion {
+        static let cardSpring = Animation.spring(duration: 0.35, bounce: 0.22)
+        static let progressSpring = Animation.spring(duration: 0.6, bounce: 0.18)
+        static let phaseTransition = Animation.easeInOut(duration: 0.4)
+        static let buttonPress = Animation.easeOut(duration: 0.18)
+    }
+
     // MARK: - Adaptive
 
     static func pageBackground(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? backgroundDark : background
+    }
+
+    /// 周期主题页背景染色强度（未知阶段为 0）
+    static func phasePageTintOpacity(_ phase: CyclePhase, _ scheme: ColorScheme) -> Double {
+        guard phase != .unknown else { return 0 }
+        return scheme == .dark ? 0.10 : 0.13
+    }
+
+    static func phasePageGradientOpacity(_ phase: CyclePhase, _ scheme: ColorScheme) -> Double {
+        guard phase != .unknown else { return 0 }
+        return scheme == .dark ? 0.14 : 0.20
     }
 
     static func brandPrimary(_ scheme: ColorScheme) -> Color {
@@ -46,6 +66,10 @@ enum Theme {
 
     static func adaptiveTextSecondary(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? textSecondaryDark : textSecondary
+    }
+
+    static func adaptiveTextTertiary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: 0xAEAEB4) : Color(hex: 0x8E8E93)
     }
 
     static func adaptiveWarning(_ scheme: ColorScheme) -> Color {
@@ -147,6 +171,43 @@ extension View {
     func morandiCard() -> some View {
         modifier(MorandiCardModifier())
     }
+
+    /// 卡片入场微动效（首页洞察条等）
+    func morandiCardAppear(delay: Double = 0) -> some View {
+        modifier(MorandiCardAppearModifier(delay: delay))
+    }
+
+    /// Form / List 在周期主题页上的统一行背景与文字对比度
+    func morandiFormSurface() -> some View {
+        modifier(MorandiFormSurfaceModifier())
+    }
+}
+
+private struct MorandiCardAppearModifier: ViewModifier {
+    let delay: Double
+    @State private var visible = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(visible ? 1 : 0)
+            .offset(y: visible ? 0 : 8)
+            .onAppear {
+                withAnimation(Theme.Motion.cardSpring.delay(delay)) {
+                    visible = true
+                }
+            }
+    }
+}
+
+private struct MorandiFormSurfaceModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .scrollContentBackground(.hidden)
+            .listRowBackground(Theme.cardBackground(colorScheme))
+            .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+    }
 }
 
 // MARK: - Quick Action Button
@@ -176,7 +237,9 @@ struct MorandiQuickActionButtonStyle: ButtonStyle {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusButton))
-            .opacity(configuration.isPressed ? 0.82 : 1)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(Theme.Motion.buttonPress, value: configuration.isPressed)
+            .opacity(configuration.isPressed ? 0.88 : 1)
     }
 
     private var background: Color {
@@ -194,6 +257,46 @@ struct MorandiQuickActionButtonStyle: ButtonStyle {
             return colorScheme == .dark ? Theme.textPrimaryDark : Theme.textPrimary
         case .secondary:
             return Theme.adaptiveTextPrimary(colorScheme)
+        }
+    }
+}
+
+// MARK: - Cycle Themed Page Background
+
+/// 全局周期主题背景：基底色 + 阶段色温和晕染（经 `@Environment(\.cyclePhase)` 驱动）
+struct CycleThemedBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.cyclePhase) private var cyclePhase
+
+    var body: some View {
+        ZStack {
+            Theme.pageBackground(colorScheme)
+
+            if cyclePhase != .unknown {
+                Theme.phaseAccent(cyclePhase, colorScheme)
+                    .opacity(Theme.phasePageTintOpacity(cyclePhase, colorScheme))
+
+                LinearGradient(
+                    colors: [
+                        Theme.phaseAccent(cyclePhase, colorScheme)
+                            .opacity(Theme.phasePageGradientOpacity(cyclePhase, colorScheme)),
+                        Theme.pageBackground(colorScheme).opacity(0)
+                    ],
+                    startPoint: .top,
+                    endPoint: UnitPoint(x: 0.5, y: 0.38)
+                )
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: cyclePhase)
+    }
+}
+
+extension View {
+    /// 应用周期联动页背景（替代 `Theme.pageBackground`）
+    func cycleThemedPageBackground() -> some View {
+        background {
+            CycleThemedBackground()
+                .ignoresSafeArea()
         }
     }
 }

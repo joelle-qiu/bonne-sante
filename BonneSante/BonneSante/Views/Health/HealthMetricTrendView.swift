@@ -11,6 +11,7 @@ struct HealthMetricTrendView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var focusPanelId: String?
+    var focusLineId: String?
 
     private var metricPanels: [HealthMetricTrendEngine.TrendPanel] {
         HealthMetricTrendEngine.buildPanels(from: reports)
@@ -49,33 +50,65 @@ struct HealthMetricTrendView: View {
     ]
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if !hasAnyTrendData {
-                    emptyState
-                } else {
-                    overviewCard
-                    legendHint
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    if !hasAnyTrendData {
+                        emptyState
+                    } else {
+                        overviewCard
+                        legendHint
 
-                    if !metricPanels.isEmpty {
-                        sectionHeader("化验指标", systemImage: "testtube.2")
-                        trendPanelSection(panels: metricPanels)
-                    }
+                        if !metricPanels.isEmpty {
+                            sectionHeader("化验指标", systemImage: "testtube.2")
+                            trendPanelSection(panels: metricPanels)
+                        }
 
-                    if !findingPanels.isEmpty {
-                        sectionHeader("检查结论", systemImage: "waveform.path.ecg.rectangle")
-                        trendPanelSection(panels: findingPanels)
+                        if !findingPanels.isEmpty {
+                            sectionHeader("检查结论", systemImage: "waveform.path.ecg.rectangle")
+                            trendPanelSection(panels: findingPanels)
+                        }
                     }
+                    disclaimer
                 }
-                disclaimer
+                .padding(.horizontal, Theme.horizontalPadding)
+                .padding(.vertical, 16)
             }
-            .padding(.horizontal, Theme.horizontalPadding)
-            .padding(.vertical, 16)
+            .cycleThemedPageBackground()
+            .navigationTitle("健康趋势")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                applyFocusFromDeepLink()
+                scrollToFocusedLine(using: proxy)
+            }
         }
-        .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
-        .navigationTitle("健康趋势")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear(perform: expandImagingFollowUpPanels)
+    }
+
+    /// 深链进入时展开含目标 line 的面板，并优先展示对应 panel
+    private func applyFocusFromDeepLink() {
+        if focusLineId == nil {
+            expandImagingFollowUpPanels()
+            return
+        }
+        guard let lineId = focusLineId else { return }
+        for panel in metricPanels + findingPanels {
+            guard panel.lines.contains(where: { $0.id == lineId }) else { continue }
+            if panel.singleRecordLines.contains(where: { $0.id == lineId }) {
+                expandedSingleRecordPanels.insert(panel.id)
+            }
+            if panel.stableLines.contains(where: { $0.id == lineId }) {
+                expandedStablePanels.insert(panel.id)
+            }
+        }
+    }
+
+    private func scrollToFocusedLine(using proxy: ScrollViewProxy) {
+        guard let lineId = focusLineId else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                proxy.scrollTo(lineId, anchor: .top)
+            }
+        }
     }
 
     /// 肺结节 / 肝血管瘤等长期随访项默认展开，避免藏在折叠区
@@ -98,13 +131,19 @@ struct HealthMetricTrendView: View {
 
     @ViewBuilder
     private func trendPanelSection(panels: [HealthMetricTrendEngine.TrendPanel]) -> some View {
-        if let focusPanelId,
-           let focused = panels.first(where: { $0.id == focusPanelId }) {
+        let resolvedPanelId = focusPanelId ?? panelIdContainingFocusLine(in: panels)
+        if let resolvedPanelId,
+           let focused = panels.first(where: { $0.id == resolvedPanelId }) {
             panelCard(focused, emphasized: true, stableLabel: stableItemLabel(for: focused))
         }
-        ForEach(panels.filter { $0.id != focusPanelId }) { panel in
+        ForEach(panels.filter { $0.id != resolvedPanelId }) { panel in
             panelCard(panel, emphasized: false, stableLabel: stableItemLabel(for: panel))
         }
+    }
+
+    private func panelIdContainingFocusLine(in panels: [HealthMetricTrendEngine.TrendPanel]) -> String? {
+        guard let lineId = focusLineId else { return nil }
+        return panels.first(where: { $0.lines.contains(where: { $0.id == lineId }) })?.id
     }
 
     private func stableItemLabel(for panel: HealthMetricTrendEngine.TrendPanel) -> String {
@@ -182,7 +221,7 @@ struct HealthMetricTrendView: View {
             if !panel.notableLines.isEmpty {
                 VStack(spacing: 10) {
                     ForEach(panel.notableLines) { line in
-                        statusRow(line)
+                        statusRow(line, emphasized: line.id == focusLineId)
                     }
                 }
                 if panel.notableLines.contains(where: { !$0.unit.isEmpty || $0.rawPoints.contains(where: { $0.value > 1 }) }) {
@@ -223,7 +262,7 @@ struct HealthMetricTrendView: View {
         }
     }
 
-    private func statusRow(_ line: HealthMetricTrendEngine.TrendLine) -> some View {
+    private func statusRow(_ line: HealthMetricTrendEngine.TrendLine, emphasized: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -272,8 +311,15 @@ struct HealthMetricTrendView: View {
             }
         }
         .padding(10)
-        .background(statusColor(line.status).opacity(0.08))
+        .background(statusColor(line.status).opacity(emphasized ? 0.16 : 0.08))
+        .overlay {
+            if emphasized {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Theme.adaptiveAccent(colorScheme), lineWidth: 2)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .id(line.id)
     }
 
     private func formattedTrendSize(_ line: HealthMetricTrendEngine.TrendLine, preferFirst: Bool) -> String {

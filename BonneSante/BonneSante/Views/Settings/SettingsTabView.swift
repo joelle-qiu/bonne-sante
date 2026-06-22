@@ -6,17 +6,33 @@ import SwiftData
 struct SettingsTabView: View {
     @Environment(\.healthContext) private var context
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.modelContext) private var modelContext
 
     @Query private var cycleProfiles: [CycleProfile]
+    @Query private var settingsList: [UserSettings]
+    @Query private var workoutEntries: [WorkoutPlanEntry]
 
     @State private var lastPeriodStart = Date()
     @State private var cycleLength = 28
     @State private var periodLength = 5
     @State private var syncFeedback: String?
+    @State private var streakStatus = ExerciseStreakEngine.Status.empty
+
+    private var userSettings: UserSettings {
+        if let existing = settingsList.first { return existing }
+        let created = UserSettings()
+        modelContext.insert(created)
+        try? modelContext.save()
+        return created
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                appearanceSection
+                profileSection
+                exerciseStreakSection
+
                 Section("AI 服务") {
                     HStack {
                         Text("状态")
@@ -33,6 +49,22 @@ struct SettingsTabView: View {
 
                 Section("Apple 健康同步") {
                     LabeledContent("数据状态", value: healthKitStatusLabel)
+                    bodyCompositionDebugRows
+                    if let intel = context?.intelligenceProfile {
+                        LabeledContent("基础代谢 BMR", value: "\(Int(intel.bmrKcal)) 大卡")
+                        LabeledContent("BMR 来源", value: intel.bmrSourceShort)
+                        LabeledContent("日均总消耗 TDEE", value: "\(Int(intel.tdeeKcal)) 大卡")
+                        LabeledContent("TDEE 来源", value: intel.tdeeSourceShort)
+                        if intel.basalWatchSampleDays >= 3 {
+                            LabeledContent("BMR 采样", value: "近7日 \(intel.basalWatchSampleDays) 天")
+                        }
+                        if let katch = intel.katchBmrKcal {
+                            LabeledContent("体成分对照 BMR", value: "\(Int(katch)) 大卡")
+                        }
+                        if let lean = intel.leanBodyMassKg {
+                            LabeledContent("去脂体重", value: String(format: "%.1f kg", lean))
+                        }
+                    }
                     LabeledContent("今日活动消耗", value: "\(Int(context?.healthKitService.activeCaloriesBurned ?? 0)) 大卡")
                     LabeledContent("今日基础代谢", value: "\(Int(context?.healthKitService.basalCaloriesBurned ?? 0)) 大卡")
                     if let weight = context?.healthKitService.currentWeight {
@@ -46,6 +78,12 @@ struct SettingsTabView: View {
                     }
                     Button("重新请求授权") {
                         Task { await context?.healthKitService.requestAuthorization() }
+                    }
+                    Button("刷新体成分") {
+                        Task {
+                            await context?.healthKitService.fetchBodyProfile()
+                            syncFeedback = "已刷新体成分"
+                        }
                     }
                 }
 
@@ -78,18 +116,148 @@ struct SettingsTabView: View {
 
                 Section("关于") {
                     LabeledContent("应用", value: "Bonne-Santé")
-                    LabeledContent("版本", value: "阶段三开发中")
+                    LabeledContent("版本", value: "MVP · 阶段三")
                     Text("本应用仅供参考，不能替代医疗诊断，请遵医嘱。")
                         .font(.caption)
                         .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 }
             }
+            .scrollContentBackground(.hidden)
+            .cycleThemedPageBackground()
             .navigationTitle("我的")
-            .onAppear { loadCycleProfile() }
+            .onAppear {
+                loadCycleProfile()
+                if settingsList.isEmpty {
+                    modelContext.insert(UserSettings())
+                    try? modelContext.save()
+                }
+            }
+            .task { await refreshExerciseStreak() }
+            .refreshable { await refreshExerciseStreak() }
         }
     }
 
-    @Environment(\.modelContext) private var modelContext
+    private var exerciseStreakSection: some View {
+        Section {
+            ExerciseStreakBadgeCard(status: streakStatus)
+                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .listRowBackground(Color.clear)
+        } header: {
+            Text("运动成就")
+        } footer: {
+            Text("计入 Apple 健康锻炼记录，或训练 Tab 中标记完成的计划场次。")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+        }
+    }
+
+    private func refreshExerciseStreak() async {
+        await context?.healthKitService.fetchRecentWorkouts(days: 30)
+        let workouts = context?.healthKitService.recentWorkouts ?? []
+        let completedDates = workoutEntries
+            .filter(\.isCompleted)
+            .compactMap { WorkoutPlanService.sessionDate(for: $0) }
+        streakStatus = ExerciseStreakEngine.evaluate(
+            workouts: workouts,
+            completedPlanDates: completedDates
+        )
+    }
+
+    private var appearanceSection: some View {
+        Section {
+            Picker("外观模式", selection: appearanceBinding) {
+                ForEach(AppAppearanceMode.allCases) { mode in
+                    Label(mode.label, systemImage: mode.icon)
+                        .tag(mode)
+                }
+            }
+            .pickerStyle(.inline)
+
+            HStack {
+                Text("当前生效")
+                Spacer()
+                Text(activeAppearanceLabel)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            }
+        } header: {
+            Text("显示与主题")
+        } footer: {
+            Text("可选择日间或夜间固定模式，也可跟随系统。后续将支持更多背景与周期主题效果。")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+        }
+    }
+
+    private var profileSection: some View {
+        Section {
+            TextField("称呼（选填）", text: nicknameBinding)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+        } header: {
+            Text("个人")
+        } footer: {
+            if userSettings.prefersMoodWorkoutProfile {
+                Text("已识别为心情健身用户。训练计划 → 切换「心情」模式，下雨推荐游泳、晴天推荐跳舞。")
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+            } else {
+                Text("填写「小姜」等称呼后，训练计划页会推荐心情模式。")
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+            }
+        }
+    }
+
+    private var nicknameBinding: Binding<String> {
+        Binding(
+            get: { userSettings.profileNickname },
+            set: { newValue in
+                userSettings.profileNickname = newValue
+                try? modelContext.save()
+            }
+        )
+    }
+
+    private var appearanceBinding: Binding<AppAppearanceMode> {
+        Binding(
+            get: { userSettings.preferredAppearance },
+            set: { newValue in
+                userSettings.preferredAppearance = newValue
+                try? modelContext.save()
+            }
+        )
+    }
+
+    private var activeAppearanceLabel: String {
+        switch userSettings.preferredAppearance {
+        case .system:
+            return colorScheme == .dark ? "跟随系统 · 夜间" : "跟随系统 · 日间"
+        case .light:
+            return "日间模式"
+        case .dark:
+            return "夜间模式"
+        }
+    }
+
+    @ViewBuilder
+    private var bodyCompositionDebugRows: some View {
+        let profile = context?.healthKitService.bodyProfile ?? .empty
+        if let bf = profile.bodyFatPercent {
+            LabeledContent("体脂率（校正后）", value: String(format: "%.1f%%", bf))
+        }
+        if let raw = profile.bodyFatRawHealthKit {
+            LabeledContent("体脂原始值", value: String(format: "%.4f", raw))
+        }
+        if let source = profile.bodyFatSourceName {
+            LabeledContent("体成分来源", value: source)
+        }
+        if let measured = profile.bodyFatMeasuredAt {
+            LabeledContent("体成分时间", value: measured.formatted(date: .abbreviated, time: .shortened))
+        }
+        if let compWeight = profile.compositionWeightKg {
+            LabeledContent("同次测量体重", value: String(format: "%.1f kg", compWeight))
+        }
+    }
 
     @ViewBuilder
     private var menstrualHealthRows: some View {
@@ -179,6 +347,6 @@ struct SettingsTabView: View {
 
 #Preview {
     SettingsTabView()
-        .modelContainer(for: [CycleProfile.self], inMemory: true)
+        .modelContainer(for: [CycleProfile.self, UserSettings.self, WorkoutPlanEntry.self], inMemory: true)
         .healthContext(UnifiedHealthContext())
 }

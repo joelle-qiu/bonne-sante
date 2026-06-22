@@ -2,7 +2,7 @@
 
 > 本文件供 Cursor 与开发者快速恢复上下文。详细需求见 `PRD.txt`，任务排期见 `DEVELOPMENT_PLAN.md`。
 
-**最后更新**：2026-06-22（AI 配置与目标设置 HealthKit 同步）
+**最后更新**：2026-06-22（心情模式 + 满月勋章 + 文档收尾）
 
 ---
 
@@ -75,10 +75,13 @@
 
 ### 待办（阶段三后续）
 
-- [ ] `WorkoutPlanEngine` — 按周期生成周训练计划
-- [ ] 运动日历热力图 + HealthKit workout 完成度
-- [ ] 门诊截图 OCR + EventKit
-- [ ] 成就勋章
+- [x] `WorkoutPlanEngine` — 按周期生成周训练计划（含 AI 候选换动作、减脂消耗优先）
+- [x] 运动日历热力图 + HealthKit workout 完成度
+- [x] 门诊截图 OCR + EventKit
+- [x] 心情模式（天气排课 · 舞蹈/游泳 · moodReminder 详情提醒）
+- [x] 连续 7 天运动 · 满月勋章（`ExerciseStreakEngine` + 我的页）
+- [x] 周期 UI 主题全局背景 + Tab 强调色联动（2026-06-22）
+- [ ] 微动效 / 分享健康摘要图（P1 暂缓）
 
 ### 周期数据优先级
 
@@ -148,8 +151,8 @@ Bonne-Santé/
 | 阶段 | 状态 | 焦点 |
 |------|------|------|
 | 一 | ✅ 已完成 | 5 Tab、UnifiedContext、Onboarding、Mac 验收 |
-| 二 | **~80% 进行中** | 体检导入、摘要、趋势、影像随访；待复查计划 UI、真机验收 |
-| 三 | **~25% 已启动** | 周期引擎、HealthKit 经期、主题联动；待训练计划/运动日历 |
+| 二 | **~90%** | 体检导入、摘要、趋势、复查；待 PRD 真机走查 |
+| 三 | **~85%** | 周期、训练、日历、门诊、心情模式、满月勋章；待微动效/分享 |
 
 ---
 
@@ -176,9 +179,10 @@ Bonne-Santé/
 - [x] **DeepSeek 粘贴 JSON / 影像随访片段**（`[{findings…}],"recommendations":[…]`）
 - [x] **morphology + organSite 标签体系**（`ClinicalFindingTaxonomy`，动态归类）
 - [x] **CT/MRI 长期随访管道**（肺磨玻璃结节、肝血管瘤/FNH）
-- [ ] 阶段二 PRD 真机验收
-- [ ] 复查计划设置 UI（CheckupPlan 完整 UI）
-- [x] 用户补录 **2026-06-04 肺 CT** 后验证双点趋势
+- [ ] 阶段二 PRD 真机验收（`PHASE2_ACCEPTANCE.md` 场景 1–7）
+- [x] 复查计划 UI（CheckupPlansView + CompactCheckupReminders）
+- [x] GoalsView 统一 UnifiedHealthContext
+- [x] Keychain API Key 迁移
 
 ### ✅ 2026-06-22 增量（AI 配置 + 目标设置）
 
@@ -319,4 +323,6 @@ Bonne-Santé/
 | 2026-06-20 | 阶段二核心：体检 OCR、风险引擎、健康/待办 Tab |
 | 2026-06-21 | **阶段三启动**：CycleEngine 知识库、HealthKit 经期、cyclePhase 环境、CycleTipsCard |
 | 2026-06-21 | **首页仪表盘重做**：每日能量/营养优先；复查待办置底；莫兰迪语义色 Token；HealthKit 同步面板 |
-| 2026-06-22 | **Qwen 测试连接 + 默认大陆站**；**目标设置 HealthKit 预填**（身高/年龄/性别/体重） |
+| 2026-06-22 | **心情模式收尾**（全周排课、moodReminder、14.5/14.7b 真机通过） |
+| 2026-06-22 | **满月勋章**（ExerciseStreakEngine · 我的页） |
+| 2026-06-22 | SwiftData Schema **v17** |

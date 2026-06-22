@@ -68,7 +68,7 @@ struct ReportImportSummaryView: View {
             .padding(.horizontal, Theme.horizontalPadding)
             .padding(.vertical, 16)
         }
-        .background(Theme.pageBackground(colorScheme).ignoresSafeArea())
+        .cycleThemedPageBackground()
         .navigationTitle("导入摘要")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
