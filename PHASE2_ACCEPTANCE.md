@@ -25,9 +25,9 @@
 
 | # | 操作 | 通过 |
 |---|------|------|
-| P0 | 安装最新构建；完成 Onboarding（目标体重、可选 HealthKit） | ☐ |
-| P1 | **我的** → AI 设置：DeepSeek Key 测试通过 | ☐ |
-| P2 | 系统设置：HealthKit 读写、定位（心情模式）、通知（复查/门诊）按需授权 | ☐ |
+| P0 | 安装最新构建；完成 Onboarding（目标体重、可选 HealthKit） | ☑ |
+| P1 | **我的** → AI 设置：DeepSeek Key 测试通过 | ☑ |
+| P2 | 系统设置：HealthKit 读写、定位（心情模式）、通知（复查/门诊）按需授权 | ☑ |
 
 ### 第一轮：日常闭环（~15 min）
 
@@ -69,7 +69,7 @@
 |------|------|------|------|
 | 18 | 各 Tab 切换周期阶段（或 HealthKit 经期） | 背景色 + Tab 强调色联动 | 13.1–13.5 |
 | 19 | **首页** ↗ 分享健康摘要 | 生成分享图 | Polish |
-| 20 | **我的** → 运动成就 · 满月勋章 | 近 7 日圆点 | 15.1 |
+| 20 | **训练** Tab → 满月勋章（减脂目标下方） | 近 7 日圆点 | 15.1 |
 | 21 | **训练** → 导入门诊预约 → 加入日历 | 需日历权限 | 12.1–12.4 |
 | 22 | 专业模式 · 换动作 · AI 教练 | 需 DeepSeek | 9.4、10.1–10.4 |
 | 23 | Watch 当日锻炼 ≥65% 计划时长 | 自动勾选完成 | 9.5 🔲 |
@@ -80,7 +80,7 @@
 
 | 轮次 | 通过 / 总计 | 阻塞说明 |
 |------|-------------|----------|
-| 准备 | __ / 3 | |
+| 准备 | 3 / 3 | |
 | 第一轮 日常 | __ / 5 | |
 | 第二轮 健康 | __ / 5 | |
 | 第三轮 训练营养 | __ / 7 | |
@@ -94,13 +94,13 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 1.1 | 健康 Tab → 导入报告 → 粘贴/拍照 | 进入校对页 | ✅ `ReportImportView` → `ReportVerifyView` | ☐ |
-| 1.2 | 校对 findings 后确认入库 | `isVerified = true` | ✅ `HealthArchiveService.saveVerifiedReports` | ☐ |
-| 1.3 | 时间线可见对应报告 | 按 visitDate 拆分 | ✅ 按 `visitDate` 分批入库 | ☐ |
-| 1.4 | 综合健康摘要 | 有风险说明（肺结节） | ✅ `HealthSummaryView` + `ClinicalRiskEngine` | ☐ |
-| 1.5 | 风险卡 → 设置复查 | 出现「年度 CT 复查」类 **CheckupPlan**（首页「复查待办」） | ⚠️ 生成 `CheckupPlan` 非训练 Tab `TodoItem` | ☐ |
+| 1.1 | 健康 Tab → 导入报告 → 粘贴/拍照 | 进入校对页 | ✅ `ReportImportView` → `ReportVerifyView` | ☑ |
+| 1.2 | 校对 findings 后确认入库 | `isVerified = true` | ✅ `HealthArchiveService.saveVerifiedReports` | ☑ |
+| 1.3 | 时间线可见对应报告 | 按 visitDate 拆分 | ✅ 按 `visitDate` 分批入库 | ☑ |
+| 1.4 | 综合健康摘要 | 有风险说明（肺结节） | ✅ `HealthSummaryView` + `ClinicalRiskEngine` | ☑ |
+| 1.5 | 风险卡 → 设置复查 | 出现「年度 CT 复查」类 **CheckupPlan**（首页「复查待办」） | ⚠️ 生成 `CheckupPlan` 非训练 Tab `TodoItem` | ☑ |
 
-**备注**：
+**备注**：场景 1 真机 **5/5 全部通过**（2026-06-22）。
 
 ---
 
@@ -108,11 +108,11 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 2.1 | 导入两次 LDL（或已有双点数据） | 健康趋势可见该指标 | ✅ `HealthMetricTrendView` | ☐ |
-| 2.2 | 查看趋势箭头 | 连续升高 → RiskFlag / 文案正确 | ✅ `MetricTrendCatalog` + `ClinicalRiskEngine` | ☐ |
-| 2.3 | 影像随访（肺/肝双点） | `imaging.lung_nodule` / `imaging.liver_lesion` 各 2 点 | ✅ `HealthFindingTrendEngine` | ☐ |
+| 2.1 | 导入两次 LDL（或已有双点数据） | 健康趋势可见该指标 | ✅ `HealthMetricTrendView` | ☑ |
+| 2.2 | 查看趋势箭头 | 连续升高 → RiskFlag / 文案正确 | ✅ `MetricTrendCatalog` + `ClinicalRiskEngine` | ☑ |
+| 2.3 | 影像随访（肺/肝双点） | `imaging.lung_nodule` / `imaging.liver_lesion` 各 2 点 | ✅ `HealthFindingTrendEngine` | ☑ |
 
-**备注**：
+**备注**：真机截图可见 LDL 双点（3.1→3.5 mmol/L）、肺结节 5.3→5.0 mm、肝血管瘤 44→25 mm。
 
 ---
 
@@ -120,13 +120,13 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 3.1 | 摘要页风险卡 → 复查计划 → 12 个月 | CheckupPlan 创建 | ✅ `setupCheckupPlan(months: 12)` | ☐ |
-| 3.2 | 健康 Tab → 复查计划 | 列表可见频率、下次日期 | ✅ `CheckupPlansView` | ☐ |
-| 3.3 | 下次日期计算 | lastExam + 12 月 | ✅ `CheckupPlan` init | ☐ |
+| 3.1 | 摘要页风险卡 → 复查计划 → 12 个月 | CheckupPlan 创建 | ✅ `setupCheckupPlan(months: 12)` | ☑ |
+| 3.2 | 健康 Tab → 复查计划 | 列表可见频率、下次日期 | ✅ `CheckupPlansView` | ☑ |
+| 3.3 | 下次日期计算 | lastExam + 12 月 | ✅ `CheckupPlan` init | ☑ |
 | 3.4 | 系统设置 → 通知权限 | 已授权 Bonne-Santé | 🔲 需系统设置 | ☐ |
 | 3.5 | 将系统日期调至「下次 - 30 天」或等待 | 收到本地推送（30 天 / 7 天） | 🔲 `TodoService.scheduleCheckupReminders` | ☐ |
 
-**备注**：
+**备注**：3.1–3.3 已通过（摘要设提醒 → 复查计划列表 → 标记完成）。3.4–3.5 推送待改日期专项验。
 
 ---
 
@@ -134,11 +134,11 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 4.1 | 健康摘要/导入摘要 → 风险卡「设置复查提醒」 | 创建 CheckupPlan | ✅ `RiskCard` → `setupCheckupPlan` | ☐ |
-| 4.2 | 首页「复查待办」或 健康 Tab → 复查计划 | 列表可见该项 | ✅ `CompactCheckupReminders` / `CheckupPlansView` | ☐ |
-| 4.3 | 复查计划点「已完成」 | 下次日期更新，首页卡片刷新 | ✅ `CheckupPlansView.markCompletedToday` | ☐ |
+| 4.1 | 健康摘要/导入摘要 → 风险卡「设置复查提醒」 | 创建 CheckupPlan | ✅ `RiskCard` → `setupCheckupPlan` | ☑ |
+| 4.2 | 首页「复查待办」或 健康 Tab → 复查计划 | 列表可见该项 | ✅ `CompactCheckupReminders` / `CheckupPlansView` | ☑ |
+| 4.3 | 复查计划点「已完成」 | 下次日期更新，首页卡片刷新 | ✅ `CheckupPlansView.markCompletedToday` | ☑ |
 
-**备注**：
+**备注**：场景 4 真机 **3/3 全部通过**（2026-06-22）。
 
 ---
 
@@ -146,11 +146,11 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 5.1 | 配置 DeepSeek Key | 连接测试通过 | ✅ `AISettingsView` + Keychain | ☐ |
-| 5.2 | 打开 AI 顾问 | 对话可引用摘要中的异常项 | ✅ `advisorContextSummary()` | ☐ |
-| 5.3 | 问「我的肺结节要注意什么」 | 回答含摘要上下文 + 免责声明 | ✅ 健康关键词触发 `needsHealth` | ☐ |
+| 5.1 | 配置 DeepSeek Key | 连接测试通过 | ✅ `AISettingsView` + Keychain | ☑ |
+| 5.2 | 打开 AI 顾问 | 对话可引用摘要中的异常项 | ✅ `advisorContextSummary()` | ☑ |
+| 5.3 | 问「我的肺结节要注意什么」 | 回答含摘要上下文 + 免责声明 | ✅ 健康关键词触发 `needsHealth` | ☑ |
 
-**备注**：
+**备注**：场景 5 真机 **3/3 全部通过**；阶段要求已满足，体验可后续优化。
 
 ---
 
@@ -158,10 +158,10 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 6.1 | 首页能量/营养看板 | 来自 `UnifiedHealthContext.refresh` | ✅ `DailyEnergyBoard` + `macroTargets` | ☐ |
-| 6.2 | 下次体检/复查 | 来自 CheckupPlan.nextDueDate | ✅ `CompactCheckupReminders` | ☐ |
+| 6.1 | 首页能量/营养看板 | 来自 `UnifiedHealthContext.refresh` | ✅ `DailyEnergyBoard` + `macroTargets` | ☑ |
+| 6.2 | 下次体检/复查 | 来自 CheckupPlan.nextDueDate | ✅ `CompactCheckupReminders` | ☑ |
 | 6.3 | 今日日程 · 门诊 | 来自 TodoItem（appointment） | ✅ `CompactTodaySchedule` 最多 2 条 | ☐ |
-| 6.4 | 改数据后回首页 | 无需重启，卡片同步 | ✅ `.task` + `.refreshable` → `refreshContext` | ☐ |
+| 6.4 | 改数据后回首页 | 无需重启，卡片同步 | ✅ `.task` + `.refreshable` → `refreshContext` | ☑ |
 | 6.5 | 已生成训练计划 | 「今日日程」训练 + 部位色点 | ✅ `loadWorkoutSchedule` + `MuscleGroupPalette` | ☑ |
 | 6.6 | 已导入门诊预约 | 「今日日程」临近预约 | ✅ `upcomingAppointments` filter | ☐ |
 | 6.7 | 已生成训练计划 · 今日有排课 | 营养条副标题含「训练计划微调 · 训练日 · 较减脂建议 +N kcal」；**须在生成计划后回首页下拉刷新再验** | ✅ `nutritionAdjustmentNote` | ☑ |
@@ -176,7 +176,7 @@
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
 | 7.1 | 减脂 → 历史 → 某日详情 | 可编辑已录入食物的名称/热量/宏量 | ✅ `DayDetailView` + `SingleFoodEditView` | ☐ |
-| 7.2 | 首页营养条形图 | 已摄入 vs 当日微调后目标（非双列对比） | ✅ `NutritionMacroBars` + `subtitle` | ☐ |
+| 7.2 | 首页营养条形图 | 已摄入 vs 当日微调后目标（非双列对比） | ✅ `NutritionMacroBars` + `subtitle` | ☑ |
 | 7.3 | 报告详情 assessmentNote | 分号重复句已去重 | ✅ `ReportMetricNormalizer.dedupeAssessmentNote` | ☐ |
 | 7.4 | 报告详情 →「查看健康趋势」 | 深链到对应 finding / 指标 panel | ✅ `HealthTabView` focus panel | ☐ |
 | 7.5 | 减脂 → 目标设置 | 走 UnifiedHealthContext，无独立 HealthKit 实例 | ✅ `GoalsView` / `GoalSettingView` | ☐ |
@@ -193,19 +193,19 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 8.1 | 训练 Tab → 训练计划 → 设频率 4 次/周 | Stepper 可保存 | ✅ `WorkoutPlanView` preferences | ☐ |
-| 8.2 | 点「智能生成（规则）」 | 本周出现多场训练，含具体动作（组×次） | ✅ `WorkoutPlanEngine` | ☐ |
-| 8.3 | 查看「本周完成度」卡 | 显示「消耗目标（减脂优先）」进度条 | ✅ `weeklyBurnGoal` 进度条 | ☐ |
-| 8.4 | 消耗目标数值 | 与每日热量缺口 / 周计划 targetCalories 一致 | ✅ `dailyDeficitTarget` 传入 Engine | ☐ |
-| 8.5 | 点「AI 定制计划」（已配 Key） | 返回 weeklySummary + 饮食建议 | ✅ `WorkoutPlanAIService` | ☐ |
+| 8.1 | 训练 Tab → 训练计划 → 设频率 4 次/周 | Stepper 可保存 | ✅ `WorkoutPlanView` preferences | ☑ |
+| 8.2 | 点「智能生成（规则）」 | 本周出现多场训练，含具体动作（组×次） | ✅ `WorkoutPlanEngine` | ☑ |
+| 8.3 | 查看「本周完成度」卡 | 显示「消耗目标（减脂优先）」进度条 | ✅ `weeklyBurnGoal` 进度条 | ☑ |
+| 8.4 | 消耗目标数值 | 与每日热量缺口 / 周计划 targetCalories 一致 | ✅ `dailyDeficitTarget` 传入 Engine | ☑ |
+| 8.5 | 点「AI 定制计划」（已配 Key） | 返回 weeklySummary + 饮食建议 | ✅ `WorkoutPlanAIService` | ☑ |
 | 8.6 | 生成后查看「本周营养目标」 | Mon–Sun 共 **7 格**；排课日 🏃 + 较高 kcal，非排课日 🌙 + 较低 kcal；较基准 ±N | ✅ `WeeklyNutritionStrip` | ☑ |
 | 8.7 | 规则/AI 生成 | 在减脂建议基础上写入分日微调（非 UI 双列） | ✅ `splitNutrition` → prefs | ☑ |
 | 8.8 | 排课日 vs 休息日 | 首页仅展示**今日**目标与摄入对比（**生成计划后回首页刷新**） | ✅ `UnifiedHealthContext` + 首页进度条 | ☑ |
 | 8.9 | 营养 Tab | 紧凑 Mon–Sun 周条 +「本周 N 场训练」说明 + 与训练计划一致 | ✅ `WeightLossTabView` | ☑ |
-| 8.10 | 训练计划页 | 无重复「今日摄入」卡，避免与首页重复 | ✅ 已移除 `intakeSurplusCard` | ☐ |
-| 8.11 | 「本周安排」改日期（context menu） | 7 格中对应日训练/休息图标与 kcal **即时切换**；副标题「与 N 场排课同步（Mon, Sun）」更新 | ✅ `refreshNutritionCache` + `trainingWeekdaysForNutrition` | ☐ |
+| 8.10 | 训练计划页 | 无重复「今日摄入」卡，避免与首页重复 | ✅ 已移除 `intakeSurplusCard` | ☑ |
+| 8.11 | 「本周安排」改日期（context menu） | 7 格中对应日训练/休息图标与 kcal **即时切换**；副标题「与 N 场排课同步（Mon, Sun）」更新 | ✅ `refreshNutritionCache` + `trainingWeekdaysForNutrition` | ☑ |
 
-**备注**：营养对比主战场在**首页**；训练/营养 Tab 展示全周微调计划（7 日均有目标，仅排课日升高）。Schema v9（`restDay*` 字段）。
+**备注**：场景 8 真机 **11/11 全部通过**（2026-06-22）。营养对比主战场在**首页**；训练/营养 Tab 展示全周微调计划。
 
 ---
 
@@ -213,13 +213,13 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 9.1 | 进入某场训练详情 | 见动作清单（如高位下拉 4×12） | ✅ `WorkoutSessionDetailView` | ☐ |
-| 9.2 | 动作卡片左侧色条 | 背/胸/腿等部位颜色不同（莫兰迪色） | ✅ `MuscleGroupPalette` | ☐ |
-| 9.3 | 点 +/- 记录组数 | 消耗进度条随完成组数更新 | ✅ 组数进度计算 | ☐ |
-| 9.4 | 点「AI 教练」 | 可问动作替代 / 拉伸 / 强度控制 | ✅ `WorkoutCoachView` | ☐ |
+| 9.1 | 进入某场训练详情 | 见动作清单（如高位下拉 4×12） | ✅ `WorkoutSessionDetailView` | ☑ |
+| 9.2 | 动作卡片左侧色条 | 背/胸/腿等部位颜色不同（莫兰迪色） | ✅ `MuscleGroupPalette` | ☑ |
+| 9.3 | 点 +/- 记录组数 | 消耗进度条随完成组数更新 | ✅ 组数进度计算 | ☑ |
+| 9.4 | 点「AI 教练」 | 可问动作替代 / 拉伸 / 强度控制 | ✅ `WorkoutCoachView` | ☑ |
 | 9.5 | HealthKit 有当日锻炼 | 达到 65% 时长后自动标记完成 | 🔲 `WorkoutPlanService` 0.65 阈值 | ☐ |
 
-**备注**：
+**备注**：9.4 已通过（AI 教练可读当日消耗目标并给容量建议）。9.5 待 Watch 专项验。
 
 ---
 
@@ -227,13 +227,13 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 10.1 | 某动作点「换动作」 | 弹出 Sheet，选原因 | ✅ `ExerciseSwapSheet` | ☐ |
-| 10.2 | 点「获取替代方案」 | AI 返回 2–3 张候选卡片 | ✅ `fetchSwapCandidates` | ☐ |
-| 10.3 | 候选卡片 | 左侧色条 + 部位标签 + 预估 kcal | ✅ 候选卡片 UI | ☐ |
-| 10.4 | 选一张 →「确认更换」 | 动作替换，本场 targetCalories 重评估 | ✅ `applySelectedSwap` | ☐ |
-| 10.5 | 若长期不宜再做 | 原动作加入「已避开」列表 | ✅ `excludedExercises` | ☐ |
+| 10.1 | 某动作点「换动作」 | 弹出 Sheet，选原因 | ✅ `ExerciseSwapSheet` | ☑ |
+| 10.2 | 点「获取替代方案」 | AI 返回 2–3 张候选卡片 | ✅ `fetchSwapCandidates` | ☑ |
+| 10.3 | 候选卡片 | 左侧色条 + 部位标签 + 预估 kcal | ✅ 候选卡片 UI | ☑ |
+| 10.4 | 选一张 →「确认更换」 | 动作替换，本场 targetCalories 重评估 | ✅ `applySelectedSwap` | ☑ |
+| 10.5 | 若长期不宜再做 | 原动作加入「已避开」列表 | ✅ `excludedExercises` | ☑ |
 
-**备注**：
+**备注**：场景 10 真机 **5/5 全部通过**（2026-06-22）。
 
 ---
 
@@ -255,7 +255,7 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 12.1 | 训练 Tab → 导入门诊预约 | 可拍照 / 选图 / 粘贴文字 | ✅ `ClinicAppointmentImportView` | ☐ |
+| 12.1 | 健康 Tab → 导入门诊预约 | 可拍照 / 选图 / 粘贴文字 | ✅ `ClinicAppointmentImportView` | ☑ |
 | 12.2 | 上传挂号截图 | OCR 识别科室、医院、时间、主诉 | ✅ Vision + `ClinicAppointmentAIService` | ☐ |
 | 12.3 | 校对页编辑后「保存为待办」 | 训练 Tab「门诊预约」区出现该项 | ✅ `ClinicAppointmentVerifyView` | ☐ |
 | 12.4 | 点「保存并加入日历」或待办行日历按钮 | 系统日历可见该事件 | 🔲 `CalendarService` 需日历权限 | ☐ |
@@ -269,15 +269,15 @@
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 13.1 | 设置黄体期（或 HealthKit 同步） | 各 Tab 页背景呈淡紫色调 | ✅ `CycleThemedBackground` 已铺全子页 | ☐ |
+| 13.1 | 设置黄体期（或 HealthKit 同步） | 各 Tab 页背景呈淡紫色调 | ✅ `CycleThemedBackground` 已铺全子页 | ☑ |
 | 13.2 | 切换至卵泡期 | 背景过渡为淡绿色，Tab 选中色同步 | ✅ `ContentView.tabAccentColor` + 0.4s 动画 | ☐ |
 | 13.3 | 经期 | 背景呈淡玫瑰色 | ✅ `Theme.phaseAccent` | ☐ |
 | 13.4 | 未设置周期 | 保持默认中性背景 | ✅ `phase == .unknown` 仅基底色 | ☐ |
-| 13.5 | 首页 PhaseBar 与背景 | 同阶段色系一致 | ✅ 共用 `Theme.phaseAccent` | ☐ |
+| 13.5 | 首页 PhaseBar 与背景 | 同阶段色系一致 | ✅ 共用 `Theme.phaseAccent` | ☑ |
 
 **背景已接入页面**（2026-06-22）：全部 Tab + 目标/历史/饮食录入/AI 顾问/报告校对/设置/API Key/换动作/AI 教练等；**Onboarding 保持中性**。
 
-**备注**：
+**备注**：13.1 / 13.5 真机已通过（黄体期 · 第 22 天淡紫背景）。13.2–13.4 其他阶段待切换补测。
 
 ---
 
@@ -298,21 +298,21 @@
 | 14.8 | 雷暴日游泳 | notes 含「室内泳池，注意安全」 | ✅ `isStormyEvening` + `MoodWorkoutTips` | ☑ |
 | 14.9 | 营养联动 | Mon–Sun 7 格：排课日训练目标、其余休息日目标；同步首页当日 kcal（如 1469/1269 或 1730/1530） | ✅ `weeklyNutritionDays(trainingWeekdays:)` | ☑ |
 | 14.10 | 完成度 | 「0/2」与预览场次一致 | ✅ 周进度条 | ☑ |
-| 14.11 | 改排课日期 | 预览长按改日 **或** 已生成后「本周安排」改日 → 7 格训练/休息格 **即时变化** | ✅ `refreshNutritionCache` | ☐ |
+| 14.11 | 改排课日期 | 预览长按改日 **或** 已生成后「本周安排」改日 → 7 格训练/休息格 **即时变化** | ✅ `refreshNutritionCache` | ☑ |
 
-**真机参考**（2026-06-22）：周日舞蹈 + 周一游泳；营养 Mon/Sun 为训练日 1469 kcal，其余 1269 kcal。改日期后条带同步。
+**真机参考**（2026-06-22）：心情模式 Sun/Mon；专业模式 4 次/周 Mon/Wed/Thu/Sat；改日期后 7 格同步。
 
-**备注**：Schema v17（`moodReminderText` + `moodPinnedWeekdaysText`）。预览与「本周安排」不一致时提示需重新生成。专业模式排课 UI 不变。
+**备注**：场景 14 真机 **13/13 全部通过**。Schema v17。
 
 ---
 
 ### 场景 15：满月勋章（连续 7 天运动）
 
-> 我的 Tab → 运动成就。HealthKit 锻炼或训练计划完成均可计入。
+> 训练 Tab 首页 · 减脂目标 / 训练计划下方。HealthKit 锻炼或训练计划完成均可计入。
 
 | 步骤 | 操作 | 预期 | 代码 | 真机 |
 |------|------|------|------|------|
-| 15.1 | 打开「我的」 | 见「运动成就 · 满月勋章」卡片 + 近 7 日圆点 | ✅ `ExerciseStreakBadgeCard` | ☐ |
+| 15.1 | 打开「训练」Tab | 减脂目标下方见「满月勋章」卡片 + 近 7 日圆点 | ✅ `ExerciseStreakBadgeCard` | ☑ |
 | 15.2 | 连续 7 天有锻炼/完成计划 | 勋章点亮 + 进度满格 + 永久解锁 | ✅ `ExerciseStreakEngine` | ☐ |
 | 15.3 | 下拉刷新 | streak 与圆点随 HealthKit 更新 | ✅ `.refreshable` | ☐ |
 
@@ -331,7 +331,7 @@
 - [x] API Key 存 Keychain（UserDefaults 自动迁移）
 - [x] 周期 UI 主题全局背景 + Tab 强调色联动（2026-06-22，含全部子页）
 - [x] 心情模式：天气排课 + 舞蹈/游泳均衡 + 营养联动 + 列表时长/距离展示 + AI 温馨提醒（2026-06-22）
-- [x] 连续 7 天运动勋章 · 满月（我的页，`ExerciseStreakEngine`）
+- [x] 连续 7 天运动勋章 · 满月（训练 Tab，`ExerciseStreakEngine`）
 - [x] 微动效：`Theme.Motion` + 卡片入场 / 按钮按压 / 营养条 spring（2026-06-22）
 - [x] 分享今日健康摘要图（首页 ↗ 按钮 · `HealthSummaryShareCard`）
 - [x] 首页横向洞察卡片（训练/复查/风险/周期 · `HomeInsightCarousel`）
@@ -342,18 +342,21 @@
 
 ### 待真机确认（非代码缺口）
 
-- [ ] 场景 8.11 / 14.11：改日期后 7 格训练/休息切换
-- [ ] 场景 3.5 / 12.5：本地推送（需改系统日期或等待）
-- [ ] 场景 9.5 / 11.2 / 15.2：Watch 锻炼、热力图、7 日 streak 解锁
+- [ ] 场景 **3.4–3.5 / 12.5** 复查·门诊本地推送（需改系统日期）
+- [ ] 场景 **7.1 / 7.3–7.5** Polish
+- [ ] 场景 **9.5 / 11** Watch 自动完成、运动日历
+- [ ] 场景 **12.2–12.4** 门诊 OCR 全流程、系统日历
+- [ ] 场景 **13.2–13.4** 其他周期阶段背景
+- [ ] 场景 **15.2–15.3** 满月解锁与 streak 刷新
 
 ---
 
 ## 走查结论
 
 - **代码走查（静态）**：阶段二 7 场景 + 阶段三 8 场景（8–15）— 主路径均已接通，编译 ✅
-- **真机已通过（2026-06-22）**：6.5 / 6.7 / **6.8** / 8.6–8.9 / 14.9 — 生成计划后回首页刷新；休息日 1530 kcal 与营养 Tab 一致
-- **真机待验（优先）**：8.11 / 14.11 改日同步；3.5 复查推送；9.5 Watch；11.2 热力图；12.5 门诊通知；15.2 满月解锁
-- **阶段二真机通过项**：__ / 7 场景
-- **阶段三真机通过项**：__ / 8 场景（8–15）；场景 14 心情模式 ☑；场景 8 营养联动 ☑；6.7 首页训练日 ☑
+- **真机已通过（2026-06-22）**：场景 **1 / 2 / 4 / 5 全项** ☑；场景 **8 / 10 / 14 全项** ☑；场景 3 核心路径（3.1–3.3）；6.x 除 6.3/6.6；9.1–9.4；等
+- **真机进度**：**63 / 86** 项已勾（约 **73%**）；**23 项**待验
+- **阶段二真机通过项**：**5 / 7** 场景全绿（场景 **1、2、4、5**；场景 3 缺推送 2 项）
+- **阶段三真机通过项**：**3 / 8** 场景全绿（场景 **8、10、14**）；场景 9 部分（4/5）
 - **阻塞项**：
-- **下一步**：补 8.11 改日同步；按第四轮验权限/Watch；其余阶段二场景逐项勾选
+- **下一步**：运动日历 11；Polish 7.x；推送 3.5/12.5；Watch 9.5/15.2

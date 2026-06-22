@@ -1,16 +1,19 @@
 import SwiftUI
 import SwiftData
 
-/// 训练 Tab：体态目标、训练计划与提醒
+/// 训练 Tab：体态目标、训练计划、满月勋章与提醒
 /// @author jiali.qiu
 struct TasksTabView: View {
-    @Query(sort: \TodoItem.dueDate) private var todos: [TodoItem]
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.healthContext) private var healthContext
     @Environment(\.colorScheme) private var colorScheme
+    @Query(sort: \TodoItem.dueDate) private var todos: [TodoItem]
+    @Query private var workoutEntries: [WorkoutPlanEntry]
+    @Environment(\.modelContext) private var modelContext
 
     @State private var showAdd = false
     @State private var newTitle = ""
     @State private var newDueDate = Date()
+    @State private var streakStatus = ExerciseStreakEngine.Status.empty
 
     private var fitnessTodos: [TodoItem] {
         todos.filter { $0.sourceType.isFitnessTask && $0.seriesKey.isEmpty }
@@ -43,6 +46,16 @@ struct TasksTabView: View {
                     } label: {
                         Label("运动日历", systemImage: "calendar")
                     }
+
+                    ExerciseStreakBadgeCard(status: streakStatus)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 4, trailing: 0))
+                        .listRowBackground(Color.clear)
+                } header: {
+                    Text("训练")
+                } footer: {
+                    Text("满月勋章：计入 Apple 健康锻炼，或上方训练计划中标记完成的场次。")
+                        .font(.caption)
+                        .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
                 }
 
                 if !openTodos.isEmpty {
@@ -104,8 +117,24 @@ struct TasksTabView: View {
             }
             .task {
                 await TodoService.requestAuthorization()
+                await refreshExerciseStreak()
+            }
+            .refreshable {
+                await refreshExerciseStreak()
             }
         }
+    }
+
+    private func refreshExerciseStreak() async {
+        await healthContext?.healthKitService.fetchRecentWorkouts(days: 30)
+        let workouts = healthContext?.healthKitService.recentWorkouts ?? []
+        let completedDates = workoutEntries
+            .filter(\.isCompleted)
+            .compactMap { WorkoutPlanService.sessionDate(for: $0) }
+        streakStatus = ExerciseStreakEngine.evaluate(
+            workouts: workouts,
+            completedPlanDates: completedDates
+        )
     }
 
     private var addSheet: some View {

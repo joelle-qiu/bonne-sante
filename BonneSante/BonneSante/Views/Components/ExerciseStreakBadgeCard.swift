@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 连续 7 天运动 · 满月勋章（我的页）
+/// 连续 7 天运动 · 满月勋章（训练 Tab）
 /// @author jiali.qiu
 struct ExerciseStreakBadgeCard: View {
     let status: ExerciseStreakEngine.Status

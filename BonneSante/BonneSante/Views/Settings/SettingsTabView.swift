@@ -10,13 +10,11 @@ struct SettingsTabView: View {
 
     @Query private var cycleProfiles: [CycleProfile]
     @Query private var settingsList: [UserSettings]
-    @Query private var workoutEntries: [WorkoutPlanEntry]
 
     @State private var lastPeriodStart = Date()
     @State private var cycleLength = 28
     @State private var periodLength = 5
     @State private var syncFeedback: String?
-    @State private var streakStatus = ExerciseStreakEngine.Status.empty
 
     private var userSettings: UserSettings {
         if let existing = settingsList.first { return existing }
@@ -31,7 +29,6 @@ struct SettingsTabView: View {
             List {
                 appearanceSection
                 profileSection
-                exerciseStreakSection
 
                 Section("AI 服务") {
                     HStack {
@@ -132,35 +129,7 @@ struct SettingsTabView: View {
                     try? modelContext.save()
                 }
             }
-            .task { await refreshExerciseStreak() }
-            .refreshable { await refreshExerciseStreak() }
         }
-    }
-
-    private var exerciseStreakSection: some View {
-        Section {
-            ExerciseStreakBadgeCard(status: streakStatus)
-                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-                .listRowBackground(Color.clear)
-        } header: {
-            Text("运动成就")
-        } footer: {
-            Text("计入 Apple 健康锻炼记录，或训练 Tab 中标记完成的计划场次。")
-                .font(.caption)
-                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
-        }
-    }
-
-    private func refreshExerciseStreak() async {
-        await context?.healthKitService.fetchRecentWorkouts(days: 30)
-        let workouts = context?.healthKitService.recentWorkouts ?? []
-        let completedDates = workoutEntries
-            .filter(\.isCompleted)
-            .compactMap { WorkoutPlanService.sessionDate(for: $0) }
-        streakStatus = ExerciseStreakEngine.evaluate(
-            workouts: workouts,
-            completedPlanDates: completedDates
-        )
     }
 
     private var appearanceSection: some View {
@@ -347,6 +316,6 @@ struct SettingsTabView: View {
 
 #Preview {
     SettingsTabView()
-        .modelContainer(for: [CycleProfile.self, UserSettings.self, WorkoutPlanEntry.self], inMemory: true)
+        .modelContainer(for: [CycleProfile.self, UserSettings.self], inMemory: true)
         .healthContext(UnifiedHealthContext())
 }
