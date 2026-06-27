@@ -507,7 +507,7 @@ struct ReportImportView: View {
                     pastedText,
                     onProgress: importProgressHandler
                 )
-                await applyPasteImportOutcome(outcome, sourceText: pastedText)
+                applyPasteImportOutcome(outcome, sourceText: pastedText)
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -543,27 +543,27 @@ struct ReportImportView: View {
 
         do {
             let fileName = url.lastPathComponent
-            await reportProgress(0.08, "正在读取 \(fileName)…")
+            reportProgress(0.08, "正在读取 \(fileName)…")
 
             let text = try await Task.detached(priority: .userInitiated) {
                 try String(contentsOf: url, encoding: .utf8)
             }.value
 
             let sizeKB = max(1, text.utf8.count / 1024)
-            await reportProgress(0.15, "已读取 \(sizeKB) KB，正在解析…")
+            reportProgress(0.15, "已读取 \(sizeKB) KB，正在解析…")
 
             let outcome = try await ReportPasteImporter.importFromPasteAsync(
                 text,
                 onProgress: importProgressHandler
             )
 
-            await reportProgress(0.99, "正在打开校对页…")
-            await endProcessing()
+            reportProgress(0.99, "正在打开校对页…")
+            endProcessing()
             await Task.yield()
-            await applyPasteImportOutcome(outcome, sourceText: text)
+            applyPasteImportOutcome(outcome, sourceText: text)
         } catch {
             errorMessage = error.localizedDescription
-            await endProcessing()
+            endProcessing()
         }
     }
 

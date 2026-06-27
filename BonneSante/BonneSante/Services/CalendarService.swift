@@ -22,15 +22,8 @@ enum CalendarService {
     @MainActor
     static func requestAccess() async -> Bool {
         let store = EKEventStore()
-        if #available(iOS 17.0, *) {
-            return await withCheckedContinuation { continuation in
-                store.requestFullAccessToEvents { granted, _ in
-                    continuation.resume(returning: granted)
-                }
-            }
-        }
         return await withCheckedContinuation { continuation in
-            store.requestAccess(to: .event) { granted, _ in
+            store.requestFullAccessToEvents { granted, _ in
                 continuation.resume(returning: granted)
             }
         }

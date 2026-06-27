@@ -6,6 +6,8 @@ protocol AIServiceProtocol {
     func parseFoodInputMultiple(_ input: String, preferences: [FoodPreference]) async throws -> [NutritionInfo]
     func parseFoodImage(_ image: UIImage, additionalContext: String?, preferences: [FoodPreference]) async throws -> NutritionInfo
     func parseFoodImageMultiple(_ image: UIImage, additionalContext: String?, preferences: [FoodPreference]) async throws -> [NutritionInfo]
+    /// 读取包装营养成分表（Qwen VL）
+    func parseNutritionLabelImageMultiple(_ image: UIImage, additionalContext: String?, preferences: [FoodPreference]) async throws -> [NutritionInfo]
 }
 
 enum AIServiceError: LocalizedError {

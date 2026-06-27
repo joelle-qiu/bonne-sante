@@ -72,6 +72,37 @@ enum TodoService {
         )
     }
 
+    static let workoutMorningNotificationID = "workout-morning-today"
+
+    /// 仅注册「今日训练」单条晨间提醒（会先移除同 ID 旧请求）
+    static func scheduleWorkoutMorningReminder(fireDate: Date, body: String) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [workoutMorningNotificationID])
+
+        let content = UNMutableNotificationContent()
+        content.title = "今日训练"
+        content.body = body
+        content.sound = .default
+
+        let triggerDate = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: fireDate
+        )
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: workoutMorningNotificationID,
+            content: content,
+            trigger: trigger
+        )
+        center.add(request)
+    }
+
+    static func cancelWorkoutMorningReminder() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: [workoutMorningNotificationID]
+        )
+    }
+
     private static let checkupPrefix = "checkup-"
     private static func primaryID(for id: UUID) -> String { "todo-\(id.uuidString)" }
     private static func notificationIDs(for id: UUID) -> [String] { [primaryID(for: id)] }

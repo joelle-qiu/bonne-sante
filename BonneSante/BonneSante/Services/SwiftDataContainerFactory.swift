@@ -6,7 +6,7 @@ import SwiftData
 enum SwiftDataContainerFactory {
 
     /// 模型结构变更时递增，触发旧库清理重建（开发阶段轻量迁移）
-    private static let schemaVersion = 17
+    private static let schemaVersion = 19
     private static let schemaVersionKey = "bonnesante_swiftdata_schema_version"
 
     static func makeContainer() -> ModelContainer {

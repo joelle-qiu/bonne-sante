@@ -111,7 +111,7 @@ enum ReportPasteImporter {
 
         let extraction = segments[0]
         await ReportImportProgressReporter.emit(onProgress, 0.38, "正在对齐档案指标…")
-        var draft = await finalizeDraft(
+        let draft = await finalizeDraft(
             from: extraction,
             sourceText: trimmed,
             sourceBytes: sourceBytes,
@@ -135,7 +135,7 @@ enum ReportPasteImporter {
             imagingHint: payload.previewText.contains("影像")
         )
         await ReportImportProgressReporter.emit(onProgress, 0.35, "正在对齐本段指标…")
-        var draft = await Task.detached(priority: .userInitiated) {
+        let draft = await Task.detached(priority: .userInitiated) {
             let aligned = HealthRecordAligner.align(draft: assembled)
             return ReportAIService.applyLocalSeverityRanking(aligned)
         }.value

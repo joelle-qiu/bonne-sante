@@ -156,6 +156,10 @@ struct EnergyProfileSnapshot: Sendable, Equatable {
     var basalSampleDays7d: Int = 0
     /// 近7日中有活动消耗读数的天数
     var activeSampleDays7d: Int = 0
+    /// 本周（周一至今日）累计活动消耗
+    var weekActiveKcal: Double = 0
+    /// 本周有活动读数的天数
+    var weekActiveSampleDays: Int = 0
 
     static let empty = EnergyProfileSnapshot(
         todayActiveKcal: 0,
@@ -164,7 +168,9 @@ struct EnergyProfileSnapshot: Sendable, Equatable {
         avgBasalKcal7d: nil,
         avgSteps7d: nil,
         basalSampleDays7d: 0,
-        activeSampleDays7d: 0
+        activeSampleDays7d: 0,
+        weekActiveKcal: 0,
+        weekActiveSampleDays: 0
     )
 
     var hasWatchData: Bool {
@@ -275,6 +281,27 @@ final class HealthKitService: ObservableObject {
         } else {
             energyProfile.avgSteps7d = nil
         }
+
+        let mondayStart = WorkoutPlanService.startOfWeek()
+        let todayEnd = calendar.date(byAdding: .day, value: 1, to: todayStart) ?? todayStart
+        var weekSum = 0.0
+        var weekDays = 0
+        for offset in 0..<7 {
+            guard let dayStart = calendar.date(byAdding: .day, value: offset, to: mondayStart) else { continue }
+            if dayStart >= todayEnd { break }
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+            let active = await fetchCaloriesBetween(
+                identifier: .activeEnergyBurned,
+                start: dayStart,
+                end: dayEnd
+            )
+            if active > 0 {
+                weekSum += active
+                weekDays += 1
+            }
+        }
+        energyProfile.weekActiveKcal = weekSum
+        energyProfile.weekActiveSampleDays = weekDays
     }
 
     private func average(_ values: [Double]) -> Double? {

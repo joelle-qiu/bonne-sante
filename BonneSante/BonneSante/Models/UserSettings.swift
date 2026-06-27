@@ -82,12 +82,26 @@ final class UserSettings {
     var appearanceMode: String
     /// 用户称呼（选填，如「小姜」可启用心情健身提示）
     var profileNickname: String
+    /// 训练日晨间本地提醒
+    var workoutMorningReminderEnabled: Bool
+    var workoutMorningReminderHour: Int
+    var workoutMorningReminderMinute: Int
     var createdAt: Date
 
-    init(weightUnit: WeightUnit = .kg, appearanceMode: AppAppearanceMode = .system, profileNickname: String = "") {
+    init(
+        weightUnit: WeightUnit = .kg,
+        appearanceMode: AppAppearanceMode = .system,
+        profileNickname: String = "",
+        workoutMorningReminderEnabled: Bool = true,
+        workoutMorningReminderHour: Int = 8,
+        workoutMorningReminderMinute: Int = 0
+    ) {
         self.weightUnit = weightUnit.rawValue
         self.appearanceMode = appearanceMode.rawValue
         self.profileNickname = profileNickname
+        self.workoutMorningReminderEnabled = workoutMorningReminderEnabled
+        self.workoutMorningReminderHour = workoutMorningReminderHour
+        self.workoutMorningReminderMinute = workoutMorningReminderMinute
         self.createdAt = Date()
     }
 
@@ -107,5 +121,20 @@ final class UserSettings {
         guard !trimmed.isEmpty else { return false }
         let lower = trimmed.lowercased()
         return trimmed.contains("小姜") || lower == "xiaojiang" || lower == "jiang"
+    }
+
+    /// 晨间提醒时间（用于 DatePicker）
+    var workoutMorningReminderTime: Date {
+        get {
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+            components.hour = workoutMorningReminderHour
+            components.minute = workoutMorningReminderMinute
+            return Calendar.current.date(from: components) ?? Date()
+        }
+        set {
+            let components = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+            workoutMorningReminderHour = components.hour ?? 8
+            workoutMorningReminderMinute = components.minute ?? 0
+        }
     }
 }

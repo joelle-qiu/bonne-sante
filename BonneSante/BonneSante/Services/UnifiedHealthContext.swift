@@ -171,6 +171,14 @@ final class UnifiedHealthContext {
         lastRefreshedAt = Date()
     }
 
+    /// 训练详情页：仅刷新 HealthKit 活动/锻炼（不跑完整 refresh）
+    func refreshHealthKitOnly() async {
+        await healthKitService.fetchTodayCaloriesBurned()
+        await healthKitService.fetchEnergyProfile()
+        await healthKitService.fetchRecentWorkouts()
+        isUsingWatchData = healthKitService.energyProfile.hasWatchData
+    }
+
     /// TDEE 基准 + 训练计划营养微调叠加
     private func applyTDEEAndNutritionOverlay(
         goals: [UserGoal],

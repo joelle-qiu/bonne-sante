@@ -44,23 +44,37 @@ struct WorkoutPlanView: View {
     private var progress: WorkoutPlanService.WeekProgress {
         WorkoutPlanService.weekProgress(
             entries: weekEntries,
+            exercisesBySession: exercisesBySession,
             workouts: healthContext?.healthKitService.recentWorkouts ?? [],
             weekStart: weekStart
         )
     }
 
-    private var weeklyBurnGoal: Double {
-        let stored = preferences.weeklyBurnGoalKcal
-        if stored > 0 { return stored }
-        return WorkoutPlanService.weeklyPlannedBurn(entries: weekEntries)
+    private var weeklyBurnGoalInfo: (value: Double, usesHealthData: Bool) {
+        let profile = healthContext?.healthKitService.energyProfile ?? .empty
+        let planned = WorkoutPlanService.weeklyPlannedBurn(entries: weekEntries)
+        return WorkoutPlanService.weeklyBurnGoal(
+            energyProfile: profile,
+            trainingDays: max(weekEntries.count, preferences.sessionsPerWeek),
+            storedGoal: preferences.weeklyBurnGoalKcal,
+            plannedBurn: planned
+        )
     }
 
-    private var weeklyBurnCompleted: Double {
-        weekEntries.reduce(0) { partial, entry in
-            let exercises = exercisesBySession[entry.id] ?? []
-            return partial + WorkoutPlanService.completedCalories(for: exercises)
-        }
+    private var weeklyBurnGoal: Double { weeklyBurnGoalInfo.value }
+
+    private var weeklyBurnUsesHealthData: Bool { weeklyBurnGoalInfo.usesHealthData }
+
+    private var weeklyBurnCompletedInfo: (value: Double, usesHealthData: Bool) {
+        let profile = healthContext?.healthKitService.energyProfile ?? .empty
+        return WorkoutPlanService.weeklyBurnCompleted(
+            energyProfile: profile,
+            entries: weekEntries,
+            modelContext: modelContext
+        )
     }
+
+    private var weeklyBurnCompleted: Double { weeklyBurnCompletedInfo.value }
 
     private var burnProgressFraction: Double {
         guard weeklyBurnGoal > 0 else { return 0 }
@@ -743,7 +757,7 @@ struct WorkoutPlanView: View {
                 Text("本周完成度")
                     .font(.subheadline.weight(.semibold))
                 Spacer(minLength: 8)
-                Text("\(progress.completedSessions)/\(max(progress.totalSessions, 1)) 次")
+                Text("\(progress.completedSessions)/\(max(progress.totalSessions, 1)) 场 · 按组数")
                     .font(.caption.weight(.semibold))
                     .monospacedDigit()
             }
@@ -753,7 +767,10 @@ struct WorkoutPlanView: View {
             if weeklyBurnGoal > 0 {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
-                        Label("消耗目标（减脂优先）", systemImage: "flame.fill")
+                        Label(
+                            weeklyBurnUsesHealthData ? "消耗目标（Apple 健康）" : "消耗目标（减脂优先）",
+                            systemImage: "flame.fill"
+                        )
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.macroProtein(colorScheme))
                         Spacer(minLength: 8)
@@ -763,7 +780,16 @@ struct WorkoutPlanView: View {
                     }
                     ProgressView(value: burnProgressFraction)
                         .tint(Theme.macroProtein(colorScheme))
-                    if let deficit = healthContext?.dailyDeficit, deficit > 0 {
+                    if weeklyBurnCompletedInfo.usesHealthData {
+                        Text("已完成按本周 Apple 健康活动消耗累计")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    } else {
+                        Text("连接 Apple Watch 后显示真实活动消耗")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    }
+                    if let deficit = healthContext?.dailyDeficit, deficit > 0, weeklyBurnCompletedInfo.usesHealthData {
                         Text("每日缺口约 \(Int(deficit)) kcal，训练承担约 \(Int(deficit * 0.35)) kcal")
                             .font(.caption2)
                             .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
@@ -1038,6 +1064,7 @@ struct WorkoutPlanView: View {
         if shouldShowWeather {
             await refreshWeatherForecast()
         }
+        WorkoutMorningReminderService.sync(modelContext: modelContext)
     }
 
     private func refreshHealthContext() async {

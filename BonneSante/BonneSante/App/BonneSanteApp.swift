@@ -23,6 +23,7 @@ private struct AppAppearanceHost: View {
     @State private var healthContext = UnifiedHealthContext()
     @Query private var settingsList: [UserSettings]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
 
     private var appearance: AppAppearanceMode {
         settingsList.first?.preferredAppearance ?? .system
@@ -37,6 +38,12 @@ private struct AppAppearanceHost: View {
                 ensureUserSettings()
                 await healthContext.healthKitService.requestAuthorization()
                 await TodoService.requestAuthorization()
+                WorkoutMorningReminderService.sync(modelContext: modelContext)
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    WorkoutMorningReminderService.sync(modelContext: modelContext)
+                }
             }
     }
 

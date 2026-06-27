@@ -34,6 +34,7 @@ struct FoodInputView: View {
     @State private var showingAPIKeySetup = false
     @State private var apiKeyCheckTrigger = false  // Used to refresh state
     @State private var selectedMealType: MealType = MealType.inferredFromCurrentTime()
+    @State private var photoInputMode: FoodPhotoInputMode = .mealPhoto
 
     private let aiService = DeepSeekService()
 
@@ -95,6 +96,8 @@ struct FoodInputView: View {
 
                         instructionText
 
+                        photoModePicker
+
                         MealTypePicker(selection: $selectedMealType)
 
                         // Image input section
@@ -102,7 +105,7 @@ struct FoodInputView: View {
 
                         // Dynamic divider text based on whether image is selected
                         if selectedImage != nil {
-                            dividerWithText("补充说明 (可选)")
+                            dividerWithText(photoInputMode == .nutritionLabel ? "补充食用份量 (推荐)" : "补充说明 (推荐)")
                         } else {
                             dividerWithText("或直接输入文字")
                         }
@@ -146,7 +149,7 @@ struct FoodInputView: View {
             .sheet(isPresented: $showConfirmation) {
                 if let nutrition = parsedNutrition {
                     FoodConfirmationView(
-                        rawInput: inputText.isEmpty ? "图片识别" : inputText,
+                        rawInput: confirmationRawInput,
                         originalNutrition: nutrition,
                         initialMealType: resolvedMealType(for: nutrition)
                     ) { editedNutrition in
@@ -283,10 +286,27 @@ struct FoodInputView: View {
         }
     }
 
+    private var confirmationRawInput: String {
+        if !inputText.isEmpty { return inputText }
+        if selectedImage != nil {
+            return photoInputMode == .nutritionLabel ? "营养表识别" : "图片识别"
+        }
+        return ""
+    }
+
     private var instructionText: some View {
-        Text("拍照识别食物，可配合文字补充说明")
+        Text(photoInputMode.instruction)
             .font(.subheadline)
             .foregroundStyle(.secondary)
+    }
+
+    private var photoModePicker: some View {
+        Picker("拍照模式", selection: $photoInputMode) {
+            ForEach(FoodPhotoInputMode.allCases) { mode in
+                Text(mode.title).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
     }
 
     private var imageInputSection: some View {
@@ -318,6 +338,17 @@ struct FoodInputView: View {
                     .scaledToFill()
                     .frame(height: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(alignment: .bottomLeading) {
+                        if photoInputMode == .nutritionLabel {
+                            Label("营养表模式", systemImage: "doc.text.viewfinder")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                                .padding(8)
+                        }
+                    }
                     .overlay(alignment: .topTrailing) {
                         Button {
                             selectedImage = nil
@@ -341,9 +372,9 @@ struct FoodInputView: View {
                         }
                     } label: {
                         VStack(spacing: 8) {
-                            Image(systemName: "camera.fill")
+                            Image(systemName: photoInputMode == .nutritionLabel ? "doc.text.viewfinder" : "camera.fill")
                                 .font(.title)
-                            Text("拍照")
+                            Text(photoInputMode == .nutritionLabel ? "拍营养表" : "拍照")
                                 .font(.caption)
                         }
                         .frame(maxWidth: .infinity)
@@ -387,8 +418,10 @@ struct FoodInputView: View {
 
     private var inputField: some View {
         let placeholder = selectedImage != nil
-            ? "补充说明：如份量、餐次等（可选）"
-            : "例如：午饭一碗米饭、下午茶咖啡、昨晚夜宵烧烤"
+            ? photoInputMode.placeholderWithImage
+            : (photoInputMode == .nutritionLabel
+                ? "请先拍摄包装营养表；也可文字描述产品+份量"
+                : "例如：午饭一碗米饭、下午茶咖啡、昨晚夜宵烧烤")
 
         return TextField(placeholder, text: $inputText, axis: .vertical)
             .textFieldStyle(.plain)
@@ -423,7 +456,7 @@ struct FoodInputView: View {
                         .tint(.white)
                 } else {
                     Image(systemName: selectedImage != nil ? "eye.fill" : "sparkles")
-                    Text(selectedImage != nil ? "识别食物" : "解析食物")
+                    Text(selectedImage != nil ? photoInputMode.parseButtonTitle : "解析食物")
                 }
             }
             .frame(maxWidth: .infinity)
@@ -567,6 +600,11 @@ struct FoodInputView: View {
             return
         }
 
+        if photoInputMode == .nutritionLabel && selectedImage == nil {
+            errorMessage = "请先拍摄或选择包装上的营养成分表照片"
+            return
+        }
+
         isLoading = true
         errorMessage = nil
 
@@ -574,8 +612,21 @@ struct FoodInputView: View {
             let nutritionList: [NutritionInfo]
 
             if let image = selectedImage {
-                // Image parsing now supports multiple items via Qwen VL Plus
-                nutritionList = try await aiService.parseFoodImageMultiple(image, additionalContext: inputText.isEmpty ? nil : inputText, preferences: foodPreferences)
+                let context = inputText.isEmpty ? nil : inputText
+                switch photoInputMode {
+                case .mealPhoto:
+                    nutritionList = try await aiService.parseFoodImageMultiple(
+                        image,
+                        additionalContext: context,
+                        preferences: foodPreferences
+                    )
+                case .nutritionLabel:
+                    nutritionList = try await aiService.parseNutritionLabelImageMultiple(
+                        image,
+                        additionalContext: context,
+                        preferences: foodPreferences
+                    )
+                }
             } else {
                 // Text parsing supports multiple items
                 nutritionList = try await aiService.parseFoodInputMultiple(inputText, preferences: foodPreferences)
@@ -593,7 +644,9 @@ struct FoodInputView: View {
                 parsedNutritionList = nutritionList
                 showMultipleConfirmation = true
             } else {
-                errorMessage = "未能识别任何食物"
+                errorMessage = photoInputMode == .nutritionLabel
+                    ? "未能从营养表中读取有效数据，请确保表格清晰并补充食用份量"
+                    : "未能识别任何食物"
             }
         } catch {
             errorMessage = error.localizedDescription

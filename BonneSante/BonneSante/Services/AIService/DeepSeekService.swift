@@ -47,26 +47,59 @@ final class DeepSeekService: AIServiceProtocol {
         return first
     }
 
-    // MARK: - Qwen VL（保留不变）
+    // MARK: - Qwen VL（保留不变 · 拍食物）
 
     func parseFoodImageMultiple(_ image: UIImage, additionalContext: String? = nil, preferences: [FoodPreference] = []) async throws -> [NutritionInfo] {
         guard let apiKey = APIKeyManager.qwenAPIKey, !apiKey.isEmpty else {
             throw AIServiceError.apiKeyNotConfigured
         }
 
-        let resizedImage = resizeImage(image, maxDimension: 512)
+        let userPrompt = FoodParsingPrompt.mealPhotoUserPrompt(additionalContext: additionalContext)
+        let content = try await sendQwenVisionRequest(
+            apiKey: apiKey,
+            image: image,
+            maxDimension: 512,
+            systemPrompt: FoodParsingPrompt.systemPrompt(with: preferences),
+            userPrompt: userPrompt
+        )
+        return try parseNutritionJSON(from: content)
+    }
 
-        guard let imageData = resizedImage.jpegData(compressionQuality: 0.6) else {
+    // MARK: - Qwen VL · 包装营养表
+
+    func parseNutritionLabelImageMultiple(
+        _ image: UIImage,
+        additionalContext: String? = nil,
+        preferences: [FoodPreference] = []
+    ) async throws -> [NutritionInfo] {
+        guard let apiKey = APIKeyManager.qwenAPIKey, !apiKey.isEmpty else {
+            throw AIServiceError.apiKeyNotConfigured
+        }
+
+        let userPrompt = FoodParsingPrompt.nutritionLabelUserPrompt(additionalContext: additionalContext)
+        let content = try await sendQwenVisionRequest(
+            apiKey: apiKey,
+            image: image,
+            maxDimension: 1024,
+            systemPrompt: FoodParsingPrompt.nutritionLabelSystemPrompt(with: preferences),
+            userPrompt: userPrompt
+        )
+        return try parseNutritionJSON(from: content)
+    }
+
+    private func sendQwenVisionRequest(
+        apiKey: String,
+        image: UIImage,
+        maxDimension: CGFloat,
+        systemPrompt: String,
+        userPrompt: String
+    ) async throws -> String {
+        let resizedImage = resizeImage(image, maxDimension: maxDimension)
+
+        guard let imageData = resizedImage.jpegData(compressionQuality: 0.75) else {
             throw AIServiceError.parsingError("Failed to process image")
         }
         let base64String = imageData.base64EncodedString()
-
-        var userPrompt = "请识别这张图片中的所有食物，并估算每种食物的营养成分。"
-        if let context = additionalContext {
-            userPrompt += " 额外信息：\(context)"
-        }
-
-        let systemPrompt = FoodParsingPrompt.systemPrompt(with: preferences)
 
         let requestBody: [String: Any] = [
             "model": "qwen-vl-plus",
@@ -130,8 +163,7 @@ final class DeepSeekService: AIServiceProtocol {
         guard let content = qwenResponse.choices?.first?.message.content else {
             throw AIServiceError.parsingError("Qwen返回为空: \(rawString.prefix(300))")
         }
-
-        return try parseNutritionJSON(from: content)
+        return content
     }
 
     // MARK: - DeepSeek Text

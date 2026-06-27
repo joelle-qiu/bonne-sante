@@ -106,7 +106,7 @@ enum ReportMetricCategory {
             return entry.label
         }
 
-        var cleaned = raw
+        let cleaned = raw
             .replacingOccurrences(of: "常规组合", with: "")
             .replacingOccurrences(of: "分析组合", with: "")
             .replacingOccurrences(of: "组合", with: "")

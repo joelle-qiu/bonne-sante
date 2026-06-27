@@ -2,9 +2,20 @@
 
 > 本文件供 Cursor 与开发者快速恢复上下文。详细需求见 `PRD.txt`，任务排期见 `DEVELOPMENT_PLAN.md`。
 
-**最后更新**：2026-06-22（心情模式 + 满月勋章 + 文档收尾）
+**最后更新**：2026-06-27（三环图标、晨间提醒、能量看板、饮食联合识图、编译警告清理）
 
 ---
+
+## 近期交付（2026-06-27）
+
+- [x] **App 图标**：三环能量（B 方案）写入 Asset Catalog；心形版备份 `docs/AppIcon-heart-variant.png`
+- [x] **DailyEnergyBoard**：摄入/训练/消耗三环；三格磁贴顶对齐 + 统一副标题行高
+- [x] **训练完成度**：组勾选仅计动作场次；Watch 活动计消耗（无 Watch 不回填计划 kcal）
+- [x] **饮食录入**：拍照 + 文字（克数/几分饱）；拍营养表模式（Qwen VL）
+- [x] **AI 教练**：ChatMessage 分 channel；对话导入今日训练计划（`WorkoutCoachPlanService`）
+- [x] **晨间提醒**：`WorkoutMorningReminderService` — 设置开关/时间，仅当天一条，清理旧整周预排通知
+- [x] SwiftData schema **v19**（UserSettings 提醒字段 + ChatMessage channel）
+- [x] 编译警告清理（Calendar iOS 17 API、var→let、无效 await）
 
 ## 首页仪表盘设计要求（用户确认 · 2026-06-21）
 

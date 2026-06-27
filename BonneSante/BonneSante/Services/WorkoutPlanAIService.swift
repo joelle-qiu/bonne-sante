@@ -143,7 +143,12 @@ enum WorkoutPlanAIService {
         )
     }
 
-    static func coachReply(sessionContext: String, question: String, genderLabel: String? = nil) async throws -> String {
+    static func coachReply(
+        sessionContext: String,
+        question: String,
+        history: [(role: String, content: String)] = [],
+        genderLabel: String? = nil
+    ) async throws -> String {
         guard APIKeyManager.isDeepSeekConfigured, let apiKey = APIKeyManager.deepSeekAPIKey else {
             throw AIServiceError.apiKeyNotConfigured
         }
@@ -154,12 +159,17 @@ enum WorkoutPlanAIService {
             genderLabel: genderLabel
         )
 
+        var apiMessages: [[String: String]] = [
+            ["role": "system", "content": WorkoutPlanPrompt.coachSystemPrompt]
+        ]
+        for item in history.suffix(ChatMessageChannel.maxContextMessages) where !item.content.isEmpty {
+            apiMessages.append(["role": item.role, "content": item.content])
+        }
+        apiMessages.append(["role": "user", "content": user])
+
         let body: [String: Any] = [
             "model": APIKeyManager.deepSeekModel,
-            "messages": [
-                ["role": "system", "content": WorkoutPlanPrompt.coachSystemPrompt],
-                ["role": "user", "content": user]
-            ],
+            "messages": apiMessages,
             "temperature": 0.5
         ]
 
@@ -189,6 +199,69 @@ enum WorkoutPlanAIService {
             throw AIServiceError.parsingError("AI 教练返回为空")
         }
         return text
+    }
+
+    /// 从对话合成并解析今日计划（导入指令且无本地草案时）
+    static func synthesizeSessionPlanFromConversation(
+        sessionContext: String,
+        history: [(role: String, content: String)],
+        latestUserMessage: String,
+        genderLabel: String? = nil
+    ) async throws -> CoachSessionPlan {
+        guard APIKeyManager.isDeepSeekConfigured, let apiKey = APIKeyManager.deepSeekAPIKey else {
+            throw AIServiceError.apiKeyNotConfigured
+        }
+
+        let summary = WorkoutPlanPrompt.conversationSummaryForImport(
+            history: history,
+            latestUserMessage: latestUserMessage
+        )
+        let user = WorkoutPlanPrompt.coachImportUserPrompt(
+            sessionContext: sessionContext,
+            conversationSummary: summary,
+            genderLabel: genderLabel
+        )
+
+        let body: [String: Any] = [
+            "model": APIKeyManager.deepSeekModel,
+            "messages": [
+                ["role": "system", "content": WorkoutPlanPrompt.coachImportSystemPrompt],
+                ["role": "user", "content": user]
+            ],
+            "temperature": 0.35
+        ]
+
+        var request = URLRequest(url: APIKeyManager.deepSeekEndpoint)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 60
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw AIServiceError.parsingError("生成训练计划失败")
+        }
+
+        struct Envelope: Decodable {
+            struct Choice: Decodable {
+                struct Message: Decodable { let content: String }
+                let message: Message
+            }
+            let choices: [Choice]?
+        }
+
+        let envelope = try JSONDecoder().decode(Envelope.self, from: data)
+        guard let raw = envelope.choices?.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines),
+              !raw.isEmpty else {
+            throw AIServiceError.parsingError("AI 未返回训练计划")
+        }
+        return try WorkoutCoachPlanParser.parseSessionPlan(from: raw)
+    }
+
+    /// 供 WorkoutCoachPlanParser 解析动作 JSON
+    static func parseExercisePublic(_ item: ExerciseJSON) -> WorkoutPlanEngine.PlannedExercise? {
+        parseExercise(item)
     }
 
     // MARK: - Private

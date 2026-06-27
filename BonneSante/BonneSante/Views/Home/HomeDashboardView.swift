@@ -196,24 +196,29 @@ struct HomeDashboardView: View {
     private func dailyEnergySection(_ ctx: UnifiedHealthContext) -> some View {
         if let budget = ctx.dailyCalorieBudget, let remaining = ctx.remainingCalories {
             let intel = ctx.intelligenceProfile
-            let resting = intel?.bmrKcal
+            let dailyBMR = intel?.bmrKcal
                 ?? (ctx.userGoal?.calculateBMR(currentWeight: ctx.currentWeight ?? 0) ?? 0)
-            let activeBaseline = intel?.avgActiveKcal7d
-                ?? (ctx.isUsingWatchData ? ctx.healthKitService.activeCaloriesBurned : max(ctx.caloriesBurned - resting, 0))
-            let total = intel?.tdeeKcal ?? ctx.caloriesBurned
+            let energy = ctx.healthKitService.energyProfile
+            let todayActive = energy.todayActiveKcal > 0
+                ? energy.todayActiveKcal
+                : ctx.healthKitService.activeCaloriesBurned
+            let todayBasal = energy.todayBasalKcal > 0 ? energy.todayBasalKcal : dailyBMR
+            let plannedWorkout = todayWorkout?.targetCalories ?? 0
+            let isRestDay = todayWorkout == nil
+            let expectedBurn = dailyBMR + plannedWorkout
+            let actualBurn = todayBasal + todayActive
 
             DailyEnergyBoard(
                 remaining: remaining,
                 budget: budget,
                 consumed: ctx.caloriesConsumed,
-                activeEnergy: activeBaseline,
-                basalEnergy: resting,
-                totalBurned: total,
+                expectedBurn: expectedBurn,
+                actualBurn: actualBurn,
+                plannedWorkoutBurn: plannedWorkout,
+                actualWorkoutBurn: todayActive,
+                isRestDay: isRestDay,
                 isUsingWatchData: ctx.isUsingWatchData,
-                bmrSourceLabel: intel?.bmrSourceShort,
-                tdeeSourceLabel: intel?.tdeeSourceShort,
-                todayActiveEnergy: ctx.healthKitService.activeCaloriesBurned,
-                activeSourceLabel: intel?.avgActiveKcal7d != nil ? "7日均值" : nil
+                restDayActivityReference: intel?.avgActiveKcal7d ?? energy.avgActiveKcal7d
             )
         } else {
             EmptyStateView(
@@ -415,6 +420,7 @@ struct HomeDashboardView: View {
             isTrainingDayToday: todayWorkout != nil
         )
         syncUserGoalFromHealthKit()
+        WorkoutMorningReminderService.sync(modelContext: modelContext)
     }
 
     /// 将 Apple 健康中的年龄/身高等写回 UserGoal（避免界面仍显示默认 30 岁）

@@ -43,8 +43,6 @@ enum WorkoutPreferenceInferencer {
 
         let strengthMinutes = minutes(in: inRange, labels: strengthLabels)
         let cardioMinutes = minutes(in: inRange, labels: cardioLabels.union(hiitLabels))
-        let mindBodyMinutes = minutes(in: inRange, labels: mindBodyLabels)
-        let otherMinutes = max(totalMinutes - strengthMinutes - cardioMinutes - mindBodyMinutes, 0)
 
         let strengthShare = totalMinutes > 0 ? strengthMinutes / totalMinutes : 0
         let cardioShare = totalMinutes > 0 ? cardioMinutes / totalMinutes : 0

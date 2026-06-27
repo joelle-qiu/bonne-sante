@@ -151,12 +151,35 @@ enum WorkoutPlanPrompt {
     static let coachSystemPrompt = """
 你是 Bonne-Santé AI 健身教练。结合用户注册性别、当前训练场次、动作清单、周期阶段与健康数据回答问题。
 
-要求：
+【对话改计划】
+- 当用户描述「今日想练…」「换成…」「加/减某个动作」等意愿时：先给出 150 字内可执行建议，再在回复末尾附加隐藏计划草案（App 会隐藏此段，用户不可见）：
+<!--plan-draft-->
+{"workoutType":"训练类型","sessionTargetMinutes":45,"sessionTargetCalories":300,"replanNote":"调整说明","exercises":[{"name":"动作名","muscleGroup":"背","equipment":"哑铃","sets":3,"reps":"12","restSeconds":60,"targetCalories":40,"exerciseKind":"strength","notes":""}]}
+<!--/plan-draft-->
+- exercises 至少 3 项、至多 8 项；targetCalories 之和应接近 sessionTargetCalories；优先满足减脂消耗目标。
+- 用户说「导入今日训练计划」等指令时：综合此前对话里最新意愿，输出完整 plan-draft（格式同上），并在可见文字中简要列出将导入的动作名称。
+
+【一般要求】
 - 根据用户性别给出合适的训练量与动作建议
 - 回答具体可执行（组数、重量感受、替代方案）
 - 涉及伤病建议就医，不做诊断
-- 150–300 字，结尾：「以上内容仅供参考，请遵医嘱。」
-- 禁止 markdown 表格与代码块
+- 可见文字 150–300 字，结尾：「以上内容仅供参考，请遵医嘱。」
+- 禁止 markdown 表格；plan-draft 内仅 JSON，不要用代码块包裹
+"""
+
+    static let coachImportSystemPrompt = """
+你是 Bonne-Santé AI 健身教练。用户要求将对话中的训练意愿写入 App 今日计划。
+请仅输出一个 JSON 对象（不要 markdown、不要解释文字），格式：
+{
+  "workoutType": "训练类型",
+  "sessionTargetMinutes": 45,
+  "sessionTargetCalories": 300,
+  "replanNote": "一句话说明调整依据",
+  "exercises": [
+    {"name":"动作名","muscleGroup":"部位","equipment":"器械","sets":3,"reps":"12","restSeconds":60,"targetCalories":40,"exerciseKind":"strength","notes":""}
+  ]
+}
+exercises 至少 3 项；综合对话历史与用户最新指令；优先减脂消耗目标。
 """
 
     static func userPrompt(
@@ -305,6 +328,44 @@ enum WorkoutPlanPrompt {
         \(question)
         """
         return text
+    }
+
+    static func coachImportUserPrompt(
+        sessionContext: String,
+        conversationSummary: String,
+        genderLabel: String?
+    ) -> String {
+        var text = ""
+        if let genderLabel, genderLabel != "未设置" {
+            text += "【用户性别】\(genderLabel)\n\n"
+        }
+        text += """
+        【当前场次】
+        \(sessionContext)
+
+        【对话摘要（含用户想练的动作与调整意愿）】
+        \(conversationSummary)
+
+        请输出今日最终训练计划 JSON。
+        """
+        return text
+    }
+
+    static func conversationSummaryForImport(
+        history: [(role: String, content: String)],
+        latestUserMessage: String
+    ) -> String {
+        var lines: [String] = []
+        for item in history.suffix(ChatMessageChannel.maxContextMessages) {
+            let (display, _) = WorkoutCoachPlanParser.splitDisplayAndDraft(item.content)
+            guard !display.isEmpty else { continue }
+            let prefix = item.role == "user" ? "用户" : "教练"
+            lines.append("\(prefix)：\(display)")
+        }
+        if !latestUserMessage.isEmpty {
+            lines.append("用户（最新）：\(latestUserMessage)")
+        }
+        return lines.joined(separator: "\n")
     }
 
     static func sessionSummary(entry: WorkoutPlanEntry, exercises: [WorkoutExercise]) -> String {

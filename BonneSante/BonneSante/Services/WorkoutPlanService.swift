@@ -112,7 +112,7 @@ enum WorkoutPlanService {
     ) throws -> [WorkoutPlanEntry] {
         let existing = entriesForWeek(weekStart, modelContext: modelContext)
         for item in existing {
-            TodoService.cancelNotifications(for: item.id)
+            deleteWorkoutReminderTodo(for: item.id, modelContext: modelContext)
             deleteExercises(for: item.id, modelContext: modelContext)
             modelContext.delete(item)
         }
@@ -134,8 +134,9 @@ enum WorkoutPlanService {
             modelContext.insert(entry)
             saved.append(entry)
             insertExercises(session.exercises, sessionId: entry.id, modelContext: modelContext)
-            scheduleWorkoutReminder(for: entry, weekStart: weekStart, modelContext: modelContext)
         }
+
+        WorkoutMorningReminderService.sync(modelContext: modelContext)
 
         let prefs = loadOrCreatePreferences(modelContext: modelContext)
         prefs.sessionsPerWeek = output.sessions.count
@@ -165,6 +166,50 @@ enum WorkoutPlanService {
             let ratio = Double(min(ex.completedSets, ex.sets)) / Double(ex.sets)
             return partial + ex.targetCalories * ratio
         }
+    }
+
+    /// 动作组数完成度（组勾选仅用于次数/完成度，不参与消耗计算）
+    struct SetProgress: Equatable {
+        var completedSets: Int
+        var totalSets: Int
+        var fraction: Double
+        /// ≥65% 组数视为本场训练完成
+        var isSessionComplete: Bool
+    }
+
+    static func setProgress(for exercises: [WorkoutExercise]) -> SetProgress {
+        let total = exercises.reduce(0) { $0 + max($1.sets, 1) }
+        let completed = exercises.reduce(0) { $0 + min($1.completedSets, max($1.sets, 1)) }
+        let fraction = total > 0 ? Double(completed) / Double(total) : 0
+        return SetProgress(
+            completedSets: completed,
+            totalSets: total,
+            fraction: fraction,
+            isSessionComplete: fraction >= 0.65
+        )
+    }
+
+    /// 训练日当天 Apple 健康活动消耗（优先当日总活动，辅以锻炼记录）
+    static func watchActiveKcal(
+        for entry: WorkoutPlanEntry,
+        energyProfile: EnergyProfileSnapshot,
+        workouts: [WorkoutSnapshot]
+    ) -> Double {
+        guard let sessionDate = sessionDate(for: entry) else { return 0 }
+        let calendar = Calendar.current
+        let dayStart = calendar.startOfDay(for: sessionDate)
+        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+
+        if calendar.isDateInToday(sessionDate), energyProfile.todayActiveKcal > 0 {
+            return energyProfile.todayActiveKcal
+        }
+
+        let workoutSum = workouts
+            .filter { $0.date >= dayStart && $0.date < dayEnd }
+            .reduce(0.0) { $0 + $1.activeCalories }
+        if workoutSum > 0 { return workoutSum }
+
+        return 0
     }
 
     /// 换动作：拉取 AI 候选（2–3 个）
@@ -264,6 +309,35 @@ enum WorkoutPlanService {
         entries.reduce(0) { $0 + $1.targetCalories }
     }
 
+    /// 本周消耗完成值：仅 Apple 健康活动消耗（不回退计划勾选）
+    static func weeklyBurnCompleted(
+        energyProfile: EnergyProfileSnapshot,
+        entries: [WorkoutPlanEntry],
+        modelContext: ModelContext
+    ) -> (value: Double, usesHealthData: Bool) {
+        _ = entries
+        _ = modelContext
+        guard energyProfile.hasWatchData else {
+            return (0, false)
+        }
+        return (energyProfile.weekActiveKcal, true)
+    }
+
+    /// 本周消耗目标：有 Watch 时用 7 日活动均值 × 排课天数，否则用计划值
+    static func weeklyBurnGoal(
+        energyProfile: EnergyProfileSnapshot,
+        trainingDays: Int,
+        storedGoal: Double,
+        plannedBurn: Double
+    ) -> (value: Double, usesHealthData: Bool) {
+        if let avg = energyProfile.avgActiveKcal7d, avg > 0, energyProfile.hasWatchData {
+            let days = max(trainingDays, 1)
+            return (avg * Double(days), true)
+        }
+        if storedGoal > 0 { return (storedGoal, false) }
+        return (plannedBurn, false)
+    }
+
     static func incrementCompletedSets(_ exercise: WorkoutExercise, modelContext: ModelContext) {
         if exercise.completedSets < exercise.sets {
             exercise.completedSets += 1
@@ -276,6 +350,31 @@ enum WorkoutPlanService {
             exercise.completedSets -= 1
         }
         try? modelContext.save()
+    }
+
+    /// 将 AI 教练输出的计划写入本场训练（替换动作清单）
+    @MainActor
+    static func applyCoachSessionPlan(
+        entry: WorkoutPlanEntry,
+        plan: CoachSessionPlan,
+        modelContext: ModelContext
+    ) throws {
+        guard !plan.exercises.isEmpty else {
+            throw AIServiceError.parsingError("计划中没有动作")
+        }
+        deleteExercises(for: entry.id, modelContext: modelContext)
+        insertExercises(plan.exercises, sessionId: entry.id, modelContext: modelContext)
+
+        if let type = plan.workoutType, !type.isEmpty {
+            entry.workoutType = type
+        }
+        entry.targetMinutes = plan.sessionTargetMinutes
+        entry.targetCalories = plan.sessionTargetCalories
+        entry.replanNote = plan.replanNote
+        entry.source = "ai"
+        entry.isCompleted = false
+        entry.completedAt = nil
+        try modelContext.save()
     }
 
     private static func insertExercises(
@@ -466,12 +565,17 @@ enum WorkoutPlanService {
 
     static func weekProgress(
         entries: [WorkoutPlanEntry],
+        exercisesBySession: [UUID: [WorkoutExercise]],
         workouts: [WorkoutSnapshot],
         weekStart: Date
     ) -> WeekProgress {
         let plannedMinutes = entries.reduce(0) { $0 + $1.targetMinutes }
-        let completed = entries.filter(\.isCompleted)
-        let completedMinutes = completed.reduce(0) { $0 + $1.targetMinutes }
+
+        let setCompletedEntries = entries.filter { entry in
+            let exs = exercisesBySession[entry.id] ?? []
+            return setProgress(for: exs).isSessionComplete
+        }
+        let completedMinutes = setCompletedEntries.reduce(0) { $0 + $1.targetMinutes }
 
         let calendar = Calendar.current
         let watchMatched = entries.filter { entry in
@@ -484,7 +588,7 @@ enum WorkoutPlanService {
         }.count
 
         return WeekProgress(
-            completedSessions: completed.count,
+            completedSessions: setCompletedEntries.count,
             totalSessions: entries.count,
             completedMinutes: completedMinutes,
             plannedMinutes: plannedMinutes,
@@ -496,6 +600,7 @@ enum WorkoutPlanService {
         entry.isCompleted.toggle()
         entry.completedAt = entry.isCompleted ? Date() : nil
         try? modelContext.save()
+        WorkoutMorningReminderService.sync(modelContext: modelContext)
     }
 
     /// 单场切换训练侧重（如肩背日改为臀腿），仅替换本场动作
@@ -534,12 +639,11 @@ enum WorkoutPlanService {
             let previousDay = entry.dayOfWeek
             entry.dayOfWeek = newDay
             other.dayOfWeek = previousDay
-            updateWorkoutReminder(for: other, weekStart: weekStart, modelContext: modelContext)
         } else {
             entry.dayOfWeek = newDay
         }
 
-        updateWorkoutReminder(for: entry, weekStart: weekStart, modelContext: modelContext)
+        WorkoutMorningReminderService.sync(modelContext: modelContext)
         try? modelContext.save()
     }
 
@@ -556,51 +660,15 @@ enum WorkoutPlanService {
         return nil
     }
 
-    private static func scheduleWorkoutReminder(
-        for entry: WorkoutPlanEntry,
-        weekStart: Date,
-        modelContext: ModelContext
-    ) {
-        guard let dueDate = dateForEntry(entry, weekStart: weekStart) else { return }
-        var components = Calendar.current.dateComponents([.year, .month, .day], from: dueDate)
-        components.hour = 8
-        components.minute = 0
-        guard let reminderDate = Calendar.current.date(from: components), reminderDate > Date() else { return }
-
-        let todo = TodoItem(
-            title: "\(entry.workoutType) \(entry.targetMinutes) 分钟",
-            dueDate: reminderDate,
-            notes: entry.notes,
-            source: .fitness,
-            seriesKey: entry.id.uuidString
-        )
-        modelContext.insert(todo)
-        TodoService.scheduleReminders(for: todo)
-    }
-
-    private static func updateWorkoutReminder(
-        for entry: WorkoutPlanEntry,
-        weekStart: Date,
-        modelContext: ModelContext
-    ) {
-        let entryId = entry.id.uuidString
+    private static func deleteWorkoutReminderTodo(for entryId: UUID, modelContext: ModelContext) {
+        let entryIdString = entryId.uuidString
         let descriptor = FetchDescriptor<TodoItem>(
-            predicate: #Predicate<TodoItem> { $0.seriesKey == entryId }
+            predicate: #Predicate<TodoItem> { $0.seriesKey == entryIdString }
         )
-        if let todo = try? modelContext.fetch(descriptor).first {
-            guard let dueDate = dateForEntry(entry, weekStart: weekStart) else { return }
-            var components = Calendar.current.dateComponents([.year, .month, .day], from: dueDate)
-            components.hour = 8
-            components.minute = 0
-            guard let reminderDate = Calendar.current.date(from: components) else { return }
+        guard let todos = try? modelContext.fetch(descriptor) else { return }
+        for todo in todos {
             TodoService.cancelNotifications(for: todo.id)
-            todo.dueDate = reminderDate
-            todo.title = "\(entry.workoutType) \(entry.targetMinutes) 分钟"
-            if reminderDate > Date() {
-                TodoService.scheduleReminders(for: todo)
-            }
-        } else {
-            scheduleWorkoutReminder(for: entry, weekStart: weekStart, modelContext: modelContext)
+            modelContext.delete(todo)
         }
     }
 }

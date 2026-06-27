@@ -29,6 +29,7 @@ struct SettingsTabView: View {
             List {
                 appearanceSection
                 profileSection
+                workoutReminderSection
 
                 Section("AI 服务") {
                     HStack {
@@ -128,6 +129,7 @@ struct SettingsTabView: View {
                     modelContext.insert(UserSettings())
                     try? modelContext.save()
                 }
+                WorkoutMorningReminderService.sync(modelContext: modelContext)
             }
         }
     }
@@ -175,6 +177,47 @@ struct SettingsTabView: View {
                     .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
             }
         }
+    }
+
+    private var workoutReminderSection: some View {
+        Section {
+            Toggle("训练日晨间提醒", isOn: workoutReminderEnabledBinding)
+            if userSettings.workoutMorningReminderEnabled {
+                DatePicker(
+                    "提醒时间",
+                    selection: workoutReminderTimeBinding,
+                    displayedComponents: .hourAndMinute
+                )
+            }
+        } header: {
+            Text("训练提醒")
+        } footer: {
+            Text("仅在「今天有排课」的当天推送一条提醒，不会提前把整周计划都排进通知。重新打开 App 或生成计划后会自动刷新。")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+        }
+    }
+
+    private var workoutReminderEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { userSettings.workoutMorningReminderEnabled },
+            set: { newValue in
+                userSettings.workoutMorningReminderEnabled = newValue
+                try? modelContext.save()
+                WorkoutMorningReminderService.sync(modelContext: modelContext)
+            }
+        )
+    }
+
+    private var workoutReminderTimeBinding: Binding<Date> {
+        Binding(
+            get: { userSettings.workoutMorningReminderTime },
+            set: { newValue in
+                userSettings.workoutMorningReminderTime = newValue
+                try? modelContext.save()
+                WorkoutMorningReminderService.sync(modelContext: modelContext)
+            }
+        )
     }
 
     private var nicknameBinding: Binding<String> {

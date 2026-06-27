@@ -84,7 +84,7 @@ struct HealthSummaryView: View {
             return
         }
         loadingProgress = 0.35
-        try? HealthArchiveService.refreshRiskAnalysis(modelContext: modelContext)
+        _ = try? HealthArchiveService.refreshRiskAnalysis(modelContext: modelContext)
         let snapshot = HealthProfileEngine.snapshotFromReports(reports)
         loadingProgress = 0.55
         let built = await HealthProfileEngine.buildSummaryAsync(snapshot: snapshot)
@@ -166,7 +166,7 @@ struct HealthSummaryView: View {
                         department: risk.department,
                         onScheduleCheckup: { months in
                             let lastExam = reports.first?.examDate
-                            try? HealthArchiveService.setupCheckupPlan(
+                            _ = try? HealthArchiveService.setupCheckupPlan(
                                 from: risk,
                                 months: months,
                                 lastExam: lastExam,

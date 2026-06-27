@@ -592,7 +592,7 @@ enum HealthMetricLineParser {
         guard let index = line.firstIndex(of: separator) else { return nil }
 
         let name = String(line[..<index]).trimmingCharacters(in: CharacterSet.whitespaces)
-        var valuePart = String(line[line.index(after: index)...]).trimmingCharacters(in: CharacterSet.whitespaces)
+        let valuePart = String(line[line.index(after: index)...]).trimmingCharacters(in: CharacterSet.whitespaces)
         guard isValidName(name), !valuePart.isEmpty else { return nil }
 
         return buildMetric(name: name, valuePart: valuePart, lineHint: line)
@@ -633,7 +633,7 @@ enum HealthMetricLineParser {
     // MARK: - Build
 
     private static func buildMetric(name: String, valuePart: String, lineHint: String) -> ReportImporter.DraftMetric? {
-        var normalizedName = ReportMetricNormalizer.normalizeName(name)
+        let normalizedName = ReportMetricNormalizer.normalizeName(name)
         guard ReportMetricNormalizer.isLikelyLabMetricName(normalizedName) else { return nil }
 
         var valuePart = valuePart

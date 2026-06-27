@@ -1,38 +1,46 @@
 import SwiftUI
 
-/// 今日能量看板（参考 Apple 健康布局 + 莫兰迪配色）
+/// 今日能量看板：三环分别表示 摄入 / 训练 / 消耗 的目标 vs 实际
 /// @author jiali.qiu
 struct DailyEnergyBoard: View {
     let remaining: Double
+    /// 今日预算摄入
     let budget: Double
+    /// 今日已摄入
     let consumed: Double
-    let activeEnergy: Double
-    let basalEnergy: Double
-    let totalBurned: Double
+    /// 今日应消耗（基础代谢 + 计划运动）
+    let expectedBurn: Double
+    /// 今日已消耗（HealthKit 基础 + 活动）
+    let actualBurn: Double
+    /// 今日健身计划消耗目标
+    let plannedWorkoutBurn: Double
+    /// 今日已活动消耗
+    let actualWorkoutBurn: Double
+    let isRestDay: Bool
     let isUsingWatchData: Bool
-    /// 智能 BMR 来源（如「Watch 7日均值」）
-    var bmrSourceLabel: String? = nil
-    /// TDEE 来源短标签
-    var tdeeSourceLabel: String? = nil
-    /// 今日 Watch 活动消耗（与 7 日均值对照）
-    var todayActiveEnergy: Double? = nil
-    /// 活动消耗基准说明（如「7日均值」）
-    var activeSourceLabel: String? = nil
+    /// 休息日参考活动（7 日均值）
+    var restDayActivityReference: Double? = nil
 
     @Environment(\.colorScheme) private var colorScheme
 
-    private var activeGoal: Double { max(activeEnergy * 1.2, 400) }
-    private var consumedProgress: Double {
+    private var intakeProgress: Double {
         guard budget > 0 else { return 0 }
         return min(consumed / budget, 1)
     }
-    private var activeProgress: Double {
-        guard activeGoal > 0 else { return 0 }
-        return min(activeEnergy / activeGoal, 1)
+
+    private var workoutGoal: Double {
+        if plannedWorkoutBurn > 0 { return plannedWorkoutBurn }
+        return max(restDayActivityReference ?? 300, 200)
     }
-    private var basalShare: Double {
-        guard totalBurned > 0 else { return 0.65 }
-        return min(basalEnergy / totalBurned, 1)
+
+    private var workoutProgress: Double {
+        guard workoutGoal > 0 else { return 0 }
+        return min(actualWorkoutBurn / workoutGoal, 1)
+    }
+
+    private var burnProgress: Double {
+        guard expectedBurn > 0 else { return 0 }
+        return min(actualBurn / expectedBurn, 1)
     }
 
     var body: some View {
@@ -42,6 +50,7 @@ struct DailyEnergyBoard: View {
                 activityRings
                 heroMetric
             }
+            ringLegend
             metricTiles
             footerSummary
         }
@@ -55,16 +64,8 @@ struct DailyEnergyBoard: View {
                 .font(.headline)
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
             Spacer()
-            if let bmrSourceLabel, !bmrSourceLabel.isEmpty {
-                Label("BMR · \(bmrSourceLabel)", systemImage: "applewatch")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Theme.brandPrimary(colorScheme).opacity(colorScheme == .dark ? 0.22 : 0.35))
-                    .clipShape(Capsule())
-            } else if isUsingWatchData {
-                Label("Apple Watch", systemImage: "applewatch")
+            if isUsingWatchData {
+                Label("Apple 健康", systemImage: "applewatch")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                     .padding(.horizontal, 10)
@@ -82,26 +83,28 @@ struct DailyEnergyBoard: View {
     private var activityRings: some View {
         ZStack {
             ActivityRing(
-                progress: basalShare,
+                progress: burnProgress,
                 color: Theme.energyBasal(colorScheme),
                 lineWidth: 10,
                 diameter: 132
             )
             ActivityRing(
-                progress: consumedProgress,
+                progress: intakeProgress,
                 color: Theme.energyConsumed(colorScheme),
                 lineWidth: 10,
                 diameter: 104
             )
             ActivityRing(
-                progress: activeProgress,
+                progress: workoutProgress,
                 color: Theme.energyActive(colorScheme),
                 lineWidth: 10,
                 diameter: 76
             )
         }
         .frame(width: 140, height: 140)
-        .accessibilityLabel("活动 \(Int(activeEnergy))、已摄入 \(Int(consumed))、基础 \(Int(basalEnergy)) 大卡")
+        .accessibilityLabel(
+            "摄入 \(Int(consumed)) 预算 \(Int(budget))，训练 \(Int(actualWorkoutBurn)) 计划 \(Int(plannedWorkoutBurn))，消耗 \(Int(actualBurn)) 应消耗 \(Int(expectedBurn))"
+        )
     }
 
     private var heroMetric: some View {
@@ -117,7 +120,7 @@ struct DailyEnergyBoard: View {
             Text("大卡")
                 .font(.caption)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            Text("预算 \(Int(budget).formatted())")
+            Text("预算 \(Int(budget).formatted()) · 已摄入 \(Int(consumed).formatted())")
                 .font(.caption2)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 .padding(.top, 4)
@@ -125,55 +128,92 @@ struct DailyEnergyBoard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var metricTiles: some View {
-        HStack(spacing: 10) {
-            EnergyMetricTile(
-                title: "活动",
-                value: Int(activeEnergy),
-                unit: "大卡",
+    private var ringLegend: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ringLegendRow(
+                color: Theme.energyConsumed(colorScheme),
+                title: "摄入",
+                detail: "\(Int(consumed)) / \(Int(budget)) kcal"
+            )
+            ringLegendRow(
                 color: Theme.energyActive(colorScheme),
-                icon: "figure.run",
-                caption: activeSourceLabel
+                title: isRestDay ? "活动" : "训练",
+                detail: workoutLegendDetail
             )
-            EnergyMetricTile(
-                title: "基础",
-                value: Int(basalEnergy),
-                unit: "大卡",
+            ringLegendRow(
                 color: Theme.energyBasal(colorScheme),
-                icon: "bed.double.fill",
-                caption: bmrSourceLabel
+                title: "消耗",
+                detail: "\(Int(actualBurn)) / \(Int(expectedBurn)) kcal"
             )
+        }
+    }
+
+    private var workoutLegendDetail: String {
+        if plannedWorkoutBurn > 0 {
+            return "\(Int(actualWorkoutBurn)) / \(Int(plannedWorkoutBurn)) kcal"
+        }
+        if isRestDay {
+            return "休息日 · 已活动 \(Int(actualWorkoutBurn)) kcal"
+        }
+        return "\(Int(actualWorkoutBurn)) kcal"
+    }
+
+    private func ringLegendRow(color: Color, title: String, detail: String) -> some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+            Text(detail)
+                .font(.caption2)
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                .monospacedDigit()
+        }
+    }
+
+    private var metricTiles: some View {
+        HStack(alignment: .top, spacing: 10) {
             EnergyMetricTile(
                 title: "已摄入",
                 value: Int(consumed),
-                unit: "大卡",
+                goal: Int(budget),
+                unit: "kcal",
                 color: Theme.energyConsumed(colorScheme),
-                icon: "fork.knife"
+                icon: "fork.knife",
+                caption: "今日饮食"
+            )
+            EnergyMetricTile(
+                title: isRestDay ? "已活动" : "已训练",
+                value: Int(actualWorkoutBurn),
+                goal: Int(workoutGoal),
+                unit: "kcal",
+                color: Theme.energyActive(colorScheme),
+                icon: "figure.run",
+                caption: isRestDay ? "休息日参考" : "计划 \(Int(plannedWorkoutBurn))"
+            )
+            EnergyMetricTile(
+                title: "已消耗",
+                value: Int(actualBurn),
+                goal: Int(expectedBurn),
+                unit: "kcal",
+                color: Theme.energyBasal(colorScheme),
+                icon: "flame.fill",
+                caption: isUsingWatchData ? "基础 + 活动" : "估算模式"
             )
         }
     }
 
     private var footerSummary: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Label("日均总消耗 \(Int(totalBurned).formatted())", systemImage: "flame.fill")
-                    .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                if let tdeeSourceLabel {
-                    Text("· \(tdeeSourceLabel)")
-                        .font(.caption2)
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                }
-                Spacer()
-                Text("已摄入 \(Int(consumed).formatted()) 大卡")
-                    .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            }
-            if let todayActiveEnergy, abs(todayActiveEnergy - activeEnergy) > 15 {
-                Text("今日活动 \(Int(todayActiveEnergy).formatted()) 大卡 · 活动基准 \(Int(activeEnergy).formatted()) 大卡/天")
-                    .font(.caption2)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            }
+        HStack {
+            Label("应消耗 \(Int(expectedBurn).formatted()) kcal", systemImage: "flame.fill")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            Spacer()
+            Text("已消耗 \(Int(actualBurn).formatted()) kcal")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
         }
     }
 }
@@ -207,12 +247,15 @@ private struct ActivityRing: View {
 private struct EnergyMetricTile: View {
     let title: String
     let value: Int
+    let goal: Int
     let unit: String
     let color: Color
     let icon: String
-    var caption: String? = nil
+    var caption: String = ""
 
     @Environment(\.colorScheme) private var colorScheme
+
+    private static let captionMinHeight: CGFloat = 24
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -220,27 +263,37 @@ private struct EnergyMetricTile: View {
                 Image(systemName: icon)
                     .font(.caption2)
                     .foregroundStyle(color)
+                    .frame(width: 14, alignment: .center)
                 Text(title)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
             }
-            Text(value.formatted())
+            .frame(maxWidth: .infinity, minHeight: 16, alignment: .leading)
+
+            Text("\(value)/\(goal)")
                 .font(.title3.weight(.bold))
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                 .minimumScaleFactor(0.8)
                 .lineLimit(1)
+                .monospacedDigit()
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+
             Text(unit)
                 .font(.caption2)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            if let caption, !caption.isEmpty {
-                Text(caption)
-                    .font(.system(size: 9))
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
-            }
+                .frame(maxWidth: .infinity, minHeight: 14, alignment: .leading)
+
+            Text(caption)
+                .font(.system(size: 9))
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, minHeight: Self.captionMinHeight, alignment: .topLeading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(10)
         .background(color.opacity(colorScheme == .dark ? 0.14 : 0.22))
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -252,9 +305,11 @@ private struct EnergyMetricTile: View {
         remaining: 1250,
         budget: 1800,
         consumed: 550,
-        activeEnergy: 448,
-        basalEnergy: 1393,
-        totalBurned: 1841,
+        expectedBurn: 2100,
+        actualBurn: 980,
+        plannedWorkoutBurn: 320,
+        actualWorkoutBurn: 180,
+        isRestDay: false,
         isUsingWatchData: true
     )
     .padding()
@@ -267,10 +322,13 @@ private struct EnergyMetricTile: View {
         remaining: 1250,
         budget: 1800,
         consumed: 550,
-        activeEnergy: 448,
-        basalEnergy: 1393,
-        totalBurned: 1841,
-        isUsingWatchData: true
+        expectedBurn: 2100,
+        actualBurn: 980,
+        plannedWorkoutBurn: 0,
+        actualWorkoutBurn: 220,
+        isRestDay: true,
+        isUsingWatchData: true,
+        restDayActivityReference: 400
     )
     .padding()
     .background(Theme.backgroundDark)

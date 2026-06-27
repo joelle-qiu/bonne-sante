@@ -92,6 +92,8 @@
 		A10000A8238ABCDE /* WorkoutPlanType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000A8238ABCDE /* WorkoutPlanType.swift */; };
 		A1000092238ABCDE /* WorkoutPlanEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100092238ABCDE /* WorkoutPlanEngine.swift */; };
 		A1000093238ABCDE /* WorkoutPlanPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100093238ABCDE /* WorkoutPlanPrompt.swift */; };
+		A10000B1238ABCDE /* WorkoutCoachPlanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B1238ABCDE /* WorkoutCoachPlanService.swift */; };
+		A10000B2238ABCDE /* WorkoutMorningReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B2238ABCDE /* WorkoutMorningReminderService.swift */; };
 		A1000094238ABCDE /* WorkoutPlanAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100094238ABCDE /* WorkoutPlanAIService.swift */; };
 		A1000095238ABCDE /* WorkoutPlanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100095238ABCDE /* WorkoutPlanService.swift */; };
 		A1000096238ABCDE /* WorkoutPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100096238ABCDE /* WorkoutPlanView.swift */; };
@@ -227,6 +229,8 @@
 		A11000A8238ABCDE /* WorkoutPlanType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanType.swift; sourceTree = "<group>"; };
 		A1100092238ABCDE /* WorkoutPlanEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanEngine.swift; sourceTree = "<group>"; };
 		A1100093238ABCDE /* WorkoutPlanPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanPrompt.swift; sourceTree = "<group>"; };
+		A11000B1238ABCDE /* WorkoutCoachPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCoachPlanService.swift; sourceTree = "<group>"; };
+		A11000B2238ABCDE /* WorkoutMorningReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutMorningReminderService.swift; sourceTree = "<group>"; };
 		A1100094238ABCDE /* WorkoutPlanAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanAIService.swift; sourceTree = "<group>"; };
 		A1100095238ABCDE /* WorkoutPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanService.swift; sourceTree = "<group>"; };
 		A1100097238ABCDE /* WorkoutExercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutExercise.swift; sourceTree = "<group>"; };
@@ -391,6 +395,8 @@
 				A11000A1238ABCDE /* ClinicAppointmentAIService.swift */,
 				A11000A2238ABCDE /* ClinicAppointmentImporter.swift */,
 				A11000A3238ABCDE /* CalendarService.swift */,
+				A11000B1238ABCDE /* WorkoutCoachPlanService.swift */,
+				A11000B2238ABCDE /* WorkoutMorningReminderService.swift */,
 				A1100094238ABCDE /* WorkoutPlanAIService.swift */,
 				A1100095238ABCDE /* WorkoutPlanService.swift */,
 				A11000BB238ABCDE /* LocationService.swift */,
@@ -741,6 +747,8 @@
 				A10000A9238ABCDE /* WorkoutPreferenceInferencer.swift in Sources */,
 				A10000A6238ABCDE /* WorkoutNutritionPlanner.swift in Sources */,
 				A1000093238ABCDE /* WorkoutPlanPrompt.swift in Sources */,
+				A10000B1238ABCDE /* WorkoutCoachPlanService.swift in Sources */,
+				A10000B2238ABCDE /* WorkoutMorningReminderService.swift in Sources */,
 				A1000094238ABCDE /* WorkoutPlanAIService.swift in Sources */,
 				A1000095238ABCDE /* WorkoutPlanService.swift in Sources */,
 				A1000096238ABCDE /* WorkoutPlanView.swift in Sources */,

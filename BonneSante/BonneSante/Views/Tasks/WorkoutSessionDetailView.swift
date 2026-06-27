@@ -21,13 +21,26 @@ struct WorkoutSessionDetailView: View {
         preferencesList.first ?? WorkoutPlanPreferences()
     }
 
-    private var completedCalories: Double {
-        WorkoutPlanService.completedCalories(for: exercises)
+    private var setProgress: WorkoutPlanService.SetProgress {
+        WorkoutPlanService.setProgress(for: exercises)
     }
 
-    private var calorieProgress: Double {
-        guard entry.targetCalories > 0 else { return 0 }
-        return min(completedCalories / entry.targetCalories, 1)
+    private var watchActiveKcal: Double {
+        guard let ctx = healthContext else { return 0 }
+        return WorkoutPlanService.watchActiveKcal(
+            for: entry,
+            energyProfile: ctx.healthKitService.energyProfile,
+            workouts: ctx.healthKitService.recentWorkouts
+        )
+    }
+
+    private var watchBurnProgress: Double {
+        guard entry.targetCalories > 0, watchActiveKcal > 0 else { return 0 }
+        return min(watchActiveKcal / entry.targetCalories, 1)
+    }
+
+    private var hasWatchBurnData: Bool {
+        healthContext?.healthKitService.energyProfile.hasWatchData == true && watchActiveKcal > 0
     }
 
     var body: some View {
@@ -58,7 +71,10 @@ struct WorkoutSessionDetailView: View {
                 }
             }
         }
-        .task { reloadExercises() }
+        .task {
+            reloadExercises()
+            await healthContext?.refreshHealthKitOnly()
+        }
         .sheet(item: $exerciseToSwap) { exercise in
             ExerciseSwapSheet(
                 exercise: exercise,
@@ -68,7 +84,7 @@ struct WorkoutSessionDetailView: View {
             )
         }
         .sheet(isPresented: $showCoach) {
-            WorkoutCoachView(entry: entry, exercises: exercises)
+            WorkoutCoachView(entry: entry, exercises: exercises, onPlanUpdated: { reloadExercises() })
         }
         .alert("提示", isPresented: Binding(
             get: { errorMessage != nil },
@@ -95,21 +111,44 @@ struct WorkoutSessionDetailView: View {
             }
 
             HStack(spacing: 16) {
-                metricTile(title: "目标消耗", value: "\(Int(entry.targetCalories))", unit: "kcal")
-                metricTile(title: "已完成", value: "\(Int(completedCalories))", unit: "kcal")
-                metricTile(title: "时长", value: "\(entry.targetMinutes)", unit: "分钟")
+                metricTile(title: "动作组数", value: "\(setProgress.completedSets)/\(setProgress.totalSets)", unit: "组")
+                metricTile(
+                    title: "Watch 活动",
+                    value: hasWatchBurnData ? "\(Int(watchActiveKcal))" : "—",
+                    unit: "kcal"
+                )
+                metricTile(title: "计划时长", value: "\(entry.targetMinutes)", unit: "分钟")
             }
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("消耗进度")
+                    Text("动作完成度")
                         .font(.caption)
                     Spacer()
-                    Text("\(Int(completedCalories)) / \(Int(entry.targetCalories)) kcal")
+                    Text("\(setProgress.completedSets)/\(setProgress.totalSets) 组")
                         .font(.caption.weight(.semibold))
                 }
-                ProgressView(value: calorieProgress)
+                ProgressView(value: setProgress.fraction)
+                    .tint(Theme.adaptiveAccent(colorScheme))
+
+                HStack {
+                    Text("消耗进度（Apple 健康）")
+                        .font(.caption)
+                    Spacer()
+                    if hasWatchBurnData {
+                        Text("\(Int(watchActiveKcal)) / 参考 \(Int(entry.targetCalories)) kcal")
+                            .font(.caption.weight(.semibold))
+                    } else {
+                        Text("暂无 Watch 数据")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    }
+                }
+                ProgressView(value: watchBurnProgress)
                     .tint(Theme.macroProtein(colorScheme))
+                Text("组勾选仅统计动作完成；消耗以 Watch 当日活动为准，计划 kcal 仅供参考。")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
             }
 
             if !entry.notes.isEmpty {
@@ -278,9 +317,6 @@ private struct WorkoutExerciseCard: View {
                         }
                     }
                     Spacer()
-                    Text("≈\(Int(exercise.targetCalories)) kcal")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(muscleTint)
                 }
 
                 Text(exercise.setsRepsLabel + (exercise.restSeconds > 0 ? " · 组间 \(exercise.restSeconds)s" : ""))
@@ -603,20 +639,25 @@ private extension WorkoutPlanEngine.PlannedExercise {
 struct WorkoutCoachView: View {
     let entry: WorkoutPlanEntry
     let exercises: [WorkoutExercise]
+    var onPlanUpdated: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.modelContext) private var modelContext
     @Query private var userGoals: [UserGoal]
 
     @State private var question = ""
-    @State private var messages: [(role: String, text: String)] = []
+    @State private var coachMessages: [ChatMessage] = []
     @State private var isLoading = false
+    @State private var toastMessage: String?
+
+    private var threadKey: String { entry.id.uuidString }
 
     private let quickPrompts = [
+        "导入今日训练计划",
+        "今日想练背和臀",
         "这个动作可以换成什么？",
-        "今天练完怎么拉伸？",
-        "组间休息不够怎么办？",
-        "如何控制训练强度？"
+        "今天练完怎么拉伸？"
     ]
 
     var body: some View {
@@ -625,11 +666,11 @@ struct WorkoutCoachView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         coachBubble(
-                            "我是你的 AI 健身教练。可问我动作替代、强度控制、练后恢复等问题。",
+                            "我是你的 AI 健身教练。可以说「今日想练…」让我调整动作；满意后发送「导入今日训练计划」写入本场清单。",
                             isUser: false
                         )
-                        ForEach(Array(messages.enumerated()), id: \.offset) { _, msg in
-                            coachBubble(msg.text, isUser: msg.role == "user")
+                        ForEach(coachMessages, id: \.id) { msg in
+                            coachBubble(msg.content, isUser: msg.role == "user")
                         }
                         if isLoading {
                             ProgressView().padding()
@@ -678,7 +719,38 @@ struct WorkoutCoachView: View {
                     Button("关闭") { dismiss() }
                 }
             }
+            .onAppear { loadCoachHistory() }
+            .alert("提示", isPresented: Binding(
+                get: { toastMessage != nil },
+                set: { if !$0 { toastMessage = nil } }
+            )) {
+                Button("好的", role: .cancel) {}
+            } message: {
+                Text(toastMessage ?? "")
+            }
         }
+    }
+
+    private func loadCoachHistory() {
+        let key = threadKey
+        let descriptor = FetchDescriptor<ChatMessage>(
+            predicate: #Predicate<ChatMessage> {
+                $0.channel == "workout_coach" && $0.threadKey == key
+            },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        coachMessages = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { !$0.content.isEmpty }
+    }
+
+    private func pruneCoachHistory() {
+        let overflow = coachMessages.count - ChatMessageChannel.maxContextMessages
+        guard overflow > 0 else { return }
+        for message in coachMessages.prefix(overflow) {
+            modelContext.delete(message)
+        }
+        coachMessages.removeFirst(overflow)
+        try? modelContext.save()
     }
 
     private func coachBubble(_ text: String, isUser: Bool) -> some View {
@@ -697,21 +769,114 @@ struct WorkoutCoachView: View {
         let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return }
         question = ""
-        messages.append((role: "user", text: q))
+
+        let userMessage = ChatMessage(
+            role: "user",
+            content: q,
+            channel: ChatMessageChannel.workoutCoach,
+            threadKey: threadKey
+        )
+        modelContext.insert(userMessage)
+        coachMessages.append(userMessage)
+        try? modelContext.save()
         isLoading = true
         defer { isLoading = false }
 
         let context = WorkoutPlanPrompt.sessionSummary(entry: entry, exercises: exercises)
+        let history = coachMessages
+            .filter { $0.id != userMessage.id && !$0.content.isEmpty }
+            .map { (role: $0.role, content: $0.content) }
+
+        let command = WorkoutCoachCommand.parse(q)
         do {
-            let reply = try await WorkoutPlanAIService.coachReply(
-                sessionContext: context,
-                question: q,
+            let assistantText: String
+            switch command {
+            case .importTodayPlan:
+                assistantText = try await handleImportPlan(
+                    sessionContext: context,
+                    history: history,
+                    userMessage: q
+                )
+            case .chat:
+                let rawReply = try await WorkoutPlanAIService.coachReply(
+                    sessionContext: context,
+                    question: q,
+                    history: history,
+                    genderLabel: userGoals.first?.genderDisplayLabel
+                )
+                let (display, _) = WorkoutCoachPlanParser.splitDisplayAndDraft(rawReply)
+                assistantText = display.isEmpty ? rawReply : display
+            }
+
+            let assistantMessage = ChatMessage(
+                role: "assistant",
+                content: assistantText,
+                channel: ChatMessageChannel.workoutCoach,
+                threadKey: threadKey
+            )
+            modelContext.insert(assistantMessage)
+            coachMessages.append(assistantMessage)
+            try? modelContext.save()
+            pruneCoachHistory()
+        } catch {
+            let failureText: String
+            if case .importTodayPlan = command {
+                failureText = "导入失败：\(error.localizedDescription)\n\n请先描述「今日想练…」，或让教练给出动作建议后再试。"
+            } else {
+                failureText = "抱歉，出现了错误：\(error.localizedDescription)"
+            }
+            let errorMessage = ChatMessage(
+                role: "assistant",
+                content: failureText,
+                channel: ChatMessageChannel.workoutCoach,
+                threadKey: threadKey
+            )
+            modelContext.insert(errorMessage)
+            coachMessages.append(errorMessage)
+            try? modelContext.save()
+        }
+    }
+
+    /// 处理「导入今日训练计划」：优先用对话中的 plan-draft，否则向 AI 合成完整 JSON
+    private func handleImportPlan(
+        sessionContext: String,
+        history: [(role: String, content: String)],
+        userMessage: String
+    ) async throws -> String {
+        let plan: CoachSessionPlan
+        if let draftJSON = WorkoutCoachPlanParser.latestDraftJSON(from: history) {
+            plan = try WorkoutCoachPlanParser.parseSessionPlan(from: draftJSON)
+        } else {
+            plan = try await WorkoutPlanAIService.synthesizeSessionPlanFromConversation(
+                sessionContext: sessionContext,
+                history: history,
+                latestUserMessage: userMessage,
                 genderLabel: userGoals.first?.genderDisplayLabel
             )
-            messages.append((role: "assistant", text: reply))
-        } catch {
-            messages.append((role: "assistant", text: error.localizedDescription))
         }
+
+        try WorkoutPlanService.applyCoachSessionPlan(
+            entry: entry,
+            plan: plan,
+            modelContext: modelContext
+        )
+        onPlanUpdated?()
+        await MainActor.run {
+            toastMessage = "已更新 \(plan.exerciseCount) 个动作"
+        }
+
+        let names = plan.exercises.prefix(5).map(\.name).joined(separator: "、")
+        let suffix = plan.exercises.count > 5 ? " 等" : ""
+        return """
+        ✅ 已导入今日训练计划（\(plan.exerciseCount) 个动作）
+
+        \(plan.workoutType.map { "类型：\($0)\n" } ?? "")目标：\(plan.sessionTargetMinutes) 分钟 · \(Int(plan.sessionTargetCalories)) kcal
+        动作：\(names)\(suffix)
+
+        返回训练详情页即可看到更新后的清单。\(plan.replanNote)
+
+        以上内容仅供参考，请遵医嘱。
+        """
     }
 }
 

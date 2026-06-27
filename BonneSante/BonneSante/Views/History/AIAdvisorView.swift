@@ -5,7 +5,13 @@ struct AIAdvisorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.healthContext) private var healthContext
-    @Query(sort: \ChatMessage.createdAt) private var chatMessages: [ChatMessage]
+    @Query(sort: \ChatMessage.createdAt) private var allChatMessages: [ChatMessage]
+
+    private var chatMessages: [ChatMessage] {
+        allChatMessages.filter {
+            $0.channel.isEmpty || $0.channel == ChatMessageChannel.nutrition
+        }
+    }
 
     let foodEntries: [FoodEntry]
     let userGoal: UserGoal?
@@ -375,13 +381,12 @@ struct AIAdvisorView: View {
         }
         try? modelContext.save()
     }
-
     private func sendMessage() async {
         let question = userQuestion
         userQuestion = ""
 
         // Save user message
-        let userMessage = ChatMessage(role: "user", content: question)
+        let userMessage = ChatMessage(role: "user", content: question, channel: ChatMessageChannel.nutrition)
         modelContext.insert(userMessage)
         try? modelContext.save()
 
@@ -389,7 +394,7 @@ struct AIAdvisorView: View {
         streamingContent = ""
 
         // Create placeholder assistant message for streaming
-        let assistantMessage = ChatMessage(role: "assistant", content: "")
+        let assistantMessage = ChatMessage(role: "assistant", content: "", channel: ChatMessageChannel.nutrition)
         modelContext.insert(assistantMessage)
         try? modelContext.save()
         streamingMessageId = assistantMessage.id
@@ -499,7 +504,7 @@ struct AIAdvisorView: View {
             .filter { !$0.content.isEmpty }
             .sorted { $0.createdAt < $1.createdAt }
 
-        let maxRecentMessages = 6
+        let maxRecentMessages = ChatMessageChannel.maxContextMessages
         var historySummary = ""
 
         if sortedMessages.count > maxRecentMessages {
@@ -606,7 +611,7 @@ struct AIAdvisorView: View {
             .filter { !$0.content.isEmpty }
             .sorted { $0.createdAt < $1.createdAt }
 
-        let maxRecentMessages = 6  // Keep last 6 messages (3 exchanges) in full
+        let maxRecentMessages = ChatMessageChannel.maxContextMessages  // Keep last 6 messages (3 exchanges) in full
         var historySummary = ""
 
         if sortedMessages.count > maxRecentMessages {

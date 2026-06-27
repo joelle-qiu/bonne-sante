@@ -571,7 +571,7 @@ enum ReportImporter {
             valueText = "\(valueSegment) \(ReportMetricNormalizer.normalizeUnit(unit))"
         }
 
-        var metric = DraftMetric(
+        let metric = DraftMetric(
             name: ReportMetricNormalizer.normalizeName(nameCandidate),
             valueText: valueText,
             value: val,
