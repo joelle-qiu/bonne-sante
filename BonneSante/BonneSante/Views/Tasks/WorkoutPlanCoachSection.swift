@@ -47,6 +47,7 @@ struct WorkoutPlanCoachSection: View {
             title: "AI 健身教练",
             systemImage: "sparkles",
             subtitle: "已接入近30天体重、锻炼消耗、活动与摄入趋势，无需重复填写。",
+            style: .coach,
             isExpanded: $expanded
         ) {
             VStack(alignment: .leading, spacing: 10) {
@@ -61,7 +62,9 @@ struct WorkoutPlanCoachSection: View {
                     CoachMessageBubble(text: msg.content, isUser: msg.role == "user", compact: true)
                 }
                 if isLoading {
-                    ProgressView().frame(maxWidth: .infinity)
+                    ProgressView()
+                        .tint(Theme.coachAccent(colorScheme))
+                        .frame(maxWidth: .infinity)
                 }
 
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -75,23 +78,13 @@ struct WorkoutPlanCoachSection: View {
                     }
                 }
 
-                HStack(spacing: 10) {
-                    TextField("问教练…", text: $question, axis: .vertical)
-                        .lineLimit(1...3)
-                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                    Button {
-                        Task { await send() }
-                    } label: {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(
-                                question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading
-                                    ? Theme.adaptiveTextTertiary(colorScheme)
-                                    : Theme.brandPrimary(colorScheme)
-                            )
-                    }
-                    .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                CoachChatInputBar(text: $question, isLoading: isLoading, embedded: true) {
+                    Task { await send() }
                 }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(Theme.coachInputBackground(colorScheme))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusInput, style: .continuous))
             }
         }
         .onAppear { loadHistory() }

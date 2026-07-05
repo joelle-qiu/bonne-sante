@@ -674,7 +674,9 @@ struct WorkoutCoachView: View {
                             CoachMessageBubble(text: msg.content, isUser: msg.role == "user")
                         }
                         if isLoading {
-                            ProgressView().padding()
+                            ProgressView()
+                                .tint(Theme.coachAccent(colorScheme))
+                                .padding()
                         }
                     }
                     .padding()
@@ -693,27 +695,11 @@ struct WorkoutCoachView: View {
                 }
                 .padding(.bottom, 8)
 
-                HStack(spacing: 10) {
-                    TextField("问教练…", text: $question, axis: .vertical)
-                        .lineLimit(1...3)
-                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                    Button {
-                        Task { await send() }
-                    } label: {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(
-                                question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading
-                                    ? Theme.adaptiveTextTertiary(colorScheme)
-                                    : Theme.brandPrimary(colorScheme)
-                            )
-                    }
-                    .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                CoachChatInputBar(text: $question, isLoading: isLoading) {
+                    Task { await send() }
                 }
-                .padding()
-                .background(Theme.cardBackground(colorScheme))
             }
-            .cycleThemedPageBackground()
+            .coachThemedPageBackground()
             .navigationTitle("AI 健身教练")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

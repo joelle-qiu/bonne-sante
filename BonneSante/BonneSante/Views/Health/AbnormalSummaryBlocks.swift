@@ -28,13 +28,13 @@ enum AbnormalSummaryBlocks {
                 )
             case .routineFollowUp:
                 return Style(
-                    background: Theme.brandPrimary(scheme).opacity(isDark ? 0.22 : 0.14),
-                    border: Theme.link(scheme).opacity(isDark ? 0.45 : 0.32),
-                    titleColor: Theme.link(scheme),
+                    background: Theme.brandPrimary(scheme).opacity(isDark ? 0.28 : 0.22),
+                    border: Theme.brandPrimary(scheme).opacity(isDark ? 0.45 : 0.28),
+                    titleColor: isDark ? Color(hex: 0xB8D4FF) : Theme.primaryDark,
                     iconName: "calendar.badge.clock",
-                    iconColor: Theme.link(scheme),
-                    deptBackground: isDark ? Color.white.opacity(0.12) : Color.white.opacity(0.55),
-                    itemIconColor: Theme.link(scheme)
+                    iconColor: isDark ? Color(hex: 0xB8D4FF) : Theme.primaryDark,
+                    deptBackground: isDark ? Color.white.opacity(0.12) : Color.white.opacity(0.5),
+                    itemIconColor: isDark ? Color(hex: 0xB8D4FF) : Theme.primaryDark
                 )
             }
         }
@@ -134,7 +134,7 @@ enum AbnormalSummaryBlocks {
                     } else {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "circle.fill")
-                                .fixedFont(size: 6)
+                                .font(.system(size: 6))
                                 .foregroundStyle(style.itemIconColor)
                                 .padding(.top, 6)
                             VStack(alignment: .leading, spacing: 2) {

@@ -37,13 +37,12 @@ enum CyclePhase: String, CaseIterable {
     case luteal = "黄体期"
     case unknown = "未设置"
 
-    /// 周期阶段主题色（浅色模式基准 hex；展示请用 `Theme.phaseAccent`）
     var themeColorHex: UInt {
         switch self {
-        case .menstrual: return 0xB07878
-        case .follicular: return 0x5E8266
-        case .luteal: return 0x8A7BA8
-        case .unknown: return 0xC8C8CD
+        case .menstrual: return 0xF5D0D0
+        case .follicular: return 0xD4EDDA
+        case .luteal: return 0xE2D4F5
+        case .unknown: return 0xE8E8ED
         }
     }
 }

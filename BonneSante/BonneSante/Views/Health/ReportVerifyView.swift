@@ -237,13 +237,13 @@ struct ReportVerifyView: View {
                             systemImage: "square.stack.3d.up"
                         )
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+                        .foregroundStyle(Theme.primaryDark)
                         Text(stagedSegment.label)
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                            .foregroundStyle(Theme.textSecondary)
                         Text("确认本段入库后自动进入下一段，与手动分段粘贴相同。")
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
             }
@@ -255,7 +255,7 @@ struct ReportVerifyView: View {
             if let errorMessage {
                 Section {
                     Text(errorMessage)
-                        .foregroundStyle(Theme.adaptiveWarning(colorScheme))
+                        .foregroundStyle(Theme.warning)
                 }
             }
 
@@ -264,16 +264,14 @@ struct ReportVerifyView: View {
                     if abnormalBatchConfirmed {
                         Label("已确认全部 \(abnormalAttentionCount) 项需关注", systemImage: "checkmark.seal.fill")
                             .font(.subheadline)
-                            .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                            .symbolRenderingMode(.hierarchical)
-                            .tint(Theme.link(colorScheme))
+                            .foregroundStyle(Theme.primaryDark)
                     } else {
                         Button {
                             abnormalBatchConfirmed = true
                         } label: {
                             Label("一键确认全部 \(abnormalAttentionCount) 项需关注", systemImage: "checkmark.circle")
                                 .font(.headline)
-                                .foregroundStyle(Theme.link(colorScheme))
+                                .foregroundStyle(Theme.primaryDark)
                         }
                     }
                 }
@@ -296,7 +294,7 @@ struct ReportVerifyView: View {
                     Section("正常结论（\(validFindings.filter { !$0.isAbnormal }.count) 项）") {
                         Text("大文件精简模式：正常结论将一并入库。如需逐条编辑，请拆分 JSON 后单独导入。")
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 } else {
                     ForEach(groupedNormalFindings, id: \.title) { group in
@@ -335,12 +333,11 @@ struct ReportVerifyView: View {
                     } else {
                         Text("已解析 \(validMetrics.count) 项指标，其中 \(validMetrics.filter { !$0.isAbnormal }.count) 项为正常值，入库时全部保存。")
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                            .foregroundStyle(Theme.textSecondary)
                         Button("展开全部正常指标") {
                             showAllNormalMetrics = true
                         }
                         .font(.caption.bold())
-                        .foregroundStyle(Theme.link(colorScheme))
                     }
                 }
             } else {
@@ -364,7 +361,6 @@ struct ReportVerifyView: View {
                     metrics.append(ReportImporter.DraftMetric(name: "", valueText: ""))
                 } label: {
                     Label("添加指标", systemImage: "plus.circle")
-                        .foregroundStyle(Theme.link(colorScheme))
                 }
             }
 
@@ -399,7 +395,7 @@ struct ReportVerifyView: View {
                             if !recommendationsPreview.isEmpty {
                                 Text(recommendationsPreview)
                                     .font(.caption)
-                                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                                    .foregroundStyle(Theme.textSecondary)
                                     .lineLimit(2)
                             }
                         }
@@ -412,26 +408,23 @@ struct ReportVerifyView: View {
                 if pendingConfirmCount > 0 {
                     Label("请先一键确认上方 \(pendingConfirmCount) 项异常", systemImage: "exclamationmark.circle")
                         .font(.caption)
-                        .foregroundStyle(Theme.adaptiveWarning(colorScheme))
+                        .foregroundStyle(Theme.warning)
                 }
                 Text("异常项已置顶并按严重度排序。确认后可入库参与健康趋势分析。仅供参考，请遵医嘱。")
                     .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .foregroundStyle(Theme.textSecondary)
                 if !draft.sanitizedPreview.isEmpty {
                     Button {
                         showSanitizedPreview = true
                     } label: {
                         Label("查看脱敏后发送的文本预览", systemImage: "eye")
                             .font(.caption)
-                            .foregroundStyle(Theme.link(colorScheme))
                     }
                 }
             }
         }
         .scrollContentBackground(.hidden)
         .cycleThemedPageBackground()
-        .morandiFormSurface()
-        .tint(Theme.link(colorScheme))
         .navigationTitle(navigationTitleText)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(item: $summaryRoute) { route in
@@ -463,10 +456,10 @@ struct ReportVerifyView: View {
                     .foregroundStyle(allAbnormalConfirmed ? .white : Theme.adaptiveTextPrimary(colorScheme))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(allAbnormalConfirmed ? Theme.link(colorScheme) : Theme.cardBackground(colorScheme))
+                    .background(allAbnormalConfirmed ? Theme.primaryDark : Theme.primaryDark.opacity(0.12))
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.cornerRadiusButton)
-                            .stroke(allAbnormalConfirmed ? Color.clear : Theme.link(colorScheme).opacity(0.45), lineWidth: 1.5)
+                            .stroke(allAbnormalConfirmed ? Color.clear : Theme.primaryDark.opacity(0.45), lineWidth: 1.5)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusButton))
             }
@@ -508,12 +501,10 @@ struct ReportVerifyView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("校对结果概览")
                 .font(.headline)
-                .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
 
             if let examDate = draft.examDate {
                 Label(examDateLabel(examDate), systemImage: "calendar")
                     .font(.subheadline)
-                    .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
             }
 
             if draft.distinctVisitDates.count > 1 {
@@ -535,16 +526,16 @@ struct ReportVerifyView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("需关注")
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(Theme.textSecondary)
                     ForEach(abnormalMetricPanels.prefix(3)) { panel in
                         Text("· \(panel.displayName)：\(panel.items.map { "\($0.name) \($0.valueText)" }.joined(separator: "，"))")
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveWarning(colorScheme))
+                            .foregroundStyle(Theme.warning)
                     }
                     ForEach(abnormalStandaloneMetrics.prefix(3), id: \.id) { metric in
                         Text("· \(metric.name) \(metric.valueText)")
                             .font(.caption)
-                            .foregroundStyle(Theme.adaptiveWarning(colorScheme))
+                            .foregroundStyle(Theme.warning)
                     }
                 }
             }
@@ -553,10 +544,9 @@ struct ReportVerifyView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("主检建议摘要")
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(Theme.textSecondary)
                     Text(recommendationsPreview)
                         .font(.caption)
-                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                         .lineLimit(3)
                 }
             }
@@ -568,21 +558,14 @@ struct ReportVerifyView: View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.title3.bold())
-                .foregroundStyle(highlight ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextPrimary(colorScheme))
+                .foregroundStyle(highlight ? Theme.warning : Theme.adaptiveTextPrimary(colorScheme))
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                .foregroundStyle(Theme.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Theme.cardBackground(colorScheme))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(
-                    (highlight ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextTertiary(colorScheme)).opacity(0.35),
-                    lineWidth: 1
-                )
-        )
+        .background((highlight ? Theme.warning : Theme.primary).opacity(0.12))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
@@ -619,7 +602,7 @@ struct ReportVerifyView: View {
             }
         }
         .font(.caption)
-        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
     }
 
     @ViewBuilder
@@ -627,7 +610,7 @@ struct ReportVerifyView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(panel.displayName)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.adaptiveWarning(colorScheme))
+                .foregroundStyle(Theme.warning)
             ForEach(panel.items) { item in
                 HStack(alignment: .top) {
                     Text(item.name)
@@ -642,12 +625,12 @@ struct ReportVerifyView: View {
             if let note = panel.items.first(where: { !$0.assessmentNote.isEmpty })?.assessmentNote {
                 Text(note)
                     .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .foregroundStyle(Theme.warning)
             }
             if panel.items.contains(where: { $0.severityRank > 0 }) {
                 Text("关注等级 \(panel.items.map(\.severityRank).max() ?? 0)/5")
                     .font(.caption2)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .foregroundStyle(Theme.warning)
             }
         }
         .padding(.vertical, 4)
@@ -668,7 +651,7 @@ struct ReportVerifyView: View {
                 if !metrics[index].assessmentNote.isEmpty {
                     Text(metrics[index].assessmentNote)
                         .font(.caption)
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(Theme.warning)
                 }
                 Toggle("标记异常", isOn: $metrics[index].isAbnormal)
                     .onChange(of: metrics[index].isAbnormal) { _, isOn in
@@ -689,10 +672,10 @@ struct ReportVerifyView: View {
             }
             Text(panel.items.map { "\($0.name) \($0.valueText)" }.joined(separator: "，"))
                 .font(.caption)
-                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                .foregroundStyle(Theme.textSecondary)
             Text("入库后将按 \(panel.items.count) 项独立指标存储，便于健康趋势对比。")
                 .font(.caption2)
-                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+                .foregroundStyle(Theme.textSecondary)
             DisclosureGroup("展开编辑子项") {
                 ForEach(panel.items) { item in
                     metricEditor(metricID: item.id)
@@ -715,7 +698,7 @@ struct ReportVerifyView: View {
                 if let hint = HealthRecordAligner.alignmentHint(forMetricName: metrics[index].name) {
                     Text(hint)
                         .font(.caption2)
-                        .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 }
                 TextField("结果（如 6.2 mmol/L）", text: $metrics[index].valueText)
                     .onChange(of: metrics[index].valueText) { _, newValue in
@@ -735,12 +718,12 @@ struct ReportVerifyView: View {
                 if metrics[index].severityRank > 0 {
                     Text("关注等级 \(metrics[index].severityRank)/5")
                         .font(.caption2)
-                        .foregroundStyle(metrics[index].severityRank >= 4 ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(metrics[index].severityRank >= 4 ? Theme.warning : Theme.textSecondary)
                 }
                 if !metrics[index].assessmentNote.isEmpty {
                     Text(metrics[index].assessmentNote)
                         .font(.caption)
-                        .foregroundStyle(metrics[index].isAbnormal ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(metrics[index].isAbnormal ? Theme.warning : Theme.textSecondary)
                 }
                 Button(role: .destructive) {
                     metrics.remove(at: index)
@@ -762,7 +745,7 @@ struct ReportVerifyView: View {
                 if let hint = HealthRecordAligner.alignmentHint(forFinding: findings[index]) {
                     Text(hint)
                         .font(.caption2)
-                        .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 }
                 if !findings[index].conclusion.isEmpty {
                     Label {
@@ -771,26 +754,16 @@ struct ReportVerifyView: View {
                         Image(systemName: "checkmark.seal")
                     }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(
-                        findings[index].isAbnormal
-                            ? Theme.adaptiveWarning(colorScheme)
-                            : Theme.adaptiveTextPrimary(colorScheme)
-                    )
-                    .symbolRenderingMode(.hierarchical)
-                    .tint(findings[index].isAbnormal ? Theme.adaptiveWarning(colorScheme) : Theme.link(colorScheme))
+                    .foregroundStyle(findings[index].isAbnormal ? Theme.warning : Theme.adaptiveTextPrimary(colorScheme))
                 } else if !findings[index].assessmentNote.isEmpty {
                     Text(findings[index].assessmentNote)
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(
-                            findings[index].isAbnormal
-                                ? Theme.adaptiveWarning(colorScheme)
-                                : Theme.adaptiveTextPrimary(colorScheme)
-                        )
+                        .foregroundStyle(findings[index].isAbnormal ? Theme.warning : Theme.adaptiveTextPrimary(colorScheme))
                 }
                 if !findings[index].detail.isEmpty, findings[index].detail != findings[index].title {
                     Text(findings[index].detail)
                         .font(.caption)
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(Theme.textSecondary)
                 } else if findings[index].conclusion.isEmpty, findings[index].assessmentNote.isEmpty {
                     TextField("补充详情（可选）", text: $findings[index].detail)
                 }
@@ -801,7 +774,7 @@ struct ReportVerifyView: View {
                 if findings[index].severityRank > 0 {
                     Text("关注等级 \(findings[index].severityRank)/5")
                         .font(.caption2)
-                        .foregroundStyle(findings[index].severityRank >= 4 ? Theme.adaptiveWarning(colorScheme) : Theme.adaptiveTextSecondary(colorScheme))
+                        .foregroundStyle(findings[index].severityRank >= 4 ? Theme.warning : Theme.textSecondary)
                 }
                 Button(role: .destructive) {
                     findings.remove(at: index)
