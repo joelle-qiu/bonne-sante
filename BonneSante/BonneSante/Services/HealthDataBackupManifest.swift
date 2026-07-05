@@ -1,9 +1,10 @@
 import Foundation
 
-/// Bonne-Santé 全量本地数据备份 JSON 结构（v1）
+/// Bonne-Santé 全量本地数据备份 JSON 结构（v2 起含 API Key）
 /// @author jiali.qiu
 enum HealthDataBackupManifest {
-    static let formatVersion = 1
+    static let formatVersion = 2
+    static let minimumFormatVersion = 1
     static let currentSchemaVersion = SwiftDataContainerFactory.schemaVersion
     static let fileExtension = "json"
     static let suggestedFilenamePrefix = "bonnesante-backup"
@@ -27,6 +28,8 @@ enum HealthDataBackupManifest {
         var workoutPlanPreferences: [WorkoutPlanPreferences]
         var workoutPlanEntries: [WorkoutPlanEntry]
         var workoutExercises: [WorkoutExercise]
+        /// v2：Keychain 中的用户 API Key 与 AI 偏好（可选，v1 备份无此字段）
+        var appSecrets: AppSecrets?
 
         enum CodingKeys: String, CodingKey {
             case formatVersion = "format_version"
@@ -47,6 +50,28 @@ enum HealthDataBackupManifest {
             case workoutPlanPreferences = "workout_plan_preferences"
             case workoutPlanEntries = "workout_plan_entries"
             case workoutExercises = "workout_exercises"
+            case appSecrets = "app_secrets"
+        }
+    }
+
+    /// 用户 API Key 与 AI 相关偏好（明文 JSON，请妥善保管备份文件）
+    struct AppSecrets: Codable {
+        var deepSeekAPIKey: String?
+        var qwenAPIKey: String?
+        var apiRegion: String?
+        var reportAIAssistEnabled: Bool?
+
+        enum CodingKeys: String, CodingKey {
+            case deepSeekAPIKey = "deepseek_api_key"
+            case qwenAPIKey = "qwen_api_key"
+            case apiRegion = "api_region"
+            case reportAIAssistEnabled = "report_ai_assist_enabled"
+        }
+
+        var includesAPIKeys: Bool {
+            let deep = deepSeekAPIKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let qwen = qwenAPIKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return !deep.isEmpty || !qwen.isEmpty
         }
     }
 
@@ -458,9 +483,30 @@ enum HealthDataBackupManifest {
         let foodEntryCount: Int
         let reportCount: Int
         let workoutSessionCount: Int
+        var includesAppSecrets: Bool = false
+        var keysRestored: Bool = false
 
-        var label: String {
-            "饮食 \(foodEntryCount) 条 · 报告 \(reportCount) 份 · 训练 \(workoutSessionCount) 场"
+        var previewLabel: String {
+            var parts = [
+                "饮食 \(foodEntryCount) 条",
+                "报告 \(reportCount) 份",
+                "训练 \(workoutSessionCount) 场"
+            ]
+            if includesAppSecrets {
+                parts.append("含 API Key 配置")
+            }
+            return parts.joined(separator: " · ")
         }
+
+        var successLabel: String {
+            var label = previewLabel
+            if keysRestored {
+                label += " · 已写入 Keychain"
+            }
+            return label
+        }
+
+        /// 兼容旧调用
+        var label: String { previewLabel }
     }
 }

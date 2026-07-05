@@ -167,17 +167,21 @@ struct SettingsTabView: View {
                     backupErrorMessage = error.localizedDescription
                 }
             }
-            .alert("覆盖导入数据？", isPresented: $showImportConfirm) {
+            .alert("一键恢复备份？", isPresented: $showImportConfirm) {
                 Button("取消", role: .cancel) {
                     pendingImportURL = nil
                     pendingImportSummary = nil
                 }
-                Button("覆盖导入", role: .destructive) {
+                Button("覆盖并恢复", role: .destructive) {
                     confirmImportBackup()
                 }
             } message: {
                 if let summary = pendingImportSummary {
-                    Text("将用备份替换本机全部本地数据（\(summary.label)）。API Key 与 Apple 健康数据不会包含在备份中，导入后需重新配置/同步。")
+                    if summary.includesAppSecrets {
+                        Text("将用备份替换本机全部数据（\(summary.previewLabel)）。含 API Key 时将写入 Keychain。Apple 健康数据需导入后重新同步。")
+                    } else {
+                        Text("将用备份替换本机全部本地数据（\(summary.previewLabel)）。此备份不含 API Key；HealthKit 需在导入后重新同步。")
+                    }
                 }
             }
             .alert("备份失败", isPresented: Binding(
@@ -197,7 +201,7 @@ struct SettingsTabView: View {
                 exportBackup()
             } label: {
                 HStack {
-                    Label("导出全部数据", systemImage: "square.and.arrow.up")
+                    Label("导出全部数据（含 Key）", systemImage: "square.and.arrow.up")
                     Spacer()
                     if isExportingBackup {
                         ProgressView()
@@ -210,7 +214,7 @@ struct SettingsTabView: View {
                 showBackupImporter = true
             } label: {
                 HStack {
-                    Label("从备份导入", systemImage: "square.and.arrow.down")
+                    Label("一键导入备份", systemImage: "arrow.down.doc.fill")
                     Spacer()
                     if isImportingBackup {
                         ProgressView()
@@ -227,7 +231,7 @@ struct SettingsTabView: View {
         } header: {
             Text("数据备份")
         } footer: {
-            Text("导出为 JSON 文件，含饮食、体检、训练、待办等本地记录。不含 API Key；HealthKit 数据需在导入后重新同步。")
+            Text("JSON 含饮食、体检、训练、待办及 Keychain 中的 DeepSeek / Qwen API Key。请妥善保管备份文件；HealthKit 数据需导入后重新同步。")
                 .font(.caption)
                 .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
         }
@@ -478,7 +482,8 @@ struct SettingsTabView: View {
                 let summary = try HealthDataBackupService.importReplacingAll(modelContext: modelContext, from: url)
                 loadCycleProfile()
                 await refreshHealthContextAfterImport()
-                backupFeedback = "导入成功：\(summary.label)"
+                context?.aiStatus = .current
+                backupFeedback = "恢复成功：\(summary.successLabel)"
             } catch {
                 backupErrorMessage = error.localizedDescription
             }

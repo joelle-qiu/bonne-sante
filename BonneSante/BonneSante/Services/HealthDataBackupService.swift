@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// 全量 SwiftData 导出 / 导入（JSON 备份，不含 API Key）
+/// 全量 SwiftData + API Key 导出 / 导入（JSON 备份）
 /// @author jiali.qiu
 enum HealthDataBackupService {
 
@@ -79,7 +79,18 @@ enum HealthDataBackupService {
             chatMessages: chatMessages.map(mapChatMessage),
             workoutPlanPreferences: workoutPrefs.map(mapWorkoutPlanPreferences),
             workoutPlanEntries: workoutEntries.map(mapWorkoutPlanEntry),
-            workoutExercises: workoutExercises.map(mapWorkoutExercise)
+            workoutExercises: workoutExercises.map(mapWorkoutExercise),
+            appSecrets: APIKeyManager.exportableSecretsForBackup()
+        )
+    }
+
+    private static func importSummary(from manifest: HealthDataBackupManifest.File, keysRestored: Bool) -> HealthDataBackupManifest.ImportSummary {
+        HealthDataBackupManifest.ImportSummary(
+            foodEntryCount: manifest.foodEntries.count,
+            reportCount: manifest.reports.count,
+            workoutSessionCount: manifest.workoutPlanEntries.count,
+            includesAppSecrets: manifest.appSecrets?.includesAPIKeys == true,
+            keysRestored: keysRestored
         )
     }
 
@@ -88,26 +99,22 @@ enum HealthDataBackupService {
     /// 解析备份文件并返回摘要（确认弹窗用）
     static func previewImport(from url: URL) throws -> (HealthDataBackupManifest.File, HealthDataBackupManifest.ImportSummary) {
         let manifest = try decodeManifest(from: url)
-        let summary = HealthDataBackupManifest.ImportSummary(
-            foodEntryCount: manifest.foodEntries.count,
-            reportCount: manifest.reports.count,
-            workoutSessionCount: manifest.workoutPlanEntries.count
-        )
+        let summary = importSummary(from: manifest, keysRestored: false)
         return (manifest, summary)
     }
 
-    /// 用备份覆盖全部本地 SwiftData（不含 Keychain API Key）
+    /// 用备份覆盖全部本地 SwiftData，并恢复 API Key（若备份含 app_secrets）
     static func importReplacingAll(modelContext: ModelContext, from url: URL) throws -> HealthDataBackupManifest.ImportSummary {
         let manifest = try decodeManifest(from: url)
         try clearAllRecords(modelContext: modelContext)
         try insertAll(modelContext: modelContext, from: manifest)
         try modelContext.save()
         WorkoutMorningReminderService.sync(modelContext: modelContext)
-        return HealthDataBackupManifest.ImportSummary(
-            foodEntryCount: manifest.foodEntries.count,
-            reportCount: manifest.reports.count,
-            workoutSessionCount: manifest.workoutPlanEntries.count
-        )
+        var keysRestored = false
+        if let secrets = manifest.appSecrets {
+            keysRestored = try APIKeyManager.importSecretsFromBackup(secrets)
+        }
+        return importSummary(from: manifest, keysRestored: keysRestored)
     }
 
     private static func decodeManifest(from url: URL) throws -> HealthDataBackupManifest.File {
@@ -122,8 +129,10 @@ enum HealthDataBackupService {
         decoder.dateDecodingStrategy = .iso8601
         do {
             let manifest = try decoder.decode(HealthDataBackupManifest.File.self, from: data)
-            guard manifest.formatVersion == HealthDataBackupManifest.formatVersion else {
-                throw BackupError.unsupportedFormat(manifest.formatVersion)
+            let version = manifest.formatVersion
+            guard version >= HealthDataBackupManifest.minimumFormatVersion,
+                  version <= HealthDataBackupManifest.formatVersion else {
+                throw BackupError.unsupportedFormat(version)
             }
             return manifest
         } catch let error as BackupError {

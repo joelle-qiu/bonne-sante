@@ -165,6 +165,44 @@ enum APIKeyManager {
         if !key.isEmpty && key != "your_api_key_here" { return key }
         return ProcessInfo.processInfo.environment["QWEN_API_KEY"]
     }
+
+    // MARK: - Backup / Restore
+
+    /// 导出到 JSON 的用户 Key 与 AI 偏好（仅 Keychain 用户 Key，不含 Secrets.swift 内置 Key）
+    static func exportableSecretsForBackup() -> HealthDataBackupManifest.AppSecrets {
+        var bundle = HealthDataBackupManifest.AppSecrets()
+        migrateKeysIfNeeded()
+        if let key = KeychainService.load(account: .deepSeek), !key.isEmpty {
+            bundle.deepSeekAPIKey = key
+        }
+        if let key = KeychainService.load(account: .qwen), !key.isEmpty {
+            bundle.qwenAPIKey = key
+        }
+        bundle.apiRegion = region.rawValue
+        bundle.reportAIAssistEnabled = isReportAIAssistEnabled
+        return bundle
+    }
+
+    /// 从备份恢复 Keychain 与 AI 偏好
+    @discardableResult
+    static func importSecretsFromBackup(_ secrets: HealthDataBackupManifest.AppSecrets) throws -> Bool {
+        var restored = false
+        if let raw = secrets.deepSeekAPIKey?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty {
+            try setUserDeepSeekKey(raw)
+            restored = true
+        }
+        if let raw = secrets.qwenAPIKey?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty {
+            try setUserQwenKey(raw)
+            restored = true
+        }
+        if let regionRaw = secrets.apiRegion, let parsed = APIRegion(rawValue: regionRaw) {
+            region = parsed
+        }
+        if let enabled = secrets.reportAIAssistEnabled {
+            isReportAIAssistEnabled = enabled
+        }
+        return restored
+    }
 }
 
 enum APIRegion: String, CaseIterable {
