@@ -644,6 +644,7 @@ struct WorkoutCoachView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.healthContext) private var healthContext
     @Query private var userGoals: [UserGoal]
 
     @State private var question = ""
@@ -665,12 +666,12 @@ struct WorkoutCoachView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
-                        coachBubble(
-                            "我是你的 AI 健身教练。可以说「今日想练…」让我调整动作；满意后发送「导入今日训练计划」写入本场清单。",
+                        CoachMessageBubble(
+                            text: "我是你的 AI 健身教练。可以说「今日想练…」让我调整动作；满意后发送「导入今日训练计划」写入本场清单。",
                             isUser: false
                         )
                         ForEach(coachMessages, id: \.id) { msg in
-                            coachBubble(msg.content, isUser: msg.role == "user")
+                            CoachMessageBubble(text: msg.content, isUser: msg.role == "user")
                         }
                         if isLoading {
                             ProgressView().padding()
@@ -682,15 +683,10 @@ struct WorkoutCoachView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(quickPrompts, id: \.self) { prompt in
-                            Button(prompt) {
+                            CoachQuickPromptButton(title: prompt) {
                                 question = prompt
                                 Task { await send() }
                             }
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Theme.primary.opacity(0.2))
-                            .clipShape(Capsule())
                         }
                     }
                     .padding(.horizontal)
@@ -700,11 +696,17 @@ struct WorkoutCoachView: View {
                 HStack(spacing: 10) {
                     TextField("问教练…", text: $question, axis: .vertical)
                         .lineLimit(1...3)
+                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                     Button {
                         Task { await send() }
                     } label: {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.title2)
+                            .foregroundStyle(
+                                question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading
+                                    ? Theme.adaptiveTextTertiary(colorScheme)
+                                    : Theme.brandPrimary(colorScheme)
+                            )
                     }
                     .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
                 }
@@ -753,18 +755,6 @@ struct WorkoutCoachView: View {
         try? modelContext.save()
     }
 
-    private func coachBubble(_ text: String, isUser: Bool) -> some View {
-        HStack {
-            if isUser { Spacer(minLength: 40) }
-            Text(text)
-                .font(.subheadline)
-                .padding(12)
-                .background(isUser ? Theme.primary.opacity(0.35) : Theme.cardBackground(colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            if !isUser { Spacer(minLength: 40) }
-        }
-    }
-
     private func send() async {
         let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return }
@@ -802,7 +792,8 @@ struct WorkoutCoachView: View {
                     sessionContext: context,
                     question: q,
                     history: history,
-                    genderLabel: userGoals.first?.genderDisplayLabel
+                    genderLabel: userGoals.first?.genderDisplayLabel,
+                    healthProfile: healthContext?.advisorContextSummary()
                 )
                 let (display, _) = WorkoutCoachPlanParser.splitDisplayAndDraft(rawReply)
                 assistantText = display.isEmpty ? rawReply : display

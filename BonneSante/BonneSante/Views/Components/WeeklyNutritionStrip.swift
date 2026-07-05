@@ -92,7 +92,7 @@ struct WeeklyNutritionStrip: View {
 
             if let delta = day.calorieDeltaFromBaseline {
                 Text(delta > 0 ? "+\(delta)" : "\(delta)")
-                    .font(.system(size: 9, weight: .medium))
+                    .fixedFont(size: 9, weight: .medium)
                     .foregroundStyle(delta > 0
                         ? Theme.macroCarbs(colorScheme)
                         : Theme.adaptiveTextSecondary(colorScheme))

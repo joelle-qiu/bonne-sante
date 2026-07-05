@@ -18,6 +18,8 @@ struct HomeDashboardView: View {
     @Query private var workoutPreferences: [WorkoutPlanPreferences]
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.elderModeEnabled) private var elderModeEnabled
 
     @State private var showImport = false
     @State private var todayWorkout: WorkoutPlanEntry?
@@ -33,12 +35,11 @@ struct HomeDashboardView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     if let ctx = context {
-                        phaseSection(ctx)
+                        cyclePanelSection(ctx)
                         insightCarouselSection(ctx)
                         dailyEnergySection(ctx)
                         nutritionSection()
                         quickActions
-                        cycleTipsSection(ctx)
                         foodListSection
                         todayScheduleSection()
                         checkupRemindersSection(ctx)
@@ -49,6 +50,7 @@ struct HomeDashboardView: View {
                 .padding(.horizontal, Theme.horizontalPadding)
                 .padding(.vertical, 16)
             }
+            .elderModeScrollBottomInset()
             .cycleThemedPageBackground()
             .navigationTitle("仪表盘")
             .toolbar {
@@ -74,16 +76,9 @@ struct HomeDashboardView: View {
         }
     }
 
-    @Environment(\.colorScheme) private var colorScheme
-
-    private func phaseSection(_ ctx: UnifiedHealthContext) -> some View {
-        PhaseBar(
-            label: ctx.cyclePhaseInfo.label,
-            phase: ctx.cyclePhaseInfo.phase,
-            daysUntilNextPeriod: ctx.cyclePhaseInfo.daysUntilNextPeriod,
-            dataSourceLabel: ctx.cyclePhaseInfo.phase == .unknown ? nil : ctx.cyclePhaseInfo.dataSource.label
-        )
-        .morandiCardAppear()
+    private func cyclePanelSection(_ ctx: UnifiedHealthContext) -> some View {
+        HomeCyclePanel(phaseInfo: ctx.cyclePhaseInfo)
+            .morandiCardAppear()
     }
 
     @ViewBuilder
@@ -141,17 +136,6 @@ struct HomeDashboardView: View {
                 tint: Theme.adaptiveWarning(colorScheme),
                 title: "健康关注",
                 subtitle: names + suffix
-            ))
-        }
-
-        let tip = ctx.cyclePhaseInfo.tip
-        if !tip.isEmpty {
-            items.append(HomeInsightCarousel.Item(
-                id: "cycle-tip",
-                symbol: "sparkles",
-                tint: Theme.adaptiveAccent(colorScheme),
-                title: ctx.cyclePhaseInfo.phase == .unknown ? "周期提示" : ctx.cyclePhaseInfo.label,
-                subtitle: tip
             ))
         }
 
@@ -316,33 +300,22 @@ struct HomeDashboardView: View {
         CompactCheckupReminders(plans: ctx.upcomingCheckupPlans)
     }
 
-    @ViewBuilder
-    private func cycleTipsSection(_ ctx: UnifiedHealthContext) -> some View {
-        if ctx.cyclePhaseInfo.phase == .unknown {
-            tipCard(ctx.cyclePhaseInfo.tip)
-        } else {
-            CycleTipsCard(phaseInfo: ctx.cyclePhaseInfo, compact: true)
-        }
-    }
-
-    private func tipCard(_ tip: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "sparkles")
-                .font(.caption)
-                .foregroundStyle(Theme.adaptiveAccent(colorScheme))
-            Text(tip)
-                .font(.caption)
-                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(Theme.cardBackground(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
-    }
-
     private var quickActions: some View {
-        HStack(spacing: 12) {
+        Group {
+            if elderModeEnabled {
+                VStack(spacing: 12) {
+                    quickActionButtons
+                }
+            } else {
+                HStack(spacing: 12) {
+                    quickActionButtons
+                }
+            }
+        }
+    }
+
+    private var quickActionButtons: some View {
+        Group {
             NavigationLink {
                 FoodInputView()
             } label: {

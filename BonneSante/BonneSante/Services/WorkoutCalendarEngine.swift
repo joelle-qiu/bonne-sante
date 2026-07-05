@@ -144,6 +144,46 @@ enum WorkoutCalendarEngine {
         return cells
     }
 
+    struct MonthStats: Equatable {
+        var activeDays: Int
+        var totalMinutes: Double
+        var totalCalories: Double
+        var plannedDays: Int
+        var completedPlanDays: Int
+    }
+
+    static func monthStats(
+        for month: Date,
+        workouts: [WorkoutSnapshot],
+        planEntries: [WorkoutPlanEntry]
+    ) -> MonthStats {
+        let calendar = Calendar.current
+        let monthStart = startOfMonth(month)
+        guard let monthEnd = calendar.date(byAdding: DateComponents(month: 1), to: monthStart) else {
+            return MonthStats(activeDays: 0, totalMinutes: 0, totalCalories: 0, plannedDays: 0, completedPlanDays: 0)
+        }
+
+        let monthWorkouts = workouts.filter { $0.date >= monthStart && $0.date < monthEnd }
+        let activeDayKeys = Set(monthWorkouts.map { dayKey(calendar.startOfDay(for: $0.date)) })
+
+        var plannedDays = 0
+        var completedPlanDays = 0
+        for entry in planEntries {
+            guard let sessionDate = WorkoutPlanService.sessionDate(for: entry),
+                  sessionDate >= monthStart, sessionDate < monthEnd else { continue }
+            plannedDays += 1
+            if entry.isCompleted { completedPlanDays += 1 }
+        }
+
+        return MonthStats(
+            activeDays: activeDayKeys.count,
+            totalMinutes: monthWorkouts.reduce(0) { $0 + $1.durationMinutes },
+            totalCalories: monthWorkouts.reduce(0) { $0 + $1.activeCalories },
+            plannedDays: plannedDays,
+            completedPlanDays: completedPlanDays
+        )
+    }
+
     static func weekStats(for referenceDate: Date, workouts: [WorkoutSnapshot], goalDays: Int = 5) -> WeekStats {
         let calendar = Calendar.current
         let weekStart = WorkoutPlanService.startOfWeek(referenceDate)

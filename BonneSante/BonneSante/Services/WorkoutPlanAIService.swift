@@ -147,7 +147,8 @@ enum WorkoutPlanAIService {
         sessionContext: String,
         question: String,
         history: [(role: String, content: String)] = [],
-        genderLabel: String? = nil
+        genderLabel: String? = nil,
+        healthProfile: String? = nil
     ) async throws -> String {
         guard APIKeyManager.isDeepSeekConfigured, let apiKey = APIKeyManager.deepSeekAPIKey else {
             throw AIServiceError.apiKeyNotConfigured
@@ -156,7 +157,8 @@ enum WorkoutPlanAIService {
         let user = WorkoutPlanPrompt.coachUserPrompt(
             sessionContext: sessionContext,
             question: question,
-            genderLabel: genderLabel
+            genderLabel: genderLabel,
+            healthProfile: healthProfile
         )
 
         var apiMessages: [[String: String]] = [

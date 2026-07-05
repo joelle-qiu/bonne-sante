@@ -69,6 +69,7 @@ struct ReportImportSummaryView: View {
             .padding(.vertical, 16)
         }
         .cycleThemedPageBackground()
+        .tint(Theme.link(colorScheme))
         .navigationTitle("导入摘要")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -79,7 +80,9 @@ struct ReportImportSummaryView: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("报告已入库", systemImage: "checkmark.circle.fill")
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(Theme.brandPrimary(colorScheme))
+                .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+                .symbolRenderingMode(.hierarchical)
+                .tint(Theme.link(colorScheme))
             Text(ReportDisplayFormatter.timelineTitle(for: report))
                 .font(.title2.bold())
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
@@ -226,7 +229,11 @@ struct ReportImportSummaryView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Theme.brandPrimary(colorScheme).opacity(colorScheme == .dark ? 0.18 : 0.12))
+            .background(Theme.cardBackground(colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerRadiusCard)
+                    .stroke(Theme.adaptiveTextTertiary(colorScheme).opacity(0.25), lineWidth: 1)
+            )
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
         }
     }
@@ -262,10 +269,10 @@ struct ReportImportSummaryView: View {
                     .foregroundStyle(Theme.link(colorScheme))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Theme.brandPrimary(colorScheme).opacity(colorScheme == .dark ? 0.18 : 0.12))
+                    .background(Theme.cardBackground(colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.cornerRadiusButton)
-                            .stroke(Theme.link(colorScheme).opacity(0.5), lineWidth: 1.5)
+                            .stroke(Theme.link(colorScheme).opacity(0.45), lineWidth: 1.5)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusButton))
             }
@@ -275,10 +282,10 @@ struct ReportImportSummaryView: View {
             } label: {
                 Text("完成，返回健康档案")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(colorScheme == .dark ? Theme.textPrimaryDark : Theme.textPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Theme.brandPrimary(colorScheme))
+                    .background(Theme.link(colorScheme))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusButton))
             }
         }

@@ -236,7 +236,6 @@ enum WorkoutPlanEngine {
 
     /// 每场训练消耗目标：优先满足减脂热量缺口（约每日缺口 35% 由训练承担，均摊到各训练日）
     static func targetBurnPerSession(input: Input, sessionsCount: Int) -> Double {
-        let count = max(sessionsCount, 1)
         if let deficit = input.dailyDeficitTarget, deficit > 0 {
             return deficit * 0.35
         }

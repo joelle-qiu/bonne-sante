@@ -86,6 +86,8 @@ final class UserSettings {
     var workoutMorningReminderEnabled: Bool
     var workoutMorningReminderHour: Int
     var workoutMorningReminderMinute: Int
+    /// 长辈版：全局放大字体
+    var elderModeEnabled: Bool
     var createdAt: Date
 
     init(
@@ -94,7 +96,8 @@ final class UserSettings {
         profileNickname: String = "",
         workoutMorningReminderEnabled: Bool = true,
         workoutMorningReminderHour: Int = 8,
-        workoutMorningReminderMinute: Int = 0
+        workoutMorningReminderMinute: Int = 0,
+        elderModeEnabled: Bool = false
     ) {
         self.weightUnit = weightUnit.rawValue
         self.appearanceMode = appearanceMode.rawValue
@@ -102,6 +105,7 @@ final class UserSettings {
         self.workoutMorningReminderEnabled = workoutMorningReminderEnabled
         self.workoutMorningReminderHour = workoutMorningReminderHour
         self.workoutMorningReminderMinute = workoutMorningReminderMinute
+        self.elderModeEnabled = elderModeEnabled
         self.createdAt = Date()
     }
 

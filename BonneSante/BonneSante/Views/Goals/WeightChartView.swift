@@ -37,7 +37,7 @@ struct WeightChartView: View {
     private var emptyState: some View {
         VStack(spacing: 8) {
             Image(systemName: "scalemass")
-                .font(.system(size: 36))
+                .fixedFont(size: 36)
                 .foregroundStyle(.secondary)
             Text("暂无体重数据")
                 .font(.subheadline)

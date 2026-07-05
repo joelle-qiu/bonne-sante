@@ -55,7 +55,7 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
         let normalized = text.lowercased()
         let rules: [(MealType, [String])] = [
             (.breakfast, ["早餐", "早饭", "早飯", "breakfast", "早上吃", "清晨"]),
-            (.lunch, ["午餐", "午饭", "中饭", "午餐吃", "lunch", "中午吃", "午间"]),
+            (.lunch, ["午餐", "午饭", "中饭", "午餐吃", "lunch", "中午吃", "中午吃了", "中午", "午间"]),
             (.afternoonTea, ["下午茶", "午后茶", "afternoon tea", "茶点", "下午吃"]),
             (.dinner, ["晚餐", "晚饭", "dinner", "晚上吃", "晚间"]),
             (.lateNight, ["夜宵", "宵夜", "深夜", "late night", "半夜", "凌晨吃"]),

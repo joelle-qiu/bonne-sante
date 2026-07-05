@@ -150,7 +150,7 @@ struct GoalsView: View {
     private var noGoalCard: some View {
         VStack(spacing: 16) {
             Image(systemName: "target")
-                .font(.system(size: 48))
+                .fixedFont(size: 48)
                 .foregroundStyle(.secondary)
 
             Text("还没有设置目标")

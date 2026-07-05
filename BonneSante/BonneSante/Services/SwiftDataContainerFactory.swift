@@ -1,13 +1,12 @@
 import Foundation
 import SwiftData
 
-/// SwiftData 容器创建与 schema 版本管理
-/// @author zhi.qu
+/// SwiftData 容器创建（依赖系统轻量迁移，升级前请用 JSON 备份）
+/// @author jiali.qiu
 enum SwiftDataContainerFactory {
 
-    /// 模型结构变更时递增，触发旧库清理重建（开发阶段轻量迁移）
-    private static let schemaVersion = 19
-    private static let schemaVersionKey = "bonnesante_swiftdata_schema_version"
+    /// 与 `HealthDataBackupManifest.currentSchemaVersion` 对齐，仅用于备份元数据
+    static let schemaVersion = 19
 
     static func makeContainer() -> ModelContainer {
         let schema = Schema([
@@ -29,36 +28,15 @@ enum SwiftDataContainerFactory {
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
-        let storedVersion = UserDefaults.standard.integer(forKey: schemaVersionKey)
-        if storedVersion > 0 && storedVersion < schemaVersion {
-            removeStoreFiles()
-        }
-
         do {
-            let container = try ModelContainer(for: schema, configurations: [configuration])
-            UserDefaults.standard.set(schemaVersion, forKey: schemaVersionKey)
-            return container
+            return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
-            print("[SwiftData] ModelContainer 创建失败: \(error)，尝试清理旧库…")
-            removeStoreFiles()
-            do {
-                let container = try ModelContainer(for: schema, configurations: [configuration])
-                UserDefaults.standard.set(schemaVersion, forKey: schemaVersionKey)
-                return container
-            } catch {
-                fatalError("Could not create ModelContainer: \(error)")
-            }
-        }
-    }
-
-    private static func removeStoreFiles() {
-        guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return
-        }
-        let names = ["default.store", "default.store-shm", "default.store-wal"]
-        for name in names {
-            let url = support.appendingPathComponent(name)
-            try? FileManager.default.removeItem(at: url)
+            fatalError(
+                """
+                Could not create ModelContainer: \(error)
+                若刚升级 App，请先在旧版导出 JSON 备份后再导入；勿依赖删库迁移。
+                """
+            )
         }
     }
 }

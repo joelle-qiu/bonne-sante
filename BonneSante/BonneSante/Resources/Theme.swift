@@ -48,12 +48,22 @@ enum Theme {
     /// 周期主题页背景染色强度（未知阶段为 0）
     static func phasePageTintOpacity(_ phase: CyclePhase, _ scheme: ColorScheme) -> Double {
         guard phase != .unknown else { return 0 }
-        return scheme == .dark ? 0.10 : 0.13
+        switch phase {
+        case .follicular:
+            return scheme == .dark ? 0.11 : 0.09
+        default:
+            return scheme == .dark ? 0.10 : 0.12
+        }
     }
 
     static func phasePageGradientOpacity(_ phase: CyclePhase, _ scheme: ColorScheme) -> Double {
         guard phase != .unknown else { return 0 }
-        return scheme == .dark ? 0.14 : 0.20
+        switch phase {
+        case .follicular:
+            return scheme == .dark ? 0.15 : 0.14
+        default:
+            return scheme == .dark ? 0.14 : 0.18
+        }
     }
 
     static func brandPrimary(_ scheme: ColorScheme) -> Color {
@@ -90,9 +100,9 @@ enum Theme {
 
     // MARK: - 数据可视化（莫兰迪语义色）
 
-    /// 活动消耗 — 灰绿
+    /// 活动消耗 — 灰绿（与卵泡期主题同色系）
     static func energyActive(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color(hex: 0xA8C5A0) : Color(hex: 0x9BB89A)
+        scheme == .dark ? Color(hex: 0x8FAF94) : Color(hex: 0x6B9074)
     }
 
     /// 基础代谢 — 温柔蓝
@@ -120,8 +130,18 @@ enum Theme {
         adaptiveAccent(scheme)
     }
 
+    /// 周期阶段强调色（莫兰迪：深 sage / 灰玫瑰 / 雾紫，深浅色自适应）
     static func phaseAccent(_ phase: CyclePhase, _ scheme: ColorScheme) -> Color {
-        Color(hex: phase.themeColorHex)
+        switch phase {
+        case .menstrual:
+            return scheme == .dark ? Color(hex: 0xD4A5A5) : Color(hex: 0xB07878)
+        case .follicular:
+            return scheme == .dark ? Color(hex: 0x8FAF94) : Color(hex: 0x5E8266)
+        case .luteal:
+            return scheme == .dark ? Color(hex: 0xB5A8CC) : Color(hex: 0x8A7BA8)
+        case .unknown:
+            return scheme == .dark ? Color(hex: 0xAEAEB4) : Color(hex: 0xC8C8CD)
+        }
     }
 
     /// 周期条背景（仅作用于 PhaseBar / tips 边框，不整页染色）
@@ -136,6 +156,38 @@ enum Theme {
 
     static func link(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? linkDark : Color(hex: 0x6B8FC7)
+    }
+
+    // MARK: - AI 教练对话
+
+    /// 快捷提示词胶囊背景
+    static func coachPromptBackground(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? cardDark : Color.white.opacity(0.96)
+    }
+
+    /// 快捷提示词文字（高对比）
+    static func coachPromptForeground(_ scheme: ColorScheme) -> Color {
+        adaptiveTextPrimary(scheme)
+    }
+
+    /// 快捷提示词描边
+    static func coachPromptBorder(_ scheme: ColorScheme) -> Color {
+        brandPrimary(scheme).opacity(scheme == .dark ? 0.62 : 0.52)
+    }
+
+    /// 用户气泡背景
+    static func coachUserBubbleBackground(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? brandPrimary(scheme).opacity(0.45) : Color(hex: 0x8FB4E8).opacity(0.58)
+    }
+
+    /// 助手气泡背景
+    static func coachAssistantBubbleBackground(_ scheme: ColorScheme) -> Color {
+        coachPromptBackground(scheme)
+    }
+
+    /// 助手气泡描边
+    static func coachAssistantBubbleBorder(_ scheme: ColorScheme) -> Color {
+        adaptiveTextTertiary(scheme).opacity(scheme == .dark ? 0.35 : 0.28)
     }
 }
 

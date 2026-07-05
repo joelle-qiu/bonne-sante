@@ -309,33 +309,38 @@ enum WorkoutPlanService {
         entries.reduce(0) { $0 + $1.targetCalories }
     }
 
-    /// 本周消耗完成值：仅 Apple 健康活动消耗（不回退计划勾选）
+    /// 本周运动消耗完成值：Apple 健康锻炼记录（Workout）之和
     static func weeklyBurnCompleted(
-        energyProfile: EnergyProfileSnapshot,
+        workouts: [WorkoutSnapshot],
+        weekStart: Date,
+        weekEnd: Date,
         entries: [WorkoutPlanEntry],
+        exercisesBySession: [UUID: [WorkoutExercise]],
         modelContext: ModelContext
     ) -> (value: Double, usesHealthData: Bool) {
-        _ = entries
-        _ = modelContext
-        guard energyProfile.hasWatchData else {
-            return (0, false)
+        let workoutKcal = WorkoutEnergyCalculator.workoutBurn(from: weekStart, to: weekEnd, workouts: workouts)
+        if workoutKcal > 0 {
+            return (workoutKcal, true)
         }
-        return (energyProfile.weekActiveKcal, true)
+        let setKcal = entries.reduce(0) { partial, entry in
+            let exs = exercisesBySession[entry.id] ?? exercises(for: entry.id, modelContext: modelContext)
+            return partial + completedCalories(for: exs)
+        }
+        return (setKcal, false)
     }
 
-    /// 本周消耗目标：有 Watch 时用 7 日活动均值 × 排课天数，否则用计划值
+    /// 本周运动消耗目标：优先使用训练计划 targetCalories 之和
     static func weeklyBurnGoal(
-        energyProfile: EnergyProfileSnapshot,
-        trainingDays: Int,
-        storedGoal: Double,
-        plannedBurn: Double
+        plannedBurn: Double,
+        storedGoal: Double
     ) -> (value: Double, usesHealthData: Bool) {
-        if let avg = energyProfile.avgActiveKcal7d, avg > 0, energyProfile.hasWatchData {
-            let days = max(trainingDays, 1)
-            return (avg * Double(days), true)
+        if plannedBurn > 0 {
+            return (plannedBurn, true)
         }
-        if storedGoal > 0 { return (storedGoal, false) }
-        return (plannedBurn, false)
+        if storedGoal > 0 {
+            return (storedGoal, false)
+        }
+        return (0, false)
     }
 
     static func incrementCompletedSets(_ exercise: WorkoutExercise, modelContext: ModelContext) {

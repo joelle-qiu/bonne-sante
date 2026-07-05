@@ -280,7 +280,7 @@ struct AIAdvisorView: View {
     private var apiKeyPromptSection: some View {
         VStack(spacing: 20) {
             Image(systemName: "key.fill")
-                .font(.system(size: 50))
+                .fixedFont(size: 50)
                 .foregroundStyle(.orange)
 
             Text("需要设置 API 密钥")

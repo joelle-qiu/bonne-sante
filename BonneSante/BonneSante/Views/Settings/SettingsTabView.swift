@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 /// 我的 / 设置 Tab
 /// @author jiali.qiu
@@ -16,6 +17,17 @@ struct SettingsTabView: View {
     @State private var periodLength = 5
     @State private var syncFeedback: String?
 
+    @State private var showBackupShareSheet = false
+    @State private var backupShareURL: URL?
+    @State private var showBackupImporter = false
+    @State private var pendingImportURL: URL?
+    @State private var pendingImportSummary: HealthDataBackupManifest.ImportSummary?
+    @State private var showImportConfirm = false
+    @State private var isExportingBackup = false
+    @State private var isImportingBackup = false
+    @State private var backupFeedback: String?
+    @State private var backupErrorMessage: String?
+
     private var userSettings: UserSettings {
         if let existing = settingsList.first { return existing }
         let created = UserSettings()
@@ -30,6 +42,7 @@ struct SettingsTabView: View {
                 appearanceSection
                 profileSection
                 workoutReminderSection
+                dataBackupSection
 
                 Section("AI 服务") {
                     HStack {
@@ -131,6 +144,92 @@ struct SettingsTabView: View {
                 }
                 WorkoutMorningReminderService.sync(modelContext: modelContext)
             }
+            .sheet(isPresented: $showBackupShareSheet, onDismiss: {
+                if let url = backupShareURL {
+                    try? FileManager.default.removeItem(at: url)
+                    backupShareURL = nil
+                }
+            }) {
+                if let backupShareURL {
+                    ActivityView(activityItems: [backupShareURL])
+                }
+            }
+            .fileImporter(
+                isPresented: $showBackupImporter,
+                allowedContentTypes: [.json],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    guard let url = urls.first else { return }
+                    handleBackupFileSelected(url)
+                case .failure(let error):
+                    backupErrorMessage = error.localizedDescription
+                }
+            }
+            .alert("覆盖导入数据？", isPresented: $showImportConfirm) {
+                Button("取消", role: .cancel) {
+                    pendingImportURL = nil
+                    pendingImportSummary = nil
+                }
+                Button("覆盖导入", role: .destructive) {
+                    confirmImportBackup()
+                }
+            } message: {
+                if let summary = pendingImportSummary {
+                    Text("将用备份替换本机全部本地数据（\(summary.label)）。API Key 与 Apple 健康数据不会包含在备份中，导入后需重新配置/同步。")
+                }
+            }
+            .alert("备份失败", isPresented: Binding(
+                get: { backupErrorMessage != nil },
+                set: { if !$0 { backupErrorMessage = nil } }
+            )) {
+                Button("好", role: .cancel) {}
+            } message: {
+                Text(backupErrorMessage ?? "")
+            }
+        }
+    }
+
+    private var dataBackupSection: some View {
+        Section {
+            Button {
+                exportBackup()
+            } label: {
+                HStack {
+                    Label("导出全部数据", systemImage: "square.and.arrow.up")
+                    Spacer()
+                    if isExportingBackup {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isExportingBackup || isImportingBackup)
+
+            Button {
+                showBackupImporter = true
+            } label: {
+                HStack {
+                    Label("从备份导入", systemImage: "square.and.arrow.down")
+                    Spacer()
+                    if isImportingBackup {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isExportingBackup || isImportingBackup)
+
+            if let backupFeedback {
+                Text(backupFeedback)
+                    .font(.caption)
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            }
+        } header: {
+            Text("数据备份")
+        } footer: {
+            Text("导出为 JSON 文件，含饮食、体检、训练、待办等本地记录。不含 API Key；HealthKit 数据需在导入后重新同步。")
+                .font(.caption)
+                .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
         }
     }
 
@@ -150,13 +249,27 @@ struct SettingsTabView: View {
                 Text(activeAppearanceLabel)
                     .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
             }
+
+            Toggle(isOn: elderModeBinding) {
+                Label("长辈版（大字）", systemImage: "textformat.size.larger")
+            }
         } header: {
             Text("显示与主题")
         } footer: {
-            Text("可选择日间或夜间固定模式，也可跟随系统。后续将支持更多背景与周期主题效果。")
+            Text("长辈版会放大全 App 字体与按钮文字，便于阅读。可选择日间或夜间固定模式，也可跟随系统。")
                 .font(.caption)
                 .foregroundStyle(Theme.adaptiveTextTertiary(colorScheme))
         }
+    }
+
+    private var elderModeBinding: Binding<Bool> {
+        Binding(
+            get: { userSettings.elderModeEnabled },
+            set: { newValue in
+                userSettings.elderModeEnabled = newValue
+                try? modelContext.save()
+            }
+        )
     }
 
     private var profileSection: some View {
@@ -325,6 +438,75 @@ struct SettingsTabView: View {
         }
         try? modelContext.save()
         syncFeedback = "已保存手动周期设置"
+    }
+
+    private func exportBackup() {
+        isExportingBackup = true
+        backupFeedback = nil
+        defer { isExportingBackup = false }
+        do {
+            let url = try HealthDataBackupService.exportToTemporaryFile(modelContext: modelContext)
+            backupShareURL = url
+            showBackupShareSheet = true
+        } catch {
+            backupErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func handleBackupFileSelected(_ url: URL) {
+        do {
+            let (_, summary) = try HealthDataBackupService.previewImport(from: url)
+            pendingImportURL = url
+            pendingImportSummary = summary
+            showImportConfirm = true
+        } catch {
+            backupErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func confirmImportBackup() {
+        guard let url = pendingImportURL else { return }
+        isImportingBackup = true
+        backupFeedback = nil
+        Task {
+            defer {
+                isImportingBackup = false
+                pendingImportURL = nil
+                pendingImportSummary = nil
+            }
+            do {
+                let summary = try HealthDataBackupService.importReplacingAll(modelContext: modelContext, from: url)
+                loadCycleProfile()
+                await refreshHealthContextAfterImport()
+                backupFeedback = "导入成功：\(summary.label)"
+            } catch {
+                backupErrorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func refreshHealthContextAfterImport() async {
+        let foodEntries = (try? modelContext.fetch(FetchDescriptor<FoodEntry>())) ?? []
+        let goals = (try? modelContext.fetch(FetchDescriptor<UserGoal>())) ?? []
+        let weightEntries = (try? modelContext.fetch(FetchDescriptor<WeightEntry>())) ?? []
+        let reports = (try? modelContext.fetch(FetchDescriptor<Report>())) ?? []
+        let riskFlags = (try? modelContext.fetch(FetchDescriptor<RiskFlag>())) ?? []
+        let todos = (try? modelContext.fetch(FetchDescriptor<TodoItem>())) ?? []
+        let checkupPlans = (try? modelContext.fetch(FetchDescriptor<CheckupPlan>())) ?? []
+        let workoutPrefs = (try? modelContext.fetch(FetchDescriptor<WorkoutPlanPreferences>())) ?? []
+        let isTrainingDay = WorkoutPlanService.hasPlannedSession(modelContext: modelContext)
+        await context?.refresh(
+            foodEntries: foodEntries,
+            goals: goals,
+            weightEntries: weightEntries,
+            cycleProfiles: cycleProfiles,
+            reports: reports,
+            riskFlags: riskFlags,
+            todos: todos,
+            checkupPlans: checkupPlans,
+            workoutPreferences: workoutPrefs.first,
+            isTrainingDayToday: isTrainingDay
+        )
     }
 
     private func syncFromHealthKit() async {

@@ -32,6 +32,10 @@ final class UnifiedHealthContext {
     /// 今日目标相对减脂建议的微调说明
     var nutritionAdjustmentNote: String?
 
+    /// refresh 时缓存，供 AI 教练读取近 30 日趋势
+    private(set) var cachedWeightEntries: [WeightEntry] = []
+    private(set) var cachedFoodEntries: [FoodEntry] = []
+
     // MARK: - 阶段二：健康档案
 
     var healthSummary: HealthProfileEngine.Summary?
@@ -80,15 +84,18 @@ final class UnifiedHealthContext {
         self.isTrainingDayToday = isTrainingDayToday
         aiStatus = .current
         userGoal = goals.first
+        cachedWeightEntries = weightEntries
+        cachedFoodEntries = foodEntries
 
         let startOfDay = Calendar.current.startOfDay(for: Date())
         let todayFood = foodEntries.filter { $0.createdAt >= startOfDay }
         caloriesConsumed = todayFood.reduce(0) { $0 + $1.calories }
 
         await healthKitService.fetchTodayCaloriesBurned()
+        await healthKitService.fetchRecentWorkouts(days: 30)
         await healthKitService.fetchEnergyProfile()
+        await healthKitService.fetchDailyEnergyTrend(days: 30)
         await healthKitService.fetchBodyProfile()
-        await healthKitService.fetchRecentWorkouts()
 
         let manualWeight = weightEntries.first?.weight
         currentWeight = healthKitService.currentWeight ?? manualWeight
@@ -273,7 +280,33 @@ final class UnifiedHealthContext {
         }
         lines.append("今日已摄入:\(Int(caloriesConsumed))kcal")
         if let remaining = remainingCalories {
-            lines.append("今日剩余:\(Int(remaining))kcal")
+            lines.append("今日剩余可摄入:\(Int(remaining))kcal")
+        }
+        if dailyDeficit > 0 {
+            lines.append("计划热量缺口:\(Int(dailyDeficit))kcal/天")
+        }
+        if let weight = currentWeight {
+            lines.append("当前体重:\(String(format: "%.1f", weight))kg")
+        }
+        let energy = healthKitService.energyProfile
+        if healthKitService.activeCaloriesBurned > 0 {
+            lines.append("今日活动消耗(含走路等):\(Int(healthKitService.activeCaloriesBurned))kcal")
+        }
+        let todayWorkout = WorkoutEnergyCalculator.workoutBurn(
+            on: Date(),
+            from: healthKitService.recentWorkouts
+        )
+        if todayWorkout > 0 {
+            lines.append("今日锻炼消耗(Workout记录):\(Int(todayWorkout))kcal")
+        }
+        if healthKitService.basalCaloriesBurned > 0 {
+            lines.append("今日基础代谢:\(Int(healthKitService.basalCaloriesBurned))kcal")
+        }
+        if energy.todayActiveKcal > 0 || energy.todayBasalKcal > 0 {
+            lines.append("今日总消耗(基础+活动):\(Int(energy.todayBasalKcal + energy.todayActiveKcal))kcal")
+        }
+        if energy.weekActiveKcal > 0 {
+            lines.append("本周累计活动:\(Int(energy.weekActiveKcal))kcal")
         }
         if caloriesBurned > 0 {
             lines.append("日均总消耗(TDEE):\(Int(caloriesBurned))kcal")
@@ -315,7 +348,81 @@ final class UnifiedHealthContext {
             }
         }
 
+        appendMonthlyTrends(to: &lines)
+
         return lines.joined(separator: "\n")
+    }
+
+    /// 近 30 日体重、锻炼与活动消耗趋势（AI 教练专用）
+    private func appendMonthlyTrends(to lines: inout [String]) {
+        let calendar = Calendar.current
+        let cutoff = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "M/d"
+
+        // 体重：合并 SwiftData 手动记录 + HealthKit
+        var weightByDay: [Date: (weight: Double, source: String)] = [:]
+        for record in healthKitService.dailyWeights where record.date >= cutoff {
+            let day = calendar.startOfDay(for: record.date)
+            weightByDay[day] = (record.weight, "healthkit")
+        }
+        for entry in cachedWeightEntries where entry.date >= cutoff {
+            let day = calendar.startOfDay(for: entry.date)
+            weightByDay[day] = (entry.weight, entry.source)
+        }
+        if !weightByDay.isEmpty {
+            let sorted = weightByDay.sorted { $0.key < $1.key }
+            let trend = sorted.map { "\(formatter.string(from: $0.key)):\(String(format: "%.1f", $0.value.weight))kg" }
+                .joined(separator: " ")
+            lines.append("近30天体重(\(sorted.count)次):\(trend)")
+            if let first = sorted.first, let last = sorted.last, sorted.count >= 2 {
+                let delta = last.value.weight - first.value.weight
+                lines.append("30天体重变化:\(String(format: "%+.1f", delta))kg")
+            }
+        }
+
+        // 锻炼消耗趋势
+        let trend = healthKitService.dailyEnergyTrend.filter { $0.date >= cutoff }
+        if !trend.isEmpty {
+            let workoutDays = trend.filter { $0.workoutKcal > 0 }
+            let totalWorkout = workoutDays.reduce(0) { $0 + $1.workoutKcal }
+            let avgWorkout = totalWorkout / Double(max(workoutDays.count, 1))
+            lines.append("近30天锻炼:\(workoutDays.count)天有记录,累计\(Int(totalWorkout))kcal,均\(Int(avgWorkout))kcal/练日")
+
+            let recentWorkoutLine = workoutDays.suffix(8).map {
+                "\(formatter.string(from: $0.date)):\(Int($0.workoutKcal))"
+            }.joined(separator: " ")
+            if !recentWorkoutLine.isEmpty {
+                lines.append("近期锻炼kcal:\(recentWorkoutLine)")
+            }
+
+            let activeDays = trend.filter { $0.activeKcal > 0 }
+            if !activeDays.isEmpty {
+                let avgActive = activeDays.reduce(0) { $0 + $1.activeKcal } / Double(activeDays.count)
+                lines.append("近30天日均活动消耗:\(Int(avgActive))kcal(\(activeDays.count)天有数据)")
+            }
+        }
+
+        // 摄入趋势（SwiftData 饮食日记）
+        var intakeByDay: [Date: Double] = [:]
+        for entry in cachedFoodEntries where entry.createdAt >= cutoff {
+            let day = calendar.startOfDay(for: entry.createdAt)
+            intakeByDay[day, default: 0] += entry.calories
+        }
+        if !intakeByDay.isEmpty {
+            let values = intakeByDay.values
+            let avgIntake = values.reduce(0, +) / Double(values.count)
+            lines.append("近30天日均摄入:\(Int(avgIntake))kcal(\(intakeByDay.count)天有记录)")
+            let recentIntake = intakeByDay.sorted { $0.key < $1.key }.suffix(7).map {
+                "\(formatter.string(from: $0.key)):\(Int($0.value))"
+            }.joined(separator: " ")
+            lines.append("近7天摄入kcal:\(recentIntake)")
+        }
+
+        if healthKitService.energyProfile.weekWorkoutKcal > 0 {
+            lines.append("本周锻炼消耗:\(Int(healthKitService.energyProfile.weekWorkoutKcal))kcal(不含日常活动)")
+        }
     }
 }
 

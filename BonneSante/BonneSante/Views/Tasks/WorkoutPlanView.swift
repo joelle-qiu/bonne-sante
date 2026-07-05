@@ -27,6 +27,7 @@ struct WorkoutPlanView: View {
     @State private var isLoadingWeather = false
     @State private var moodDayOverrides: [Int: WorkoutPlanType] = [:]
     @State private var moodPinnedWeekdays: [Int]?
+    @State private var planConfigExpanded: Bool?
 
     private var weekStart: Date { WorkoutPlanService.startOfWeek() }
     private var preferences: WorkoutPlanPreferences {
@@ -50,14 +51,13 @@ struct WorkoutPlanView: View {
         )
     }
 
+    private var weekEnd: Date { WorkoutPlanService.endOfWeek(from: weekStart) }
+
     private var weeklyBurnGoalInfo: (value: Double, usesHealthData: Bool) {
-        let profile = healthContext?.healthKitService.energyProfile ?? .empty
         let planned = WorkoutPlanService.weeklyPlannedBurn(entries: weekEntries)
         return WorkoutPlanService.weeklyBurnGoal(
-            energyProfile: profile,
-            trainingDays: max(weekEntries.count, preferences.sessionsPerWeek),
-            storedGoal: preferences.weeklyBurnGoalKcal,
-            plannedBurn: planned
+            plannedBurn: planned,
+            storedGoal: preferences.weeklyBurnGoalKcal
         )
     }
 
@@ -66,10 +66,12 @@ struct WorkoutPlanView: View {
     private var weeklyBurnUsesHealthData: Bool { weeklyBurnGoalInfo.usesHealthData }
 
     private var weeklyBurnCompletedInfo: (value: Double, usesHealthData: Bool) {
-        let profile = healthContext?.healthKitService.energyProfile ?? .empty
         return WorkoutPlanService.weeklyBurnCompleted(
-            energyProfile: profile,
+            workouts: healthContext?.healthKitService.recentWorkouts ?? [],
+            weekStart: weekStart,
+            weekEnd: weekEnd,
             entries: weekEntries,
+            exercisesBySession: exercisesBySession,
             modelContext: modelContext
         )
     }
@@ -116,20 +118,30 @@ struct WorkoutPlanView: View {
         return effectiveTrainingWeekdays
     }
 
+    private var todayEntry: WorkoutPlanEntry? {
+        let calendar = Calendar.current
+        return weekEntries.first { entry in
+            guard let sessionDate = WorkoutPlanService.sessionDate(for: entry) else { return false }
+            return calendar.isDateInToday(sessionDate)
+        }
+    }
+
+    private var healthProfileSummary: String {
+        healthContext?.advisorContextSummary() ?? "暂无健康档案数据"
+    }
+
+    private var genderLabel: String? {
+        goals.first?.genderDisplayLabel
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 phaseHeader
-                planConfigCard
-                if shouldShowWeather {
-                    weatherCard
-                }
-                if selectedPlanStyle == .moodWeather {
-                    moodSchedulePreviewCard
-                }
-                actionButtons
+                planConfigSection
                 weeklyNutritionCard
                 progressCard
+                planCoachSection
                 planOutputCard
                 scheduleSection
                 watchHistorySection
@@ -232,13 +244,50 @@ struct WorkoutPlanView: View {
         selectedPlanStyle.usesWeather || selectedPlanType.usesWeatherScheduling
     }
 
-    /// 计划类型 + 每周频率（配置完成后点下方生成）
-    private var planConfigCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("计划配置")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+    private var isPlanConfigExpanded: Bool {
+        planConfigExpanded ?? weekEntries.isEmpty
+    }
 
+    private var planConfigExpandedBinding: Binding<Bool> {
+        Binding(
+            get: { isPlanConfigExpanded },
+            set: { planConfigExpanded = $0 }
+        )
+    }
+
+    private var planConfigSummary: String {
+        if weekEntries.isEmpty {
+            return "选好类型与频率后，点「智能生成」或「AI 定制」"
+        }
+        if selectedPlanStyle == .professional {
+            return "\(selectedPlanStyle.label) · \(selectedPlanType.label) · \(effectiveSessionsPerWeek)次/周 · 已生成本周计划"
+        }
+        return "\(selectedPlanStyle.label) · \(effectiveSessionsPerWeek)次/周 · 已生成本周计划"
+    }
+
+    private var planConfigSection: some View {
+        CollapsibleSectionCard(
+            title: "计划配置",
+            systemImage: "slider.horizontal.3",
+            subtitle: planConfigSummary,
+            isExpanded: planConfigExpandedBinding
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                planConfigContent
+                if shouldShowWeather {
+                    weatherCardContent
+                }
+                if selectedPlanStyle == .moodWeather {
+                    moodSchedulePreviewContent
+                }
+                actionButtons
+            }
+        }
+    }
+
+    /// 计划类型 + 每周频率
+    private var planConfigContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
             Picker("模式", selection: planStyleBinding) {
                 ForEach(WorkoutPlanStyle.allCases) { style in
                     Label(style.label, systemImage: style.systemImage).tag(style)
@@ -316,11 +365,10 @@ struct WorkoutPlanView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .morandiCard()
     }
 
     @ViewBuilder
-    private var weatherCard: some View {
+    private var weatherCardContent: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label(selectedPlanStyle == .moodWeather ? "心情 · 本周天气" : "本周晚间天气", systemImage: "cloud.sun.fill")
@@ -387,7 +435,6 @@ struct WorkoutPlanView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .morandiCard()
     }
 
     private var moodScheduledSessions: [MoodWorkoutScheduler.ScheduledSession] {
@@ -400,7 +447,7 @@ struct WorkoutPlanView: View {
     }
 
     @ViewBuilder
-    private var moodSchedulePreviewCard: some View {
+    private var moodSchedulePreviewContent: some View {
         let sessions = moodScheduledSessions
         let swimCount = sessions.filter { $0.activity == .swimming }.count
         VStack(alignment: .leading, spacing: 8) {
@@ -463,7 +510,6 @@ struct WorkoutPlanView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .morandiCard()
     }
 
     /// 已生成计划后，预览排课与持久化「本周安排」 weekday 不一致
@@ -768,8 +814,8 @@ struct WorkoutPlanView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
                         Label(
-                            weeklyBurnUsesHealthData ? "消耗目标（Apple 健康）" : "消耗目标（减脂优先）",
-                            systemImage: "flame.fill"
+                            weeklyBurnUsesHealthData ? "运动消耗（锻炼记录）" : "运动消耗（组数估算）",
+                            systemImage: "figure.run"
                         )
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.macroProtein(colorScheme))
@@ -781,11 +827,15 @@ struct WorkoutPlanView: View {
                     ProgressView(value: burnProgressFraction)
                         .tint(Theme.macroProtein(colorScheme))
                     if weeklyBurnCompletedInfo.usesHealthData {
-                        Text("已完成按本周 Apple 健康活动消耗累计")
+                        Text("已完成 = 本周 Apple 健康锻炼消耗；目标 = 训练计划应消耗")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    } else if weeklyBurnCompleted > 0 {
+                        Text("无锻炼记录时，按已勾选组数估算完成消耗")
                             .font(.caption2)
                             .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                     } else {
-                        Text("连接 Apple Watch 后显示真实活动消耗")
+                        Text("连接 Apple Watch 并完成锻炼后，将对比计划运动消耗")
                             .font(.caption2)
                             .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                     }
@@ -809,6 +859,24 @@ struct WorkoutPlanView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .morandiCard()
+    }
+
+    @ViewBuilder
+    private var planCoachSection: some View {
+        if !weekEntries.isEmpty {
+            WorkoutPlanCoachSection(
+                weekStart: weekStart,
+                weekEntries: weekEntries,
+                exercisesBySession: exercisesBySession,
+                todayEntry: todayEntry,
+                phaseLabel: phaseInfo.label,
+                healthProfile: healthProfileSummary,
+                genderLabel: genderLabel,
+                onPlanUpdated: {
+                    Task { await loadWeek(force: true) }
+                }
+            )
+        }
     }
 
     @ViewBuilder

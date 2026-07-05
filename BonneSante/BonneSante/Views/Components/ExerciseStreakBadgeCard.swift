@@ -42,7 +42,7 @@ struct ExerciseStreakBadgeCard: View {
                                 }
                             }
                         Text(day.weekdayShort)
-                            .font(.system(size: 10, weight: day.isToday ? .semibold : .regular))
+                            .fixedFont(size: 10, weight: day.isToday ? .semibold : .regular)
                             .foregroundStyle(
                                 day.isToday
                                     ? Theme.adaptiveAccent(colorScheme)

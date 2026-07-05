@@ -42,7 +42,7 @@ struct FoodListView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "fork.knife.circle")
-                .font(.system(size: 48))
+                .fixedFont(size: 48)
                 .foregroundStyle(.secondary)
             Text("今天还没有记录")
                 .font(.headline)

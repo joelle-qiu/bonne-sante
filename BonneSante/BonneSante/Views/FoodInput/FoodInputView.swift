@@ -214,7 +214,7 @@ struct FoodInputView: View {
                 .frame(height: 40)
 
             Image(systemName: "key.fill")
-                .font(.system(size: 50))
+                .fixedFont(size: 50)
                 .foregroundStyle(.orange)
 
             Text("需要设置 API 密钥")
@@ -421,14 +421,22 @@ struct FoodInputView: View {
             ? photoInputMode.placeholderWithImage
             : (photoInputMode == .nutritionLabel
                 ? "请先拍摄包装营养表；也可文字描述产品+份量"
-                : "例如：午饭一碗米饭、下午茶咖啡、昨晚夜宵烧烤")
+                : "例：中午吃了番茄炒蛋、水煮肉片、紫米饭，吃撑了")
 
-        return TextField(placeholder, text: $inputText, axis: .vertical)
-            .textFieldStyle(.plain)
-            .padding()
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .lineLimit(3...6)
+        return VStack(alignment: .leading, spacing: 6) {
+            TextField(placeholder, text: $inputText, axis: .vertical)
+                .textFieldStyle(.plain)
+                .padding()
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .lineLimit(4...8)
+
+            if selectedImage == nil && photoInputMode == .mealPhoto {
+                Text("只写菜名即可，不必称克重；句末加「七分饱」「吃撑了」更准确")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     private func errorView(_ message: String) -> some View {

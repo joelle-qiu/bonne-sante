@@ -39,9 +39,11 @@
 		A100001F238ABCDE /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110001F238ABCDE /* ChatMessage.swift */; };
 		A1000022238ABCDE /* FoodPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100022238ABCDE /* FoodPreference.swift */; };
 		A1000023238ABCDE /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100023238ABCDE /* DebugLogger.swift */; };
+		A10000B3238ABCDE /* FoodFullnessScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B3238ABCDE /* FoodFullnessScale.swift */; };
 		A1000024238ABCDE /* APIKeySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100024238ABCDE /* APIKeySetupView.swift */; };
 		A1000025238ABCDE /* DataMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100025238ABCDE /* DataMigrationService.swift */; };
 		A1000030238ABCDE /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100030238ABCDE /* Theme.swift */; };
+		A10000B4238ABCDE /* ElderModeSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B4238ABCDE /* ElderModeSupport.swift */; };
 		A1000099238ABCDE /* MuscleGroupPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100099238ABCDE /* MuscleGroupPalette.swift */; };
 		A10000AA238ABCDE /* HealthIntelligenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000AA238ABCDE /* HealthIntelligenceEngine.swift */; };
 		A1000031238ABCDE /* IntegratedTDEEEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100031238ABCDE /* IntegratedTDEEEngine.swift */; };
@@ -50,6 +52,11 @@
 		A1000034238ABCDE /* CycleProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100034238ABCDE /* CycleProfile.swift */; };
 		A1000035238ABCDE /* CycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100035238ABCDE /* CycleEngine.swift */; };
 		A1000036238ABCDE /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100036238ABCDE /* EmptyStateView.swift */; };
+		A10000B5238ABCDE /* CollapsibleSectionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B5238ABCDE /* CollapsibleSectionCard.swift */; };
+		A10000B6238ABCDE /* HomeCyclePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B6238ABCDE /* HomeCyclePanel.swift */; };
+		A10000B7238ABCDE /* HealthDataBackupManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B7238ABCDE /* HealthDataBackupManifest.swift */; };
+		A10000B8238ABCDE /* HealthDataBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B8238ABCDE /* HealthDataBackupService.swift */; };
+		A10000B9238ABCDE /* CoachChatComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B9238ABCDE /* CoachChatComponents.swift */; };
 		A1000037238ABCDE /* CircularProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100037238ABCDE /* CircularProgress.swift */; };
 		A1000038238ABCDE /* PhaseBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100038238ABCDE /* PhaseBar.swift */; };
 		A100007C238ABCDE /* DailyEnergyBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110007C238ABCDE /* DailyEnergyBoard.swift */; };
@@ -100,6 +107,7 @@
 		A1000097238ABCDE /* WorkoutExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100097238ABCDE /* WorkoutExercise.swift */; };
 		A1000098238ABCDE /* WorkoutSessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1100098238ABCDE /* WorkoutSessionDetailView.swift */; };
 		A100009A238ABCDE /* WorkoutCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110009A238ABCDE /* WorkoutCalendarView.swift */; };
+		A10000B0238ABCDE /* WorkoutPlanCoachSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000B0238ABCDE /* WorkoutPlanCoachSection.swift */; };
 		A100009B238ABCDE /* WorkoutCalendarEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A110009B238ABCDE /* WorkoutCalendarEngine.swift */; };
 		A10000A0238ABCDE /* ClinicAppointmentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000A0238ABCDE /* ClinicAppointmentParser.swift */; };
 		A10000A1238ABCDE /* ClinicAppointmentAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11000A1238ABCDE /* ClinicAppointmentAIService.swift */; };
@@ -177,9 +185,11 @@
 		A1100021238ABCDE /* BonneSante.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BonneSante.entitlements; sourceTree = "<group>"; };
 		A1100022238ABCDE /* FoodPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodPreference.swift; sourceTree = "<group>"; };
 		A1100023238ABCDE /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		A11000B3238ABCDE /* FoodFullnessScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodFullnessScale.swift; sourceTree = "<group>"; };
 		A1100024238ABCDE /* APIKeySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeySetupView.swift; sourceTree = "<group>"; };
 		A1100025238ABCDE /* DataMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataMigrationService.swift; sourceTree = "<group>"; };
 		A1100030238ABCDE /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		A11000B4238ABCDE /* ElderModeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElderModeSupport.swift; sourceTree = "<group>"; };
 		A1100099238ABCDE /* MuscleGroupPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleGroupPalette.swift; sourceTree = "<group>"; };
 		A11000AA238ABCDE /* HealthIntelligenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthIntelligenceEngine.swift; sourceTree = "<group>"; };
 		A1100031238ABCDE /* IntegratedTDEEEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegratedTDEEEngine.swift; sourceTree = "<group>"; };
@@ -188,6 +198,11 @@
 		A1100034238ABCDE /* CycleProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleProfile.swift; sourceTree = "<group>"; };
 		A1100035238ABCDE /* CycleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleEngine.swift; sourceTree = "<group>"; };
 		A1100036238ABCDE /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		A11000B5238ABCDE /* CollapsibleSectionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleSectionCard.swift; sourceTree = "<group>"; };
+		A11000B6238ABCDE /* HomeCyclePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCyclePanel.swift; sourceTree = "<group>"; };
+		A11000B7238ABCDE /* HealthDataBackupManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataBackupManifest.swift; sourceTree = "<group>"; };
+		A11000B8238ABCDE /* HealthDataBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataBackupService.swift; sourceTree = "<group>"; };
+		A11000B9238ABCDE /* CoachChatComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachChatComponents.swift; sourceTree = "<group>"; };
 		A1100037238ABCDE /* CircularProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgress.swift; sourceTree = "<group>"; };
 		A1100038238ABCDE /* PhaseBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseBar.swift; sourceTree = "<group>"; };
 		A110007C238ABCDE /* DailyEnergyBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyEnergyBoard.swift; sourceTree = "<group>"; };
@@ -236,6 +251,7 @@
 		A1100097238ABCDE /* WorkoutExercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutExercise.swift; sourceTree = "<group>"; };
 		A1100098238ABCDE /* WorkoutSessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionDetailView.swift; sourceTree = "<group>"; };
 		A110009A238ABCDE /* WorkoutCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCalendarView.swift; sourceTree = "<group>"; };
+		A11000B0238ABCDE /* WorkoutPlanCoachSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanCoachSection.swift; sourceTree = "<group>"; };
 		A110009B238ABCDE /* WorkoutCalendarEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCalendarEngine.swift; sourceTree = "<group>"; };
 		A11000A0238ABCDE /* ClinicAppointmentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicAppointmentParser.swift; sourceTree = "<group>"; };
 		A11000A1238ABCDE /* ClinicAppointmentAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicAppointmentAIService.swift; sourceTree = "<group>"; };
@@ -374,7 +390,10 @@
 				A1100009238ABCDE /* APIKeyManager.swift */,
 				A110001B238ABCDE /* Secrets.swift */,
 				A1100023238ABCDE /* DebugLogger.swift */,
+				A11000B3238ABCDE /* FoodFullnessScale.swift */,
 				A1100025238ABCDE /* DataMigrationService.swift */,
+				A11000B7238ABCDE /* HealthDataBackupManifest.swift */,
+				A11000B8238ABCDE /* HealthDataBackupService.swift */,
 				A1100031238ABCDE /* IntegratedTDEEEngine.swift */,
 				A11000AA238ABCDE /* HealthIntelligenceEngine.swift */,
 				A1100032238ABCDE /* UnifiedHealthContext.swift */,
@@ -458,6 +477,7 @@
 			children = (
 				A1100011238ABCDE /* Assets.xcassets */,
 				A1100030238ABCDE /* Theme.swift */,
+				A11000B4238ABCDE /* ElderModeSupport.swift */,
 				A1100099238ABCDE /* MuscleGroupPalette.swift */,
 			);
 			path = Resources;
@@ -499,6 +519,9 @@
 				A110000E238ABCDE /* NutritionCard.swift */,
 				A110000F238ABCDE /* CalorieBalanceView.swift */,
 				A1100036238ABCDE /* EmptyStateView.swift */,
+				A11000B5238ABCDE /* CollapsibleSectionCard.swift */,
+				A11000B9238ABCDE /* CoachChatComponents.swift */,
+				A11000B6238ABCDE /* HomeCyclePanel.swift */,
 				A1100037238ABCDE /* CircularProgress.swift */,
 				A1100038238ABCDE /* PhaseBar.swift */,
 				A110007C238ABCDE /* DailyEnergyBoard.swift */,
@@ -586,6 +609,7 @@
 			children = (
 				A110005F238ABCDE /* TasksTabView.swift */,
 				A1100096238ABCDE /* WorkoutPlanView.swift */,
+				A11000B0238ABCDE /* WorkoutPlanCoachSection.swift */,
 				A110009A238ABCDE /* WorkoutCalendarView.swift */,
 				A11000A4238ABCDE /* ClinicAppointmentImportView.swift */,
 				A1100098238ABCDE /* WorkoutSessionDetailView.swift */,
@@ -701,9 +725,13 @@
 				A100001F238ABCDE /* ChatMessage.swift in Sources */,
 				A1000022238ABCDE /* FoodPreference.swift in Sources */,
 				A1000023238ABCDE /* DebugLogger.swift in Sources */,
+				A10000B3238ABCDE /* FoodFullnessScale.swift in Sources */,
 				A1000024238ABCDE /* APIKeySetupView.swift in Sources */,
 				A1000025238ABCDE /* DataMigrationService.swift in Sources */,
+				A10000B7238ABCDE /* HealthDataBackupManifest.swift in Sources */,
+				A10000B8238ABCDE /* HealthDataBackupService.swift in Sources */,
 				A1000030238ABCDE /* Theme.swift in Sources */,
+				A10000B4238ABCDE /* ElderModeSupport.swift in Sources */,
 				A1000099238ABCDE /* MuscleGroupPalette.swift in Sources */,
 				A1000031238ABCDE /* IntegratedTDEEEngine.swift in Sources */,
 				A10000AA238ABCDE /* HealthIntelligenceEngine.swift in Sources */,
@@ -712,6 +740,9 @@
 				A1000034238ABCDE /* CycleProfile.swift in Sources */,
 				A1000035238ABCDE /* CycleEngine.swift in Sources */,
 				A1000036238ABCDE /* EmptyStateView.swift in Sources */,
+				A10000B5238ABCDE /* CollapsibleSectionCard.swift in Sources */,
+				A10000B9238ABCDE /* CoachChatComponents.swift in Sources */,
+				A10000B6238ABCDE /* HomeCyclePanel.swift in Sources */,
 				A1000037238ABCDE /* CircularProgress.swift in Sources */,
 				A1000038238ABCDE /* PhaseBar.swift in Sources */,
 				A100007C238ABCDE /* DailyEnergyBoard.swift in Sources */,
@@ -752,6 +783,7 @@
 				A1000094238ABCDE /* WorkoutPlanAIService.swift in Sources */,
 				A1000095238ABCDE /* WorkoutPlanService.swift in Sources */,
 				A1000096238ABCDE /* WorkoutPlanView.swift in Sources */,
+				A10000B0238ABCDE /* WorkoutPlanCoachSection.swift in Sources */,
 				A1000097238ABCDE /* WorkoutExercise.swift in Sources */,
 				A1000098238ABCDE /* WorkoutSessionDetailView.swift in Sources */,
 				A100009A238ABCDE /* WorkoutCalendarView.swift in Sources */,

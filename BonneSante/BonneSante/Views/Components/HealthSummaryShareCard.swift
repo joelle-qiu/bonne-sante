@@ -39,7 +39,7 @@ struct HealthSummaryShareCard: View {
                     .foregroundStyle(.secondary)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(abs(remainingCalories))")
-                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .fixedFont(size: 44, weight: .bold, design: .rounded)
                     Text("kcal")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)

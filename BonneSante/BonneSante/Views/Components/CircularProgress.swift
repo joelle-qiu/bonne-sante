@@ -30,7 +30,7 @@ struct CircularProgress: View {
                     .font(.caption)
                     .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
                 Text("\(Int(abs(remaining)))")
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .fixedFont(size: 36, weight: .bold, design: .rounded)
                     .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                     .minimumScaleFactor(0.7)
                 Text("大卡")

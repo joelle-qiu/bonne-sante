@@ -65,7 +65,7 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Spacer()
             Image(systemName: "heart.text.clipboard.fill")
-                .font(.system(size: 64))
+                .fixedFont(size: 64)
                 .foregroundStyle(Theme.brandPrimary(colorScheme))
             Text("欢迎使用 Bonne-Santé")
                 .font(.title.bold())
@@ -82,7 +82,7 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Spacer()
             Image(systemName: "applewatch.watchface")
-                .font(.system(size: 56))
+                .fixedFont(size: 56)
                 .foregroundStyle(Theme.accent)
             Text("连接 Apple 健康")
                 .font(.title2.bold())

@@ -5,33 +5,31 @@ import SwiftUI
 struct CycleTipsCard: View {
     let phaseInfo: CycleEngine.PhaseInfo
     var compact: Bool = false
+    /// 嵌入首页周期面板时不重复绘制卡片与「周期建议」标题
+    var embedded: Bool = false
 
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: compact ? 8 : 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(Theme.phaseAccent(phaseInfo.phase, colorScheme))
-                Text("周期建议")
-                    .font(compact ? .subheadline.weight(.semibold) : .headline)
-                    .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                Spacer()
-                Text(phaseInfo.dataSource.label)
-                    .font(.caption2)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+            if !embedded {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(Theme.phaseAccent(phaseInfo.phase, colorScheme))
+                    Text("周期建议")
+                        .font(compact ? .subheadline.weight(.semibold) : .headline)
+                        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+                    Spacer()
+                    Text(phaseInfo.dataSource.label)
+                        .font(.caption2)
+                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                }
             }
 
             tipRow(icon: "fork.knife", title: "饮食", text: phaseInfo.dietTip)
             tipRow(icon: "figure.run", title: "训练", text: phaseInfo.workoutTip)
         }
-        .padding(compact ? 12 : 16)
-        .background(Theme.phaseBarBackground(phaseInfo.phase, colorScheme))
-        .overlay {
-            RoundedRectangle(cornerRadius: Theme.cornerRadiusCard)
-                .strokeBorder(Theme.phaseBarBorder(phaseInfo.phase, colorScheme), lineWidth: 1)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
+        .modifier(CycleTipsCardChromeModifier(phase: phaseInfo.phase, compact: compact, embedded: embedded))
     }
 
     private func tipRow(icon: String, title: String, text: String) -> some View {
@@ -49,6 +47,29 @@ struct CycleTipsCard: View {
                     .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
                     .fixedSize(horizontal: false, vertical: true)
             }
+        }
+    }
+}
+
+private struct CycleTipsCardChromeModifier: ViewModifier {
+    let phase: CyclePhase
+    let compact: Bool
+    let embedded: Bool
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        if embedded {
+            content
+        } else {
+            content
+                .padding(compact ? 12 : 16)
+                .background(Theme.phaseBarBackground(phase, colorScheme))
+                .overlay {
+                    RoundedRectangle(cornerRadius: Theme.cornerRadiusCard)
+                        .strokeBorder(Theme.phaseBarBorder(phase, colorScheme), lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
         }
     }
 }

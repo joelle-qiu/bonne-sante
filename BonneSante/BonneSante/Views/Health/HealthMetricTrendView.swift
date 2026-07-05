@@ -153,7 +153,7 @@ struct HealthMetricTrendView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "chart.xyaxis.line")
-                .font(.system(size: 40))
+                .fixedFont(size: 40)
                 .foregroundStyle(Theme.textSecondary)
             Text("暂无可对比的趋势")
                 .font(.headline)

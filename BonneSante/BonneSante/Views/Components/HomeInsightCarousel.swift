@@ -14,6 +14,7 @@ struct HomeInsightCarousel: View {
     let items: [Item]
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.elderModeEnabled) private var elderModeEnabled
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -21,15 +22,25 @@ struct HomeInsightCarousel: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+            if elderModeEnabled {
+                VStack(spacing: 12) {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         card(item)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .morandiCardAppear(delay: Double(index) * 0.05)
                     }
                 }
-                .padding(.horizontal, 2)
-                .padding(.vertical, 2)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                            card(item)
+                                .morandiCardAppear(delay: Double(index) * 0.05)
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 2)
+                }
             }
         }
     }
@@ -42,17 +53,19 @@ struct HomeInsightCarousel: View {
             Text(item.title)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
-                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
             Text(item.subtitle)
                 .font(.caption)
                 .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                .lineLimit(2)
-                .minimumScaleFactor(0.85)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Spacer(minLength: 0)
+            if !elderModeEnabled {
+                Spacer(minLength: 0)
+            }
         }
-        .frame(width: 168, height: 108, alignment: .topLeading)
         .padding(14)
+        .frame(width: elderModeEnabled ? nil : 168, alignment: .topLeading)
+        .frame(minHeight: elderModeEnabled ? nil : 108, alignment: .topLeading)
         .background(Theme.cardBackground(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
         .overlay(

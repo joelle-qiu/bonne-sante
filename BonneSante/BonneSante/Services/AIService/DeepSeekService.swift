@@ -32,11 +32,13 @@ final class DeepSeekService: AIServiceProtocol {
             model: model,
             messages: [
                 ChatMessagePayload(role: "system", content: systemPrompt),
-                ChatMessagePayload(role: "user", content: input)
+                ChatMessagePayload(role: "user", content: FoodParsingPrompt.textOnlyUserPrompt(input))
             ]
         )
 
-        return try await sendTextRequestMultiple(requestBody, apiKey: apiKey)
+        var items = try await sendTextRequestMultiple(requestBody, apiKey: apiKey)
+        items = FoodFullnessScale.applyMealFactorIfNeeded(to: items, inputText: input)
+        return items
     }
 
     func parseFoodImage(_ image: UIImage, additionalContext: String? = nil, preferences: [FoodPreference] = []) async throws -> NutritionInfo {
@@ -62,7 +64,11 @@ final class DeepSeekService: AIServiceProtocol {
             systemPrompt: FoodParsingPrompt.systemPrompt(with: preferences),
             userPrompt: userPrompt
         )
-        return try parseNutritionJSON(from: content)
+        let items = try parseNutritionJSON(from: content)
+        if let context = additionalContext {
+            return FoodFullnessScale.applyMealFactorIfNeeded(to: items, inputText: context)
+        }
+        return items
     }
 
     // MARK: - Qwen VL · 包装营养表

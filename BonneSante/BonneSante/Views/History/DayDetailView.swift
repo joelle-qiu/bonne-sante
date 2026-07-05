@@ -40,7 +40,7 @@ struct DayDetailView: View {
                         .font(.headline)
 
                     Text("\(totalCalories.formattedCalories)")
-                        .font(.system(size: 48, weight: .bold))
+                        .fixedFont(size: 48, weight: .bold)
                         .foregroundStyle(.orange)
 
                     Text("千卡")

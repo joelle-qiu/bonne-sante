@@ -144,6 +144,39 @@ struct WorkoutSnapshot: Identifiable, Sendable {
     let activeCalories: Double
 }
 
+/// 单日能量趋势点（供 AI 教练与趋势分析）
+struct DailyEnergyTrendPoint: Identifiable, Sendable, Equatable {
+    let id: TimeInterval
+    let date: Date
+    let activeKcal: Double
+    let workoutKcal: Double
+
+    init(date: Date, activeKcal: Double, workoutKcal: Double) {
+        self.id = date.timeIntervalSince1970
+        self.date = date
+        self.activeKcal = activeKcal
+        self.workoutKcal = workoutKcal
+    }
+}
+
+/// 锻炼消耗聚合（纯函数，供计划完成度等模块使用）
+enum WorkoutEnergyCalculator {
+    static func workoutBurn(on date: Date, from workouts: [WorkoutSnapshot]) -> Double {
+        let calendar = Calendar.current
+        let dayStart = calendar.startOfDay(for: date)
+        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+        return workouts
+            .filter { $0.date >= dayStart && $0.date < dayEnd }
+            .reduce(0) { $0 + $1.activeCalories }
+    }
+
+    static func workoutBurn(from start: Date, to end: Date, workouts: [WorkoutSnapshot]) -> Double {
+        workouts
+            .filter { $0.date >= start && $0.date < end }
+            .reduce(0) { $0 + $1.activeCalories }
+    }
+}
+
 /// Apple 健康能量与活动快照（近7日均值 + 今日）
 /// @author jiali.qiu
 struct EnergyProfileSnapshot: Sendable, Equatable {
@@ -160,6 +193,8 @@ struct EnergyProfileSnapshot: Sendable, Equatable {
     var weekActiveKcal: Double = 0
     /// 本周有活动读数的天数
     var weekActiveSampleDays: Int = 0
+    /// 本周累计锻炼消耗（HK Workout 记录之和，不含日常活动）
+    var weekWorkoutKcal: Double = 0
 
     static let empty = EnergyProfileSnapshot(
         todayActiveKcal: 0,
@@ -170,7 +205,8 @@ struct EnergyProfileSnapshot: Sendable, Equatable {
         basalSampleDays7d: 0,
         activeSampleDays7d: 0,
         weekActiveKcal: 0,
-        weekActiveSampleDays: 0
+        weekActiveSampleDays: 0,
+        weekWorkoutKcal: 0
     )
 
     var hasWatchData: Bool {
@@ -192,6 +228,8 @@ final class HealthKitService: ObservableObject {
     @Published var energyProfile: EnergyProfileSnapshot = .empty
     @Published var menstrualSnapshot: MenstrualCycleSnapshot = .empty
     @Published var recentWorkouts: [WorkoutSnapshot] = []
+    /// 近 30 日每日活动/锻炼消耗（供 AI 教练）
+    @Published var dailyEnergyTrend: [DailyEnergyTrendPoint] = []
 
     var totalCaloriesBurned: Double {
         activeCaloriesBurned + basalCaloriesBurned
@@ -302,6 +340,54 @@ final class HealthKitService: ObservableObject {
         }
         energyProfile.weekActiveKcal = weekSum
         energyProfile.weekActiveSampleDays = weekDays
+
+        let weekWorkoutSum = recentWorkouts
+            .filter { $0.date >= mondayStart && $0.date < todayEnd }
+            .reduce(0.0) { $0 + $1.activeCalories }
+        energyProfile.weekWorkoutKcal = weekWorkoutSum
+    }
+
+    /// 近 N 日每日活动与锻炼消耗趋势
+    func fetchDailyEnergyTrend(days: Int = 30) async {
+        await fetchRecentWorkouts(days: days)
+
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        guard let rangeStart = calendar.date(byAdding: .day, value: -(days - 1), to: todayStart) else {
+            dailyEnergyTrend = []
+            return
+        }
+
+        var points: [DailyEnergyTrendPoint] = []
+        await withTaskGroup(of: DailyEnergyTrendPoint?.self) { group in
+            for offset in 0..<days {
+                guard let dayStart = calendar.date(byAdding: .day, value: offset, to: rangeStart),
+                      let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { continue }
+                group.addTask {
+                    let active = await self.fetchCaloriesBetween(
+                        identifier: .activeEnergyBurned,
+                        start: dayStart,
+                        end: dayEnd
+                    )
+                    let workoutKcal = await MainActor.run {
+                        self.recentWorkouts
+                            .filter { $0.date >= dayStart && $0.date < dayEnd }
+                            .reduce(0.0) { $0 + $1.activeCalories }
+                    }
+                    guard active > 0 || workoutKcal > 0 else { return nil }
+                    return DailyEnergyTrendPoint(date: dayStart, activeKcal: active, workoutKcal: workoutKcal)
+                }
+            }
+            for await point in group {
+                if let point { points.append(point) }
+            }
+        }
+        dailyEnergyTrend = points.sorted { $0.date < $1.date }
+    }
+
+    /// 指定日期的锻炼消耗合计（HK Workout）
+    func workoutBurn(on date: Date) -> Double {
+        WorkoutEnergyCalculator.workoutBurn(on: date, from: recentWorkouts)
     }
 
     private func average(_ values: [Double]) -> Double? {
@@ -713,7 +799,7 @@ final class HealthKitService: ObservableObject {
     }
 
     /// 读取近 N 天 Apple 健康锻炼记录
-    func fetchRecentWorkouts(days: Int = 14) async {
+    func fetchRecentWorkouts(days: Int = 30) async {
         let start = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         let snapshots = await loadWorkouts(from: start, to: Date(), limit: 120)
         recentWorkouts = snapshots

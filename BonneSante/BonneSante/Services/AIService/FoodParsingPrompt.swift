@@ -17,7 +17,7 @@ enum FoodPhotoInputMode: String, CaseIterable, Identifiable {
     var instruction: String {
         switch self {
         case .mealPhoto:
-            return "拍照 + 文字一起用更准：说明食物名称、重量、吃了几分饱"
+            return "拍照 + 文字一起用更准：可只写菜名，句末加「七分饱」「吃撑了」"
         case .nutritionLabel:
             return "拍摄包装上的营养成分表，按表内数值录入（可在下方补充吃了多少）"
         }
@@ -26,7 +26,7 @@ enum FoodPhotoInputMode: String, CaseIterable, Identifiable {
     var placeholderWithImage: String {
         switch self {
         case .mealPhoto:
-            return "例：鸡胸肉约150g、七分饱；或 米饭一碗、五分饱"
+            return "例：番茄炒蛋、紫米饭，七分饱；或 鸡胸肉约150g"
         case .nutritionLabel:
             return "例如：吃了1袋（40g）、半包、200ml、一整份"
         }
@@ -41,6 +41,21 @@ enum FoodPhotoInputMode: String, CaseIterable, Identifiable {
 }
 
 enum FoodParsingPrompt {
+    static let fullnessRules = """
+【几分饱 / 饱度（整餐适用）】
+- 用户句末或句中的饱度描述作用于**整餐所有食物**，在各自标准估重后再统一缩放 grams 与全部营养素
+- 映射：浅尝/两口≈15% · 三分≈30% · 五分/半饱≈50% · 六分≈60% · 七分≈70% · 八分≈80% · 九分≈90% · 吃饱/十分≈100% · 吃撑了/撑了≈110%
+- notes 必须写明「标准估重 + 饱度缩放」，例如「食堂单份估重；已按吃撑110%缩放」
+"""
+
+    static let textOnlyMultiDishRules = """
+【仅文字、多道菜、无克重】
+- 用中文逗号/顿号/「和」「还有」拆成多项，每项一个 JSON 对象
+- 未给克重时：按外食/家常**单份**估重（例：番茄炒蛋≈150g、米饭/紫米饭≈150g、狮子头≈1个120g、水煮肉片≈180–220g、炒时蔬≈120g）
+- 整句只有一个饱度（如「吃撑了」「七分饱」）→ 每项先估标准份，再全体乘以饱度系数
+- 识别「中午/午饭/早餐…」填入 meal_type；所有项同一餐次
+"""
+
     static let basePrompt = """
 营养分析师。解析食物返回JSON数组。
 
@@ -50,18 +65,24 @@ enum FoodParsingPrompt {
 meal_type 取值：breakfast | lunch | afternoon_tea | dinner | late_night | snack
 若用户未提及餐次，可省略 meal_type。
 
+\(textOnlyMultiDishRules)
+
+\(fullnessRules)
+
 【照片 + 文字同时提供时】
 - 文字描述优先：食物名称、克数/份量、几分饱必须采纳
 - 图片用于识别种类与辅助估重
-- 几分饱换算（在已有估重基础上缩放 grams 与全部营养素）：
-  · 三分饱≈30% · 五分饱≈50% · 七分饱≈70% · 八分饱≈80% · 吃饱/十分≈100%
-- notes 中简要说明如何结合图片与文字得出结果
+- 若只有几分饱则在图像估重基础上按比例缩放所有营养素
 
 返回格式（必须是数组）：
-[{"food_name":"食物名","grams":100,"calories":200,"protein":10,"carbohydrates":20,"fat":5,"days_ago":0,"meal_type":"lunch"}]
+[{"food_name":"食物名","grams":100,"calories":200,"protein":10,"carbohydrates":20,"fat":5,"days_ago":0,"meal_type":"lunch","confidence":"medium","notes":"说明估重依据"}]
 
 多食物示例：
 [{"food_name":"米饭","grams":150,"calories":195,"protein":4,"carbohydrates":43,"fat":0.5,"days_ago":0,"meal_type":"lunch"},{"food_name":"鸡蛋","grams":50,"calories":72,"protein":6,"carbohydrates":1,"fat":5,"days_ago":0,"meal_type":"lunch"}]
+
+无克重+整餐饱度示例（用户原句）：
+输入：「中午吃了番茄炒蛋，水煮肉片，炒包菜，咸蛋黄狮子头，紫米饭，吃撑了。」
+→ 5项；每项先按食堂单份估重，全体×110%；meal_type 均为 lunch；notes 含估重与饱度说明。
 
 只返回JSON，无其他文字。
 """
@@ -85,6 +106,20 @@ meal_type 取值：breakfast | lunch | afternoon_tea | dinner | late_night | sna
         return prompt
     }
 
+    /// 纯文字录入用户 prompt
+    static func textOnlyUserPrompt(_ input: String) -> String {
+        """
+        【用户饮食描述】
+        \(input)
+
+        请解析为 JSON 数组：
+        - 多个菜名用逗号/顿号分开时，每项单独一条
+        - 无克重则按外食/家常单份估重
+        - 句末「几分饱」「吃撑了」等整餐饱度 → 每项先估标准份再统一缩放；notes 写明依据
+        - 识别餐次关键词填入 meal_type
+        """
+    }
+
     /// 拍食物时用户 prompt（图片 + 可选文字）
     static func mealPhotoUserPrompt(additionalContext: String?) -> String {
         var text = "请识别图片中的食物并估算营养。"
@@ -93,7 +128,7 @@ meal_type 取值：breakfast | lunch | afternoon_tea | dinner | late_night | sna
 
             【用户文字说明（优先于纯图像估算）】
             \(context)
-            请结合图片与用户说明：采纳用户给出的食物名、克数/份量、几分饱；若只有几分饱则在图像估重基础上按比例缩放所有营养素。
+            请结合图片与用户说明：采纳用户给出的食物名、克数/份量、几分饱；若只有几分饱则在图像估重基础上按比例缩放所有营养素；多道菜无克重时按单份估重后整餐饱度缩放。
             """
         } else {
             text += " 用户未补充文字，请根据图片估算份量。"

@@ -93,7 +93,7 @@ struct HistoryView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "calendar.badge.clock")
-                .font(.system(size: 48))
+                .fixedFont(size: 48)
                 .foregroundStyle(.secondary)
             Text("暂无历史记录")
                 .font(.headline)

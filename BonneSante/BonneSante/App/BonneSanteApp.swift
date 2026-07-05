@@ -29,10 +29,15 @@ private struct AppAppearanceHost: View {
         settingsList.first?.preferredAppearance ?? .system
     }
 
+    private var elderModeEnabled: Bool {
+        settingsList.first?.elderModeEnabled ?? false
+    }
+
     var body: some View {
         AppRootView()
             .healthContext(healthContext)
             .preferredColorScheme(appearance.colorScheme)
+            .elderModeRoot(enabled: elderModeEnabled)
             .tint(Theme.primary)
             .task {
                 ensureUserSettings()

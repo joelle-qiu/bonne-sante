@@ -1,20 +1,21 @@
 import SwiftUI
 import SwiftData
 
-/// 运动日历：今日 / 本周仪表盘视图（风格对齐首页能量看板）
+/// 运动日历：本月 / 本周轻量视图
 /// @author jiali.qiu
 struct WorkoutCalendarView: View {
     @Environment(\.healthContext) private var healthContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
 
-    @State private var scope: CalendarScope = .today
+    @State private var scope: CalendarScope = .month
+    @State private var displayMonth: Date = Date()
     @State private var workouts: [WorkoutSnapshot] = []
     @State private var planEntries: [WorkoutPlanEntry] = []
     @State private var selectedDay: Date?
 
     private enum CalendarScope: String, CaseIterable, Identifiable {
-        case today = "今日"
+        case month = "本月"
         case week = "本周"
         var id: String { rawValue }
     }
@@ -22,8 +23,17 @@ struct WorkoutCalendarView: View {
     private var weekStart: Date { WorkoutPlanService.startOfWeek() }
     private var weekEnd: Date { WorkoutPlanService.endOfWeek(from: weekStart) }
 
-    private var todaySummary: WorkoutCalendarEngine.DaySummary {
-        WorkoutCalendarEngine.todaySummary(workouts: workouts, planEntries: planEntries)
+    private var monthStart: Date { WorkoutCalendarEngine.startOfMonth(displayMonth) }
+    private var monthEnd: Date {
+        Calendar.current.date(byAdding: DateComponents(month: 1), to: monthStart) ?? monthStart
+    }
+
+    private var monthGrid: [WorkoutCalendarEngine.DayCell] {
+        WorkoutCalendarEngine.monthGrid(for: displayMonth, workouts: workouts, planEntries: planEntries)
+    }
+
+    private var monthStats: WorkoutCalendarEngine.MonthStats {
+        WorkoutCalendarEngine.monthStats(for: displayMonth, workouts: workouts, planEntries: planEntries)
     }
 
     private var weekSummaries: [WorkoutCalendarEngine.DaySummary] {
@@ -45,8 +55,8 @@ struct WorkoutCalendarView: View {
                 .pickerStyle(.segmented)
 
                 switch scope {
-                case .today:
-                    todayDashboard
+                case .month:
+                    monthDashboard
                 case .week:
                     weekDashboard
                 }
@@ -59,7 +69,7 @@ struct WorkoutCalendarView: View {
         .cycleThemedPageBackground()
         .navigationTitle("运动日历")
         .navigationBarTitleDisplayMode(.inline)
-        .task { await loadData() }
+        .task(id: loadKey) { await loadData() }
         .refreshable { await loadData() }
         .sheet(item: Binding(
             get: { selectedDay.map { DaySelection(date: $0) } },
@@ -72,27 +82,160 @@ struct WorkoutCalendarView: View {
         }
     }
 
-    // MARK: - Today
+    private var loadKey: String {
+        switch scope {
+        case .month:
+            return "month-\(Int(monthStart.timeIntervalSince1970))"
+        case .week:
+            return "week-\(Int(weekStart.timeIntervalSince1970))"
+        }
+    }
 
-    private var todayDashboard: some View {
-        VStack(spacing: 16) {
-            dayHeroCard(todaySummary, title: "今日运动")
+    // MARK: - Month
 
-            if let plan = todaySummary.plannedType {
-                planCard(
-                    type: plan,
-                    minutes: todaySummary.planTargetMinutes,
-                    calories: todaySummary.planTargetCalories,
-                    completed: todaySummary.planCompleted
-                )
+    private var monthDashboard: some View {
+        VStack(spacing: 12) {
+            monthHeader
+            monthStatsRow
+            weekdayHeader
+            monthGridView
+        }
+    }
+
+    private var monthHeader: some View {
+        HStack {
+            Button {
+                shiftMonth(by: -1)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.subheadline.weight(.semibold))
             }
+            .buttonStyle(.plain)
 
-            let todayWorkouts = WorkoutCalendarEngine.workouts(on: Date(), from: workouts)
-            if todayWorkouts.isEmpty {
-                emptyDayHint("今天还没有 Apple 健康锻炼记录")
+            Spacer()
+            Text(monthTitle)
+                .font(.headline)
+            Spacer()
+
+            Button {
+                shiftMonth(by: 1)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.subheadline.weight(.semibold))
+            }
+            .buttonStyle(.plain)
+        }
+        .foregroundStyle(Theme.adaptiveTextPrimary(colorScheme))
+    }
+
+    private var monthTitle: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "yyyy年M月"
+        return formatter.string(from: displayMonth)
+    }
+
+    private var monthStatsRow: some View {
+        HStack(spacing: 8) {
+            compactStat("\(monthStats.activeDays)", label: "活跃天")
+            compactStat("\(Int(monthStats.totalMinutes))", label: "分钟")
+            compactStat("\(Int(monthStats.totalCalories))", label: "kcal")
+            if monthStats.plannedDays > 0 {
+                compactStat("\(monthStats.completedPlanDays)/\(monthStats.plannedDays)", label: "计划")
+            }
+        }
+    }
+
+    private func compactStat(_ value: String, label: String) -> some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.caption.weight(.semibold))
+                .monospacedDigit()
+            Text(label)
+                .fixedFont(size: 9)
+                .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Theme.cardBackground(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var weekdayHeader: some View {
+        HStack(spacing: 0) {
+            ForEach(["一", "二", "三", "四", "五", "六", "日"], id: \.self) { label in
+                Text(label)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private var monthGridView: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
+            ForEach(monthGrid) { cell in
+                if cell.isPlaceholder {
+                    Color.clear.frame(height: 44)
+                } else if let date = cell.date {
+                    Button {
+                        selectedDay = date
+                    } label: {
+                        monthDayCell(cell, date: date)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(10)
+        .background(Theme.cardBackground(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadiusCard))
+    }
+
+    private func monthDayCell(_ cell: WorkoutCalendarEngine.DayCell, date: Date) -> some View {
+        let calendar = Calendar.current
+        let isToday = calendar.isDateInToday(date)
+        let day = calendar.component(.day, from: date)
+
+        return VStack(spacing: 3) {
+            Text("\(day)")
+                .font(.caption.weight(isToday ? .bold : .regular))
+                .foregroundStyle(isToday ? Theme.adaptiveAccent(colorScheme) : Theme.adaptiveTextPrimary(colorScheme))
+
+            if cell.workoutCount > 0 {
+                Circle()
+                    .fill(heatColor(cell.heatLevel))
+                    .frame(width: 5, height: 5)
+            } else if cell.plannedTitle != nil {
+                Circle()
+                    .stroke(Theme.adaptiveAccent(colorScheme).opacity(0.5), lineWidth: 1)
+                    .frame(width: 5, height: 5)
             } else {
-                workoutListCard(todayWorkouts, title: "锻炼记录")
+                Color.clear.frame(width: 5, height: 5)
             }
+
+            if cell.planCompleted {
+                Image(systemName: "checkmark")
+                    .fixedFont(size: 7, weight: .bold)
+                    .foregroundStyle(Theme.adaptiveAccent(colorScheme))
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 44)
+        .background(isToday ? Theme.adaptiveAccent(colorScheme).opacity(0.12) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+
+    private func heatColor(_ level: Int) -> Color {
+        switch level {
+        case 3: return Theme.macroProtein(colorScheme)
+        case 2: return Theme.energyActive(colorScheme)
+        default: return Theme.adaptiveAccent(colorScheme).opacity(0.7)
+        }
+    }
+
+    private func shiftMonth(by offset: Int) {
+        if let next = Calendar.current.date(byAdding: .month, value: offset, to: displayMonth) {
+            displayMonth = next
         }
     }
 
@@ -180,113 +323,7 @@ struct WorkoutCalendarView: View {
         )
     }
 
-    // MARK: - Shared cards
-
-    private func dayHeroCard(_ day: WorkoutCalendarEngine.DaySummary, title: String) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(title)
-                .font(.headline)
-            HStack(spacing: 16) {
-                ringMetric(
-                    progress: min(day.totalMinutes / max(Double(day.planTargetMinutes), 30), 1),
-                    center: "\(Int(day.totalMinutes))",
-                    subtitle: "分钟",
-                    color: Theme.energyActive(colorScheme)
-                )
-                ringMetric(
-                    progress: min(day.totalCalories / max(day.planTargetCalories, 200), 1),
-                    center: "\(Int(day.totalCalories))",
-                    subtitle: "kcal",
-                    color: Theme.macroProtein(colorScheme)
-                )
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(day.workoutCount) 次锻炼")
-                        .font(.subheadline.weight(.semibold))
-                    if day.planTargetMinutes > 0 {
-                        Text("计划 \(day.planTargetMinutes) 分钟")
-                            .font(.caption)
-                            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                    }
-                    if day.heatLevel > 0 {
-                        Text(heatLabel(day.heatLevel))
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(Theme.adaptiveAccent(colorScheme))
-                    }
-                }
-                Spacer(minLength: 0)
-            }
-        }
-        .morandiCard()
-    }
-
-    private func planCard(type: String, minutes: Int, calories: Double, completed: Bool) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: completed ? "checkmark.seal.fill" : "figure.run")
-                .font(.title2)
-                .foregroundStyle(completed ? Theme.adaptiveAccent(colorScheme) : Theme.brandPrimary(colorScheme))
-            VStack(alignment: .leading, spacing: 4) {
-                Text("今日训练计划")
-                    .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                Text(type)
-                    .font(.headline)
-                Text("\(minutes) 分钟 · 目标 \(Int(calories)) kcal")
-                    .font(.caption)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            }
-            Spacer()
-        }
-        .morandiCard()
-    }
-
-    private func workoutListCard(_ items: [WorkoutSnapshot], title: String) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-            ForEach(items) { item in
-                HStack {
-                    Text(item.activityLabel)
-                        .font(.subheadline)
-                    Spacer()
-                    Text("\(Int(item.durationMinutes)) 分 · \(Int(item.activeCalories)) kcal")
-                        .font(.caption)
-                        .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-                }
-                if item.id != items.last?.id {
-                    Divider()
-                }
-            }
-        }
-        .morandiCard()
-    }
-
-    private func emptyDayHint(_ text: String) -> some View {
-        Text(text)
-            .font(.caption)
-            .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .morandiCard()
-    }
-
-    private func ringMetric(progress: Double, center: String, subtitle: String, color: Color) -> some View {
-        ZStack {
-            Circle()
-                .stroke(color.opacity(0.18), lineWidth: 8)
-                .frame(width: 72, height: 72)
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(color, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .frame(width: 72, height: 72)
-            VStack(spacing: 0) {
-                Text(center)
-                    .font(.headline)
-                Text(subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
-            }
-        }
-    }
+    // MARK: - Shared
 
     private func metricTile(icon: String, label: String, value: String, unit: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -317,14 +354,6 @@ struct WorkoutCalendarView: View {
         .frame(height: 4)
     }
 
-    private func heatLabel(_ level: Int) -> String {
-        switch level {
-        case 3: return "高强度"
-        case 2: return "中等强度"
-        default: return "轻度活动"
-        }
-    }
-
     private func weekdayShort(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "zh_CN")
@@ -333,16 +362,23 @@ struct WorkoutCalendarView: View {
     }
 
     private var disclaimer: some View {
-        Text("数据来自 Apple 健康；计划场次来自本周训练计划。")
+        Text("数据来自 Apple 健康；计划场次来自训练计划。")
             .font(.caption2)
             .foregroundStyle(Theme.adaptiveTextSecondary(colorScheme))
             .multilineTextAlignment(.center)
     }
 
     private func loadData() async {
-        await healthContext?.healthKitService.fetchWorkouts(from: weekStart, to: weekEnd)
-        workouts = healthContext?.healthKitService.recentWorkouts ?? []
-        planEntries = WorkoutPlanService.entries(from: weekStart, to: weekEnd, modelContext: modelContext)
+        switch scope {
+        case .month:
+            await healthContext?.healthKitService.fetchWorkouts(from: monthStart, to: monthEnd)
+            workouts = healthContext?.healthKitService.recentWorkouts ?? []
+            planEntries = WorkoutPlanService.entries(from: monthStart, to: monthEnd, modelContext: modelContext)
+        case .week:
+            await healthContext?.healthKitService.fetchWorkouts(from: weekStart, to: weekEnd)
+            workouts = healthContext?.healthKitService.recentWorkouts ?? []
+            planEntries = WorkoutPlanService.entries(from: weekStart, to: weekEnd, modelContext: modelContext)
+        }
     }
 }
 
